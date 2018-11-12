@@ -100,18 +100,17 @@ The calendar day number is always a number between 1 and 365.25 (taking into acc
 
 The integral of the solar height equals:
 
-![img](file:///C:\Users\thiemve\AppData\Local\Temp\msohtmlclip1\01\clip_image012.gif)   (2-4)
+   $\int sin \beta \ dt_h = 3600(L_d \cdot sin \ \delta \cdot sin \ \lambda + \frac{24}{\pi} \cdot cos \ \delta \cdot cos \ \lambda \cdot \sqrt{1-(tan \ \delta \cdot tan \ \lambda)^2})$
 
  
 
 where:
 
- 
+​    $L_d$	Astronomical day length $[h]$
 
-| *Ld* | : Astronomical   day length [h] |
-| ---- | ------------------------------- |
-| *δ*  | : Solar   declination [°]       |
-| *λ*  | : Latitude [°]                  |
+   $\delta$		Solar declination $[^\circ]$
+
+   $\lambda$		Latitude $[^\circ]$
 
  
 
