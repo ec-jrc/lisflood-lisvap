@@ -24,7 +24,7 @@ The same equation is also used to estimate potential evaporation from a water su
 
  
 
-![img](file:///C:\Users\thiemve\AppData\Local\Temp\msohtmlclip1\01\clip_image004.jpg)
+![img](..\media\figure1.jpg)
 
 **Figure:** *Overview of procedure to calculate potential reference evapo(transpi)ration. Terms with an asterisk (\*) are calculated separately for a reference vegetation canopy, a bare soil surface and an open water surface, respectively.*
 
@@ -98,7 +98,7 @@ The integral of the solar height equals:
 $$
 \int sin \beta \ dt_h = 3600(L_d \cdot sin \ \delta \cdot sin \ \lambda + \frac{24}{\pi} \cdot cos \ \delta \cdot cos \ \lambda \cdot \sqrt{1-(tan \ \delta \cdot tan \ \lambda)^2})
 $$
- 
+
 
 where:
 
@@ -112,15 +112,13 @@ where:
 
 The solar declination is a simple function of the calendar day number (*td*):
 
- 
+
 $$
 \delta = -23.45 \cdot cos[\frac{360(t_d + 10)}{365}]
 $$
 Day length is given by:
 
- 
-
-![img](file:///C:\Users\thiemve\AppData\Local\Temp\msohtmlclip1\01\clip_image016.gif)                                         (2-6)
+ $$  \begin{cases} L_d = 12+ \frac{24}{180} \alpha sin(B_{ld})   &[B_{ld} \ge 0]\ L_d = 12+ \frac{24}{180} [\alpha sin(B_{ld}) - 360] & [B_{ld} < 0]\end{cases} $$ 
 
  
 
@@ -128,7 +126,7 @@ with:
 $$
 B_{ld} = \frac{-sin (\frac{PD}{\pi})+sin \ \delta \cdot sin \ \lambda}{cos \ \delta \cdot \ \lambda}
 $$
- 
+
 
 where *PD* is a correction constant (-2.65).
 
@@ -359,7 +357,7 @@ where:
 
    $ET0$		Potential evapotranspiration for reference crop $[\frac{mm}{day}]$
 
-   $ES0$		Potential evaporation for bare soil surface $[\frac{mm}{day}]$
+   $ES0​$		Potential evaporation for bare soil surface $[\frac{mm}{day}]​$
 
    $EW0$		Potential evaporation for open water surface $[\frac{mm}{day}]$
 
