@@ -1,8 +1,10 @@
 # Introduction
 
-The LISFLOOD model is a hydrological rainfall-runoff and channel routing model that has been developed by the Floods group of the Natural Hazards project of Joint Research Centre (JRC) of the European Commission (van der Knijff & de Roo, 2008). The model is used for the modelling of hydrological processes for large (and often trans-national) catchments, and its main fields of application are flood forecasting, the assessment of river regulation measures, the assessment of the effects of land-use change, and the assessment of the effects of climate change. 
+Before telling you about LISVAP, I first have to introduce you shortly to its big brother "LISFLOOD"...
 
-## Simulation of evapo(transpi)ration in LISFLOOD
+## About LISFLOOD
+
+The LISFLOOD model is a hydrological rainfall-runoff and channel routing model that has been developed by the Floods group of the Natural Hazards project of Joint Research Centre (JRC) of the European Commission (van der Knijff & de Roo, 2008). The model is used for the modelling of hydrological processes for large (and often trans-national) catchments, and its main fields of application are flood forecasting, the assessment of river regulation measures, the assessment of the effects of land-use change, and the assessment of the effects of climate change. 
 
 Evaporation and water uptake and subsequent transpiration by vegetation are important components of the water balance. The simulation of these processes in LISFLOOD involves four steps as visualized in the following figure:
 
@@ -33,12 +35,13 @@ where $T_{max}$ and $ES_{max}$ are the maximum rates of transpiration and evapor
 As a fourth and final step, the *actual* rates of transpiration and evaporation are calculated, which are limited by the availability of water in the soil. 
 
 The steps necessary to go from ‘potential reference’ evapo(transpi)ration to actual evaporation and transpiration are explained in detail in the [LISFLOOD Model Documentation](https://ec-jrc.github.io/lisflood-model/). 
+
 ** --> LISVAP has been developed to perform the first step: calculating the potential reference evapotranspiration and evaporation from standard (gridded) meteorological observations.**
 
 
 ## About LISVAP
 
-LISVAP is a a pre-processor that calculates potential evapo(transpi)ration grids that can be used as input to LISFLOOD. The approach is based on the Penman-Monteith equation, and the procedure followed is mostly based on earlier work described by  Supit *et al*. (1994) and Supit & Van Der Goot (2003). The calculation of potential evapo(transpi)ration is complicated somewhat by the fact that the different datasets that are available are quite heterogeneous. For instance, incoming solar radiation can be estimated from sunshine duration or cloud cover data. Some data suppliers do not offer this kind of information, but provide pre-calculated grids of components of the radiation balance instead. Wind speed is sometimes provided in the form of *U* and *V* components. Vapour pressure is sometimes substituted by dew point temperature. LISVAP has been designed to handle this heterogeneity in a straightforward way. It contains various options that allow the user to select which data to use, and combinations of different data sources (e.g. vapour pressure and dew point temperature) can be combined within one LISVAP run. Just like LISFLOOD, LISVAP is implemented in the PCRaster Environmental Modelling language (Wesseling *et al*., 1996), wrapped in a Python based interface. It will run on any operating for which Python and PCRaster are available. Currently these include 32-bits Windows (e.g. Windows XP, Vista) and a number of Linux distributions.
+LISVAP is a a pre-processor that calculates potential evapo(transpi)ration grids that can be used as input to LISFLOOD. The approach is based on the Penman-Monteith equation, and the procedure followed is mostly based on earlier work described by Supit *et al*. (1994) and Supit & Van Der Goot (2003). The calculation of potential evapo(transpi)ration is complicated somewhat by the fact that the different datasets that are available are quite heterogeneous. For instance, incoming solar radiation can be estimated from sunshine duration or cloud cover data. Some data suppliers do not offer this kind of information, but provide pre-calculated grids of components of the radiation balance instead. Wind speed is sometimes provided in the form of *U* and *V* components. Vapour pressure is sometimes substituted by dew point temperature. LISVAP has been designed to handle this heterogeneity in a straightforward way. It contains various options that allow the user to select which data to use, and combinations of different data sources (e.g. vapour pressure and dew point temperature) can be combined within one LISVAP run. Just like LISFLOOD, LISVAP is implemented in the PCRaster Environmental Modelling language (Wesseling *et al*., 1996), wrapped in a Python based interface. It will run on any operating for which Python and PCRaster are available. Currently these include 64-bits Windows (e.g. Windows XP, Vista) and a number of Linux distributions.
 
 ## About this User Manual
 
