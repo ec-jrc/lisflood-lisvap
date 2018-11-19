@@ -8,8 +8,8 @@ $$
 ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
-where:
-    $ET0$: Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$
+where:<br/>
+    $ET0$: Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
     $R_{na}$	Net absorbed radiation $[\frac{mm}{day}]$
     
     
