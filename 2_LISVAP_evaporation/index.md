@@ -9,7 +9,6 @@ ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
 where:
-
 <br/>   $ET0$	Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$
 <br/>   $R_{na}$	Net absorbed radiation $[\frac{mm}{day}]$
 <br/>   $EA$	Evaporative demand of the atmosphere $[\frac{mm}{day}]$
@@ -63,7 +62,6 @@ R_{a,d} = S_{c, d} \int sin \ \beta \ dt_h
 $$
 
 where:
-
 <br/>   $R_{a,d}$		Daily extra-terrestrial radiation $[{\frac{J}{m^2 \ day}}]$
 <br/>   $S_{c,d}$		Solar constant   at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$
 <br/>   $\int sin \ \beta \ dt_h$	Integral of the solar height over the day $[s]$
@@ -92,7 +90,6 @@ $$
 $$
 
 where:
-
 <br/>   $L_d$	Astronomical day length $[h]$
 <br/>   $\delta$		Solar declination $[^\circ]$
 <br/>   $\lambda$		Latitude $[^\circ]$
@@ -114,7 +111,6 @@ with:
 $$
 B_{ld} = \frac{-sin (\frac{PD}{\pi})+sin \ \delta \cdot sin \ \lambda}{cos \ \delta \cdot \ \lambda}
 $$
-
 
 where *PD* is a correction constant (-2.65).
 
