@@ -36,7 +36,7 @@ As a fourth and final step, the *actual* rates of transpiration and evaporation 
 
 The steps necessary to go from ‘potential reference’ evapo(transpi)ration to actual evaporation and transpiration are explained in detail in the [LISFLOOD Model Documentation](https://ec-jrc.github.io/lisflood-model/). 
 
-** --> LISVAP has been developed to perform the first step: calculating the potential reference evapotranspiration and evaporation from standard (gridded) meteorological observations.**
+> **LISVAP has been developed to perform the first step: calculating the potential reference evapotranspiration and evaporation from standard (gridded) meteorological observations.**
 
 
 ## About LISVAP
