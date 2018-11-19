@@ -9,9 +9,9 @@ ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
 where:
-<br/>   $ET0$	Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$
-<br/>   $R_{na}$	Net absorbed radiation $[\frac{mm}{day}]$
-<br/>   $EA$	Evaporative demand of the atmosphere $[\frac{mm}{day}]$
+<br/>   $ET0$: Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$
+<br/>   <p>$R_{na}$	Net absorbed radiation $[\frac{mm}{day}]$</p>
+<br/>   <p>$EA$	Evaporative demand of the atmosphere $[\frac{mm}{day}]$</p>
 <br/>   $\Delta$		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$
 <br/>   $\gamma$		Psychrometric constant $[\frac{mbar}{^\circ C}]$	
 
