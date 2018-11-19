@@ -13,13 +13,13 @@ where:<br/>
     $R_{na}$	Net absorbed radiation $[\frac{mm}{day}]$
     
     
-<br/>   <p>$EA$	Evaporative demand of the atmosphere $[\frac{mm}{day}]$</p>
+<br/>   $EA$	Evaporative demand of the atmosphere $[\frac{mm}{day}]$
 <br/>   $\Delta$		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$
 <br/>   $\gamma$		Psychrometric constant $[\frac{mbar}{^\circ C}]$	
 
  
 
-The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure. 
+<p>The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.</p>
 
  
 
