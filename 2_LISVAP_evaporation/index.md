@@ -18,7 +18,13 @@ $$
 </dl> 
     
 
-The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.
+&#160 The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) 
+
+
+&nbsp; bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). 
+
+
+<Dl> The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.
 
  
 
