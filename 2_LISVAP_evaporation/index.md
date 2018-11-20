@@ -17,22 +17,18 @@ where:<br/>
     $ET0$: Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
     $R_{na}$	Net absorbed radiation $[\frac{mm}{day}]$
 
-<ul>
         <ul>
             <li>Nested One</li>
             <li>Nested Two</li>
         </ul>
-</ul>
     
 <br/>   $EA$	Evaporative demand of the atmosphere $[\frac{mm}{day}]$
+
+<PRE>
 <br/>   $\Delta$		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$
 <br/>   $\gamma$		Psychrometric constant $[\frac{mbar}{^\circ C}]$	
+</PRE>
 
-
-Where <BR>
-<BLOCKQUOTE>$\Delta$		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$.<BR>
-$\gamma$		Psychrometric constant $[\frac{mbar}{^\circ C}]$.
-</BLOCKQUOTE> 
 
     <p>The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.</p>
 
