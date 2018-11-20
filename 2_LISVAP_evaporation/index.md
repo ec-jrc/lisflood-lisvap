@@ -18,7 +18,7 @@ $$
 </dl> 
     
 
-&#160 The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) 
+&#160; The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) 
 
 
 &nbsp; bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). 
