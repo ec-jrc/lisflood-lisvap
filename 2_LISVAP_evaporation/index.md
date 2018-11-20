@@ -28,9 +28,10 @@ where:<br/>
 <br/>   $\Delta$		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$
 <br/>   $\gamma$		Psychrometric constant $[\frac{mbar}{^\circ C}]$	
 
-Here is some text. <BR>
-<BLOCKQUOTE>Here is one line of indented text.<BR>
-Here is another line of indented text.
+
+Where <BR>
+<BLOCKQUOTE>$\Delta$		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$.<BR>
+$\gamma$		Psychrometric constant $[\frac{mbar}{^\circ C}]$.
 </BLOCKQUOTE> 
 
     <p>The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.</p>
