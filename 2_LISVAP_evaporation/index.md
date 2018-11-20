@@ -84,7 +84,7 @@ where:
 <br/>   $\int sin \ \beta \ dt_h$	Integral of the solar height over the day $[s]$
  
 
-The solar constant on a given day is calculated as:
+<br/> The solar constant on a given day is calculated as:
 
 $$
 S_{c, d} = S_c(1 + 0.033 \cos[\frac{360 \ t_d}{365}])
@@ -96,11 +96,11 @@ where:
 <br/>   $t_d$		Calendar day number (1st of January is 1, etcetera) $[-]$
  
 
-The calendar day number is always a number between 1 and 365.25 (taking into account leap years, a year has on average 365.25 days). 
+<br/> The calendar day number is always a number between 1 and 365.25 (taking into account leap years, a year has on average 365.25 days). 
 
  
 
-The integral of the solar height equals:
+<br/> The integral of the solar height equals:
 
 $$
 \int sin \beta \ dt_h = 3600(L_d \cdot sin \ \delta \cdot sin \ \lambda + \frac{24}{\pi} \cdot cos \ \delta \cdot cos \ \lambda \cdot \sqrt{1-(tan \ \delta \cdot tan \ \lambda)^2})
@@ -112,7 +112,7 @@ where:
 <br/>   $\lambda$		Latitude $[^\circ]$
 
 
-The solar declination is a simple function of the calendar day number (*td*):
+<br/> The solar declination is a simple function of the calendar day number (*td*):
 
 $$
 \delta = -23.45 \cdot cos[\frac{360(t_d + 10)}{365}]
