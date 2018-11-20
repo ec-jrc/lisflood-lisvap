@@ -17,10 +17,6 @@ where:<br/>
     $ET0$: Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
     $R_{na}$	Net absorbed radiation $[\frac{mm}{day}]$
 
-        <ul>
-            <li>Nested One</li>
-            <li>Nested Two</li>
-        </ul>
     
 <br/>   $EA$	Evaporative demand of the atmosphere $[\frac{mm}{day}]$
 
@@ -30,7 +26,7 @@ where:<br/>
 </PRE>
 
 
-    <p>The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.</p>
+The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.
 
  
 
