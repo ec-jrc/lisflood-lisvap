@@ -8,14 +8,12 @@ $$
 ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$ET0$: Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
-    $R_{na}$:	Net absorbed radiation $[\frac{mm}{day}]$<br/>
-    $EA$:	Evaporative demand of the atmosphere $[\frac{mm}{day}]$<br/>
-    $\Delta$:		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$<br/>
-    $\gamma$:		Psychrometric constant $[\frac{mbar}{^\circ C}]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$ET0$:&nbsp;&nbsp; Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;$R_{na}$:&nbsp;&nbsp;	Net absorbed radiation $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;$EA$:&nbsp;&nbsp;	Evaporative demand of the atmosphere $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;$\Delta$:&nbsp;&nbsp;		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$<br/>
+&nbsp;&nbsp;$\gamma$:&nbsp;&nbsp;		Psychrometric constant $[\frac{mbar}{^\circ C}]$
     
 
 &#160; The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) 
@@ -68,12 +66,11 @@ $$
 R_{a,d} = S_{c, d} \int sin \ \beta \ dt_h
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$R_{a,d}$:		Daily extra-terrestrial radiation $[{\frac{J}{m^2 \ day}}]$
-<br/>   $S_{c,d}$:		Solar constant   at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$
-<br/>   $\int sin \ \beta \ dt_h$:	Integral of the solar height over the day $[s]$</p></dd>
-</dl> 
+where
+&nbsp;
+&nbsp;$R_{a,d}$:&nbsp;&nbsp;		Daily extra-terrestrial radiation $[{\frac{J}{m^2 \ day}}]$
+&nbsp;&nbsp;$S_{c,d}$:&nbsp;&nbsp;		Solar constant   at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$
+&nbsp;&nbsp;$\int sin \ \beta \ dt_h$:&nbsp;&nbsp;	Integral of the solar height over the day $[s]$
  
 
 <br/> The solar constant on a given day is calculated as:
@@ -82,12 +79,10 @@ $$
 S_{c, d} = S_c(1 + 0.033 \cos[\frac{360 \ t_d}{365}])
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$S_c$:		 Average solar radiation at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$ (= 1370 ${\frac{J}{m^2 \ s}}$)
-<br/>   $S_{c,d}$:	Solar constant at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$
-<br/>   $t_d$:		Calendar day number (1st of January is 1, etcetera) $[-]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$S_c$:&nbsp;&nbsp;		 Average solar radiation at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$ (= 1370 ${\frac{J}{m^2 \ s}}$)
+&nbsp;&nbsp;$S_{c,d}$:&nbsp;&nbsp;	Solar constant at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$
+&nbsp;&nbsp;$t_d$:&nbsp;&nbsp;		Calendar day number (1st of January is 1, etcetera) $[-]$
  
 
 <br/> The calendar day number is always a number between 1 and 365.25 (taking into account leap years, a year has on average 365.25 days). 
@@ -100,12 +95,10 @@ $$
 \int sin \beta \ dt_h = 3600(L_d \cdot sin \ \delta \cdot sin \ \lambda + \frac{24}{\pi} \cdot cos \ \delta \cdot cos \ \lambda \cdot \sqrt{1-(tan \ \delta \cdot tan \ \lambda)^2})
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$L_d$:	Astronomical day length $[h]$
-<br/>   $\delta$:		Solar declination $[^\circ]$
-<br/>   $\lambda$:		Latitude $[^\circ]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$L_d$:&nbsp;&nbsp;	Astronomical day length $[h]$
+&nbsp;&nbsp;$\delta$:&nbsp;&nbsp;		Solar declination $[^\circ]$
+&nbsp;&nbsp;$\lambda$:&nbsp;&nbsp;		Latitude $[^\circ]$
 
 
 <br/> The solar declination is a simple function of the calendar day number (*td*):
@@ -135,14 +128,12 @@ $$
 R_{g,d} = R_{a,d}(A_a + B_a \frac{n}{L_d})
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$R_{g,d}$:		 Incoming daily global solar radiation $[{\frac{J}{m^2 \ day}}]$
-<br/>   $R_{a,d}$:		Daily extra-terrestrial radiation (Angot radiation) $[{\frac{J}{m^2 \ day}}]$
-<br/>   $n$:			Number of bright sunshine hours per day $[h]$
-<br/>   $L_d$:		Astronomical day length $[h]$
-<br/>   $A_a, B_a$:		Empirical constants $[-]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp;		 Incoming daily global solar radiation $[{\frac{J}{m^2 \ day}}]$
+&nbsp;&nbsp;$R_{a,d}$:&nbsp;&nbsp;		Daily extra-terrestrial radiation (Angot radiation) $[{\frac{J}{m^2 \ day}}]$
+&nbsp;&nbsp;$n$:&nbsp;&nbsp;			Number of bright sunshine hours per day $[h]$
+&nbsp;&nbsp;$L_d$:&nbsp;&nbsp;		Astronomical day length $[h]$
+&nbsp;&nbsp;$A_a, B_a$:&nbsp;&nbsp;		Empirical constants $[-]$
 
 In the absence of any observed information on the number of sunshine hours, the following equation is used if cloud cover observations are available (Supit, 1994; Supit & Van Kappel, 1998):
 
@@ -150,16 +141,14 @@ $$
 R_{g,d}= R_{a,d}(A_s \sqrt{(T_{max}-T_{min})} + B_h \sqrt{(1-\frac{CC}{8})}+C_s)
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$T_{max}$:		Maximum temperature $[^\circ C]$
-<br/>   $T_{min}$:		Minimum temperature $[^\circ C]$
-<br/>   $CC$:		Mean total cloud cover during the day $[octas]$
-<br/>   $L_d$:		Astronomical day length $[h]$
-<br/>   $A_s$:		Empirical constant $[^\circ C - 0.5]$
-<br/>   $B_s$:		Empirical constant $[-]$
-<br/>   $C_s$:		Empirical constant $[{\frac{J}{m^2 \ day}}]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$T_{max}$:&nbsp;&nbsp;		Maximum temperature $[^\circ C]$
+&nbsp;&nbsp;$T_{min}$:&nbsp;&nbsp;		Minimum temperature $[^\circ C]$
+&nbsp;&nbsp;$CC$:&nbsp;&nbsp;		Mean total cloud cover during the day $[octas]$
+&nbsp;&nbsp;$L_d$:&nbsp;&nbsp;		Astronomical day length $[h]$
+&nbsp;&nbsp;$A_s$:&nbsp;&nbsp;		Empirical constant $[^\circ C - 0.5]$
+&nbsp;&nbsp;$B_s$:&nbsp;&nbsp;		Empirical constant $[-]$
+&nbsp;&nbsp;$C_s$:&nbsp;&nbsp;		Empirical constant $[{\frac{J}{m^2 \ day}}]$
 
 
 If neither sunshine duration nor cloud cover observations are available, the Hargreaves equation is used instead:
@@ -168,11 +157,8 @@ $$
 R_{g,d}= R_{a,d} \cdot A_h \sqrt{(T_{max}-T_{min})}+B_h
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$A_h$:		Empirical constant $[^\circ C - 0.5]$
-<br/>   $B_h$:		Empirical constant $[{\frac{J}{m^2 \ day}}]$</p></dd>
-</dl> 
+where&nbsp;&nbsp;$A_h$:&nbsp;&nbsp;		Empirical constant $[^\circ C - 0.5]$
+&nbsp;&nbsp;$B_h$:&nbsp;&nbsp;		Empirical constant $[{\frac{J}{m^2 \ day}}]$
  
 
 ### Step 3: Net long-wave radiation 
@@ -183,13 +169,11 @@ $$
 R_{nl}= f \epsilon' \sigma (T_{av}+273)^4
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$R_{nl}$:		Net long-wave radiation $[{\frac{J}{m^2 \ day}}]$
-<br/>   $\sigma$:			Stefan Boltzmann constant:  $4.9 \cdot 10^{-3}[{\frac{J}{m^2 \ K^4 \ day}}]$
-<br/>   $f$:			Adjustment factor for cloud cover
-<br/>   $\epsilon'$:			Net emissivity between the atmosphere and the ground</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$R_{nl}$:&nbsp;&nbsp;		Net long-wave radiation $[{\frac{J}{m^2 \ day}}]$
+&nbsp;&nbsp;$\sigma$:&nbsp;&nbsp;			Stefan Boltzmann constant:  $4.9 \cdot 10^{-3}[{\frac{J}{m^2 \ K^4 \ day}}]$
+&nbsp;&nbsp;$f$:&nbsp;&nbsp;			Adjustment factor for cloud cover
+&nbsp;&nbsp;$\epsilon'$:&nbsp;&nbsp;			Net emissivity between the atmosphere and the ground
 
 
 The net emissivity is calculated as:
@@ -198,10 +182,8 @@ $$
 \epsilon = 0.56 - 0.079 \sqrt{e_a}
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$e_a$:			Actual vapour pressure $[mbar]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$e_a$:&nbsp;&nbsp;			Actual vapour pressure $[mbar]$
 
 
 Synoptic weather stations often do not supply vapour pressure data, but provided dew point temperature instead. In that case *ea* can be calculated using the following equation by Goudriaan (1977):
@@ -210,10 +192,7 @@ $$
 e_a = 6.10588 \cdot e^{\frac{17.32491 \cdot T_{dew}}{T_{dew}+238.102}}
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$T_{dew}$:		dew point temperature $[^\circ C]$</p></dd>
-</dl> 
+where&nbsp;&nbsp;$T_{dew}$:&nbsp;&nbsp;		dew point temperature $[^\circ C]$
  
 
 The equation of Brunt (1932) is used to estimate the cloud cover factor:
@@ -222,10 +201,8 @@ $$
 f= (B_e + B_f \frac{n}{L_d})
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$B_e, B_f$:	Constants according to Brunt (1932) (depend on latitude) [-]</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$B_e, B_f$:&nbsp;&nbsp;	Constants according to Brunt (1932) (depend on latitude) [-]
  
 
 If no information on the number of bright sunshine hours is available, the relative sunshine duration term is estimated using the Ångström equation:
@@ -244,7 +221,7 @@ $$
 R_{na}=\frac{(1- \alpha)R_{gd}-R_{nl}}{L}
 $$
 
-where *α* is the albedo (reflection coefficient) of the surface, and *L* is the latent heat of vaporization $[\frac{MJ}{kg}]$:
+where *α* is the albedo (reflection coefficient) of the surface, and *L* is the latent heat of vaporization $[\frac{MJ}{kg}]$:&nbsp;&nbsp;
 
 $$
 L=2.501-2.361 \cdot 10^{-3} \cdot T_{av}
@@ -261,15 +238,13 @@ $$
 EA= 0.26(e_s-e_a)(f_c+BU \cdot u(2))
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$EA$:		Evaporative demand $[\frac{mm}{day}]$
-<br/>   $e_s$:			Saturated vapour pressure $[mbar]$
-<br/>   $e_a$:			Actual vapour pressure $[mbar]$
-<br/>   $f_c$:			Empirical   constant $[-]$
-<br/>   $BU$:		Coefficient in wind function $[-]$
-<br/>   $u(2)$:		Mean wind speed at 2 m height $[\frac{m}{s}]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$EA$:&nbsp;&nbsp;		Evaporative demand $[\frac{mm}{day}]$
+&nbsp;&nbsp;$e_s$:&nbsp;&nbsp;			Saturated vapour pressure $[mbar]$
+&nbsp;&nbsp;$e_a$:&nbsp;&nbsp;			Actual vapour pressure $[mbar]$
+&nbsp;&nbsp;$f_c$:&nbsp;&nbsp;			Empirical   constant $[-]$
+&nbsp;&nbsp;$BU$:&nbsp;&nbsp;		Coefficient in wind function $[-]$
+&nbsp;&nbsp;$u(2)$:&nbsp;&nbsp;		Mean wind speed at 2 m height $[\frac{m}{s}]$
 
 
 Saturated vapour pressure is calculated as a function of mean daily air temperature:
@@ -306,12 +281,10 @@ $$
 \gamma_0 = 0.00163 \frac{P_0}{L}
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$\gamma_0$:			Psychrometric   constant at sea level (about 0.67) $[\frac{mbar}{^\circ C}]$
-<br/>   $P_0$:		Atmospheric   pressure at sea level $[mbar]$
-<br/>   $L$:			Latent heat of   vaporization $[\frac{MJ}{kg}]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$\gamma_0$:&nbsp;&nbsp;			Psychrometric   constant at sea level (about 0.67) $[\frac{mbar}{^\circ C}]$
+&nbsp;&nbsp;$P_0$:&nbsp;&nbsp;		Atmospheric   pressure at sea level $[mbar]$
+&nbsp;&nbsp;$L$:&nbsp;&nbsp;			Latent heat of   vaporization $[\frac{MJ}{kg}]$
  
 
 Since the barometric pressure changes with altitude, so does the psychrometric constant. The following altitude correction is applied (Allen *et al*., 1998):
@@ -320,11 +293,9 @@ $$
 \gamma(z)= \gamma_0(\frac{293-0.0065 \cdot z}{293})^{5.26}
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$\gamma(z)$:		Psychrometric constant at altitude *z* $[\frac{mbar}{^\circ C}]$
-<br/>   $z$:			Altitude above sea level $[m]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$\gamma(z)$:&nbsp;&nbsp;		Psychrometric constant at altitude *z* $[\frac{mbar}{^\circ C}]$
+&nbsp;&nbsp;$z$:&nbsp;&nbsp;			Altitude above sea level $[m]$
 
 ## Slope of the saturation vapour pressure curve
 
@@ -358,20 +329,18 @@ $$
 EW0 = \frac{\Delta R_{na,w}+\gamma EA_w}{\Delta + \gamma}
 $$
 
-<dl>
-<dt>where</dt>
-<dd><p>$ET0$:		Potential evapotranspiration for reference crop $[\frac{mm}{day}]$
-<br/>   $ES0$:		Potential evaporation for bare soil surface $[\frac{mm}{day}]​$
-<br/>   $EW0$:		Potential evaporation for open water surface $[\frac{mm}{day}]$
-<br/>   $R_{na}$:		Net absorbed radiation, reference crop $[\frac{mm}{day}]$
-<br/>   $R_{na,s}$:		Net absorbed radiation, bare soil surface $[\frac{mm}{day}]$
-<br/>   $R_na,w$:	Net absorbed radiation, open water surface $[\frac{mm}{day}]$
-<br/>   $EA$:		Evaporative demand, reference crop $[\frac{mm}{day}]$
-<br/>   $EA_s$:		Evaporative demand, bare soil surface $[\frac{mm}{day}]$
-<br/>   $EA_w$:		Evaporative demand, open water surface $[\frac{mm}{day}]$
-<br/>   $\Delta$:			Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$
-<br/>   $\gamma$:			Psychrometric constant $[\frac{mbar}{^\circ C}]$</p></dd>
-</dl> 
+where
+&nbsp;&nbsp;$ET0$:&nbsp;&nbsp;		Potential evapotranspiration for reference crop $[\frac{mm}{day}]$
+&nbsp;&nbsp;$ES0$:&nbsp;&nbsp;		Potential evaporation for bare soil surface $[\frac{mm}{day}]​$
+&nbsp;&nbsp;$EW0$:&nbsp;&nbsp;		Potential evaporation for open water surface $[\frac{mm}{day}]$
+&nbsp;&nbsp;$R_{na}$:&nbsp;&nbsp;		Net absorbed radiation, reference crop $[\frac{mm}{day}]$
+&nbsp;&nbsp;$R_{na,s}$:&nbsp;&nbsp;		Net absorbed radiation, bare soil surface $[\frac{mm}{day}]$
+&nbsp;&nbsp;$R_na,w$:&nbsp;&nbsp;	Net absorbed radiation, open water surface $[\frac{mm}{day}]$
+&nbsp;&nbsp;$EA$:&nbsp;&nbsp;		Evaporative demand, reference crop $[\frac{mm}{day}]$
+&nbsp;&nbsp;$EA_s$:&nbsp;&nbsp;		Evaporative demand, bare soil surface $[\frac{mm}{day}]$
+&nbsp;&nbsp;$EA_w$:&nbsp;&nbsp;		Evaporative demand, open water surface $[\frac{mm}{day}]$
+&nbsp;&nbsp;$\Delta$:&nbsp;&nbsp;			Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$
+&nbsp;&nbsp;$\gamma$:&nbsp;&nbsp;			Psychrometric constant $[\frac{mbar}{^\circ C}]$
 
 
 
