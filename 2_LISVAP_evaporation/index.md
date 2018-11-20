@@ -1,8 +1,8 @@
-# 2. Potential reference evapotranspiration and evaporation
+# 2. Potential reference evapo(trans)piration
 
 ## Penman-Monteith equation
 
-Reference values for potential evapotranspiration and evaporation are estimated using the Penman-Monteith equation (Supit *et al*., 1994, Supit & Van Der Goot, 2003):
+Reference values for **potential evapotranspiration and evaporation** are estimated using the Penman-Monteith equation (Supit *et al*., 1994, Supit & Van Der Goot, 2003):
 
 $$
 ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
@@ -54,7 +54,7 @@ Some data sets (e.g. ERA5) provide pre-calculated values for both incoming solar
 
 ### Step 1: Angot radiation
 
-The daily extra-terrestrial radiation is the product of the solar constant at the top of the atmosphere and the integral of the solar height over the day:
+The **daily extra-terrestrial radiation** is the product of the solar constant at the top of the atmosphere and the integral of the solar height over the day:
 
 $$
 R_{a,d} = S_{c, d} \int sin \ \beta \ dt_h
@@ -66,7 +66,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\int sin \ \beta \ dt_h$:&nbsp;&nbsp;	Integral of the solar height over the day $[s]$
  
 
-<br/> The solar constant on a given day is calculated as:
+<br/> The **solar constant** on a given day is calculated as:
 
 $$
 S_{c, d} = S_c(1 + 0.033 \cos[\frac{360 \ t_d}{365}])
@@ -82,7 +82,7 @@ where<br/>
 
  
 
-<br/> The integral of the solar height equals:
+<br/> The **integral of the solar height** equals:
 
 $$
 \int sin \beta \ dt_h = 3600(L_d \cdot sin \ \delta \cdot sin \ \lambda + \frac{24}{\pi} \cdot cos \ \delta \cdot cos \ \lambda \cdot \sqrt{1-(tan \ \delta \cdot tan \ \lambda)^2})
@@ -94,13 +94,13 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\lambda$:&nbsp;&nbsp;		Latitude $[^\circ]$
 
 
-<br/> The solar declination is a simple function of the calendar day number (*td*):
+<br/> The **solar declination** is a simple function of the calendar day number (*td*):
 
 $$
 \delta = -23.45 \cdot cos[\frac{360(t_d + 10)}{365}]
 $$
 
-Day length is given by:
+**Day length** is given by:
 
  $$  \begin{cases} L_d = 12+ \frac{24}{180} \alpha sin(B_{ld})   &[B_{ld} \ge 0]\ L_d = 12+ \frac{24}{180} [\alpha sin(B_{ld}) - 360] & [B_{ld} < 0]\end{cases} $$ 
 
@@ -115,7 +115,7 @@ where *PD* is a correction constant (-2.65).
 
 ### Step 2: Incoming solar radiation
 
-Depending on the availability of input data, three equations are available to calculate the incoming solar radiation. If the number of sunshine hours on a particular day is known, the Ångström equation is used:
+Depending on the availability of input data, three equations are available to calculate the incoming solar radiation. *If the number of sunshine hours on a particular day is known*, the Ångström equation is used:
 
 $$
 R_{g,d} = R_{a,d}(A_a + B_a \frac{n}{L_d})
@@ -144,7 +144,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$C_s$:&nbsp;&nbsp;		Empirical constant $[{\frac{J}{m^2 \ day}}]$
 
 
-If neither sunshine duration nor cloud cover observations are available, the Hargreaves equation is used instead:
+*If neither sunshine duration nor cloud cover observations are available*, the Hargreaves equation is used instead:
 
 $$
 R_{g,d}= R_{a,d} \cdot A_h \sqrt{(T_{max}-T_{min})}+B_h
@@ -157,7 +157,7 @@ where<br/>
 
 ### Step 3: Net long-wave radiation 
 
-The following equation is used to calculate the net long-wave radiation[[1\]](#_ftn1) (Maidment, 1993):
+The following equation is used to calculate the **net long-wave radiation**[[1\]](#_ftn1) (Maidment, 1993):
 
 $$
 R_{nl}= f \epsilon' \sigma (T_{av}+273)^4
@@ -170,7 +170,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\epsilon'$:&nbsp;&nbsp;			Net emissivity between the atmosphere and the ground
 
 
-The net emissivity is calculated as:
+The **net emissivity** is calculated as:
 
 $$
 \epsilon = 0.56 - 0.079 \sqrt{e_a}
@@ -180,7 +180,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$e_a$:&nbsp;&nbsp;			Actual vapour pressure $[mbar]$
 
 
-Synoptic weather stations often do not supply vapour pressure data, but provided dew point temperature instead. In that case *ea* can be calculated using the following equation by Goudriaan (1977):
+Synoptic weather stations often do not supply vapour pressure data, but provided dew point temperature instead. In that case the **actual vapour pressure** *ea* can be calculated using the following equation by Goudriaan (1977):
 
 $$
 e_a = 6.10588 \cdot e^{\frac{17.32491 \cdot T_{dew}}{T_{dew}+238.102}}
@@ -190,7 +190,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$T_{dew}$:&nbsp;&nbsp;		dew point temperature $[^\circ C]$
  
 
-The equation of Brunt (1932) is used to estimate the cloud cover factor:
+The equation of Brunt (1932) is used to estimate the **cloud cover factor**:
 
 $$
 f= (B_e + B_f \frac{n}{L_d})
@@ -200,7 +200,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$B_e, B_f$:&nbsp;&nbsp;	Constants according to Brunt (1932) (depend on latitude) [-]
  
 
-If no information on the number of bright sunshine hours is available, the relative sunshine duration term is estimated using the Ångström equation:
+*If no information on the number of bright sunshine hours is available*, the **relative sunshine duration term** is estimated using the Ångström equation:
 
 $$
 \frac{n}{L_d}= \frac{(\frac{R_{g,d}}{R_{a,d}})-A_a}{B_a}
@@ -210,7 +210,7 @@ where *Aa* and *Ba* are the empirical Ångström constants.
 
 ### Step 4: Net absorbed radiation 
 
-Finally, the net absorbed radiation [mm day-1] is calculated as:
+Finally, the **net absorbed radiation** [mm day-1] is calculated as:
 
 $$
 R_{na}=\frac{(1- \alpha)R_{gd}-R_{nl}}{L}
@@ -227,7 +227,7 @@ The net absorbed radiation is calculated for three cases: for a reference vegeta
 
 ## Evaporative demand of the atmosphere
 
-The evaporative demand of the atmosphere is calculated as:
+The **evaporative demand** of the atmosphere is calculated as:
 
 $$
 EA= 0.26(e_s-e_a)(f_c+BU \cdot u(2))
@@ -242,7 +242,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$u(2)$:&nbsp;&nbsp;		Mean wind speed at 2 m height $[\frac{m}{s}]$
 
 
-Saturated vapour pressure is calculated as a function of mean daily air temperature:
+**Saturated vapour pressure** is calculated as a function of mean daily air temperature:
 
 $$
 e_s= 6.10588 \cdot e^{\frac{17.32491 \cdot T_{av}}{T_{av}+238.102}}
