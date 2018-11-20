@@ -8,7 +8,7 @@ $$
 ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$ET0$:&nbsp;&nbsp; Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;$R_{na}$:&nbsp;&nbsp;	Net absorbed radiation $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;$EA$:&nbsp;&nbsp;	Evaporative demand of the atmosphere $[\frac{mm}{day}]$<br/>
@@ -16,13 +16,7 @@ where
 &nbsp;&nbsp;$\gamma$:&nbsp;&nbsp;		Psychrometric constant $[\frac{mbar}{^\circ C}]$
     
 
-&#160; The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) 
-
-
-&nbsp; bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). 
-
-
-<Dl> The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.
+The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.
 
  
 
@@ -66,9 +60,8 @@ $$
 R_{a,d} = S_{c, d} \int sin \ \beta \ dt_h
 $$
 
-where
-&nbsp;
-&nbsp;$R_{a,d}$:&nbsp;&nbsp;		Daily extra-terrestrial radiation $[{\frac{J}{m^2 \ day}}]$
+where<br/>
+&nbsp;&nbsp;$R_{a,d}$:&nbsp;&nbsp;		Daily extra-terrestrial radiation $[{\frac{J}{m^2 \ day}}]$
 &nbsp;&nbsp;$S_{c,d}$:&nbsp;&nbsp;		Solar constant   at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$
 &nbsp;&nbsp;$\int sin \ \beta \ dt_h$:&nbsp;&nbsp;	Integral of the solar height over the day $[s]$
  
@@ -79,7 +72,7 @@ $$
 S_{c, d} = S_c(1 + 0.033 \cos[\frac{360 \ t_d}{365}])
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$S_c$:&nbsp;&nbsp;		 Average solar radiation at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$ (= 1370 ${\frac{J}{m^2 \ s}}$)
 &nbsp;&nbsp;$S_{c,d}$:&nbsp;&nbsp;	Solar constant at the top of the atmosphere $[{\frac{J}{m^2 \ s}}]$
 &nbsp;&nbsp;$t_d$:&nbsp;&nbsp;		Calendar day number (1st of January is 1, etcetera) $[-]$
@@ -95,7 +88,7 @@ $$
 \int sin \beta \ dt_h = 3600(L_d \cdot sin \ \delta \cdot sin \ \lambda + \frac{24}{\pi} \cdot cos \ \delta \cdot cos \ \lambda \cdot \sqrt{1-(tan \ \delta \cdot tan \ \lambda)^2})
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$L_d$:&nbsp;&nbsp;	Astronomical day length $[h]$
 &nbsp;&nbsp;$\delta$:&nbsp;&nbsp;		Solar declination $[^\circ]$
 &nbsp;&nbsp;$\lambda$:&nbsp;&nbsp;		Latitude $[^\circ]$
@@ -128,7 +121,7 @@ $$
 R_{g,d} = R_{a,d}(A_a + B_a \frac{n}{L_d})
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp;		 Incoming daily global solar radiation $[{\frac{J}{m^2 \ day}}]$
 &nbsp;&nbsp;$R_{a,d}$:&nbsp;&nbsp;		Daily extra-terrestrial radiation (Angot radiation) $[{\frac{J}{m^2 \ day}}]$
 &nbsp;&nbsp;$n$:&nbsp;&nbsp;			Number of bright sunshine hours per day $[h]$
@@ -141,7 +134,7 @@ $$
 R_{g,d}= R_{a,d}(A_s \sqrt{(T_{max}-T_{min})} + B_h \sqrt{(1-\frac{CC}{8})}+C_s)
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$T_{max}$:&nbsp;&nbsp;		Maximum temperature $[^\circ C]$
 &nbsp;&nbsp;$T_{min}$:&nbsp;&nbsp;		Minimum temperature $[^\circ C]$
 &nbsp;&nbsp;$CC$:&nbsp;&nbsp;		Mean total cloud cover during the day $[octas]$
@@ -157,7 +150,8 @@ $$
 R_{g,d}= R_{a,d} \cdot A_h \sqrt{(T_{max}-T_{min})}+B_h
 $$
 
-where&nbsp;&nbsp;$A_h$:&nbsp;&nbsp;		Empirical constant $[^\circ C - 0.5]$
+where<br/>
+&nbsp;&nbsp;$A_h$:&nbsp;&nbsp;		Empirical constant $[^\circ C - 0.5]$
 &nbsp;&nbsp;$B_h$:&nbsp;&nbsp;		Empirical constant $[{\frac{J}{m^2 \ day}}]$
  
 
@@ -169,7 +163,7 @@ $$
 R_{nl}= f \epsilon' \sigma (T_{av}+273)^4
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$R_{nl}$:&nbsp;&nbsp;		Net long-wave radiation $[{\frac{J}{m^2 \ day}}]$
 &nbsp;&nbsp;$\sigma$:&nbsp;&nbsp;			Stefan Boltzmann constant:  $4.9 \cdot 10^{-3}[{\frac{J}{m^2 \ K^4 \ day}}]$
 &nbsp;&nbsp;$f$:&nbsp;&nbsp;			Adjustment factor for cloud cover
@@ -182,7 +176,7 @@ $$
 \epsilon = 0.56 - 0.079 \sqrt{e_a}
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$e_a$:&nbsp;&nbsp;			Actual vapour pressure $[mbar]$
 
 
@@ -192,7 +186,8 @@ $$
 e_a = 6.10588 \cdot e^{\frac{17.32491 \cdot T_{dew}}{T_{dew}+238.102}}
 $$
 
-where&nbsp;&nbsp;$T_{dew}$:&nbsp;&nbsp;		dew point temperature $[^\circ C]$
+where<br/>
+&nbsp;&nbsp;$T_{dew}$:&nbsp;&nbsp;		dew point temperature $[^\circ C]$
  
 
 The equation of Brunt (1932) is used to estimate the cloud cover factor:
@@ -201,7 +196,7 @@ $$
 f= (B_e + B_f \frac{n}{L_d})
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$B_e, B_f$:&nbsp;&nbsp;	Constants according to Brunt (1932) (depend on latitude) [-]
  
 
@@ -238,7 +233,7 @@ $$
 EA= 0.26(e_s-e_a)(f_c+BU \cdot u(2))
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$EA$:&nbsp;&nbsp;		Evaporative demand $[\frac{mm}{day}]$
 &nbsp;&nbsp;$e_s$:&nbsp;&nbsp;			Saturated vapour pressure $[mbar]$
 &nbsp;&nbsp;$e_a$:&nbsp;&nbsp;			Actual vapour pressure $[mbar]$
@@ -281,7 +276,7 @@ $$
 \gamma_0 = 0.00163 \frac{P_0}{L}
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$\gamma_0$:&nbsp;&nbsp;			Psychrometric   constant at sea level (about 0.67) $[\frac{mbar}{^\circ C}]$
 &nbsp;&nbsp;$P_0$:&nbsp;&nbsp;		Atmospheric   pressure at sea level $[mbar]$
 &nbsp;&nbsp;$L$:&nbsp;&nbsp;			Latent heat of   vaporization $[\frac{MJ}{kg}]$
@@ -293,7 +288,7 @@ $$
 \gamma(z)= \gamma_0(\frac{293-0.0065 \cdot z}{293})^{5.26}
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$\gamma(z)$:&nbsp;&nbsp;		Psychrometric constant at altitude *z* $[\frac{mbar}{^\circ C}]$
 &nbsp;&nbsp;$z$:&nbsp;&nbsp;			Altitude above sea level $[m]$
 
@@ -329,7 +324,7 @@ $$
 EW0 = \frac{\Delta R_{na,w}+\gamma EA_w}{\Delta + \gamma}
 $$
 
-where
+where<br/>
 &nbsp;&nbsp;$ET0$:&nbsp;&nbsp;		Potential evapotranspiration for reference crop $[\frac{mm}{day}]$
 &nbsp;&nbsp;$ES0$:&nbsp;&nbsp;		Potential evaporation for bare soil surface $[\frac{mm}{day}]​$
 &nbsp;&nbsp;$EW0$:&nbsp;&nbsp;		Potential evaporation for open water surface $[\frac{mm}{day}]$
