@@ -274,19 +274,19 @@ defaults:
       
       - section_title: "LISVAP User Guide"
         items:
-        - title: "Introduction"
+        - title: "- Introduction"
           url: 1_LISVAP_introduction
-        - title: "Potential reference evapo(transpi)ration"
+        - title: "- Potential reference evapo(transpi)ration"
           url: 2_LISVAP_evaporation
-        - title: "Installation of LISVAP"
+        - title: "- Installation of LISVAP"
           url: 3_LISVAP_installation
-        - title: "LISVAP input files"
+        - title: "- LISVAP input files"
           url: 4_LISVAP_input
-        - title: "The LISVAP settings file"
+        - title: "- The LISVAP settings file"
           url: 5_LISVAP_settingsfile
-        - title: "LISVAP input files"
+        - title: "- LISVAP output files"
           url: 6_LISVAP_output
-        - title: "References"
+        - title: "- References"
           url: 0_References
 
 theme: jekyll-theme-minimal
