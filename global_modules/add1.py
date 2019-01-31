@@ -353,9 +353,9 @@ def Calendar(input):
         d = d.replace('-', '/')
         year = d.split('/')[-1:]
         if len(year[0]) == 4:
-            formatstr = "%d/%m/%Y"
+            formatstr = "%d/%m/%Y %H:%M"
         else:
-            formatstr = "%d/%m/%y"
+            formatstr = "%d/%m/%y %H:%M"
         if len(year[0]) == 1:
             d = d.replace('/', '.', 1)
             d = d.replace('/', '/0')
