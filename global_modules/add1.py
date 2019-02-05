@@ -292,12 +292,10 @@ def readnetcdf(name, time):
     # value = os.path.basename(name)
 
     number = time - 1
-
     nf1 = Dataset(filename, 'r')
     value = nf1.variables.items()[-1][0]  # get the last variable name
     # bigmap=nf1.variables['value'][number,:,:]
-    mapnp = nf1.variables[value][
-        number, cutmap[2]:cutmap[3], cutmap[0]:cutmap[1]]
+    mapnp = nf1.variables[value][number, cutmap[2]:cutmap[3], cutmap[0]:cutmap[1]]
     nf1.close()
     mapnp[np.isnan(mapnp)] = -9999
     map = numpy2pcr(Scalar, mapnp, -9999)
@@ -353,9 +351,9 @@ def Calendar(input):
         d = d.replace('-', '/')
         year = d.split('/')[-1:]
         if len(year[0]) == 4:
-            formatstr = "%d/%m/%Y %H:%M"
+            formatstr = "%d/%m/%Y"
         else:
-            formatstr = "%d/%m/%y %H:%M"
+            formatstr = "%d/%m/%y"
         if len(year[0]) == 1:
             d = d.replace('/', '.', 1)
             d = d.replace('/', '/0')

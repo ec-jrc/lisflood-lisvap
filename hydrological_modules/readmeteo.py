@@ -29,7 +29,6 @@ class readmeteo(object):
         """ dynamic part of the readmeteo module
             read meteo input maps
         """
-
         # ************************************************************
         # ***** READ METEOROLOGICAL DATA *****************************
         # ************************************************************
@@ -99,17 +98,14 @@ class readmeteo(object):
             self.var.Rul = self.var.Rul * self.var.WtoMJ
 
 
-        self.var.Psurf = self.var.Psurf * 0.001
+            self.var.Psurf = self.var.Psurf * 0.001
             # [Pa] to [KPa]
 
 
             self.var.EAct = (self.var.Psurf * self.var.Qair)/0.622
-             # [KPA] * [kg/kg] = KPa
-        self.var.Wind = self.var.Wind * 0.749
+            # [KPA] * [kg/kg] = KPa
+            self.var.Wind = self.var.Wind * 0.749
             # Adjust wind speed for measurement height: wind speed measured at
             # 10 m, but needed at 2 m height
             # Shuttleworth, W.J. (1993) in Maidment, D.R. (1993), p. 4.36
         
-        
-
-
