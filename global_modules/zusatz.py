@@ -18,6 +18,7 @@ from pcraster import*
 from pcraster.framework import *
 
 from globals import *
+from netCDF4 import Dataset
 
 
 class LisfloodError(Exception):

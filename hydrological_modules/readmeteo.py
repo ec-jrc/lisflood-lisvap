@@ -103,13 +103,10 @@ class readmeteo(object):
             # [Pa] to [KPa]
 
 
-            self.var.EAct = (self.var.Psurf * self.var.Qair)/0.622
-             # [KPA] * [kg/kg] = KPa
+        self.var.EAct = (self.var.Psurf * self.var.Qair)/0.622
+        # [KPA] * [kg/kg] = KPa
         self.var.Wind = self.var.Wind * 0.749
-            # Adjust wind speed for measurement height: wind speed measured at
-            # 10 m, but needed at 2 m height
-            # Shuttleworth, W.J. (1993) in Maidment, D.R. (1993), p. 4.36
+        # Adjust wind speed for measurement height: wind speed measured at
+        # 10 m, but needed at 2 m height
+        # Shuttleworth, W.J. (1993) in Maidment, D.R. (1993), p. 4.36
         
-        
-
-
