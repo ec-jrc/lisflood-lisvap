@@ -38,7 +38,7 @@ TIME-RELATED CONSTANTS
 **************************************************************
 </comment>
 
-<textvar name="CalendarDayStart" value="02/01/1990 06:00">
+<textvar name="CalendarDayStart" value="02/01/1990">
 <comment>
 Calendar day number of 1st day in model run
 e.g. 1st of January: 1; 1st of June: 151 (or 152 in leap year)

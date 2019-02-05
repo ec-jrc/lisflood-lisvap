@@ -26,6 +26,12 @@ __status__ = "Development"
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+from pyexpat import *
+import xml.dom.minidom
+from netCDF4 import Dataset
+from pcraster import *
+from pcraster.framework import *
+
 from Lisvap_initial import *
 from Lisvap_dynamic import *
 
