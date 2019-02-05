@@ -58,7 +58,7 @@ class miscInitial(object):
         self.var.FactorCanopy = loadmap('FactorCanopy')
         self.var.FactorSoil = loadmap('FactorSoil')
         self.var.FactorWater = loadmap('FactorWater')
-        #self.var.Press0 = loadmap('Press0')
+        self.var.Press0 = loadmap('Press0')
         self.var.Dem = loadmap('Dem')
         self.var.AvSolarConst = loadmap('AvSolarConst')
         #self.var.PD = loadmap('PD')
