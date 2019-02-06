@@ -64,8 +64,8 @@ def Lisvapexe():
     StepEnd = (binding['StepEnd'])
     start_date, end_date = datetime.datetime.strptime(StepStart, "%d/%m/%Y %H:%M"), datetime.datetime.strptime(StepEnd, "%d/%m/%Y %H:%M")
     start_date_simulation = datetime.datetime.strptime(binding['CalendarDayStart'], "%d/%m/%Y %H:%M")
-    timestep_start = (start_date - start_date_simulation).days
-    timestep_end = (end_date - start_date_simulation).days
+    timestep_start = (start_date - start_date_simulation).days + 1
+    timestep_end = (end_date - start_date_simulation).days + 1
     checkifDate('StepStart', 'StepEnd')
     print 'Start date: {} ({}) - End date: {} ({})'.format(StepStart, timestep_start, StepEnd, timestep_end)
     if Flags['loud']:
