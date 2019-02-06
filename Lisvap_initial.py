@@ -9,14 +9,12 @@
 # Licence:     <your licence>
 # -------------------------------------------------------------------------
 
-
-
-
 from hydrological_modules.miscInitial import *
 from hydrological_modules.readmeteo import *
 
 
 from global_modules.output import *
+
 
 # --------------------------------------------
 class LisvapModel_ini(DynamicModel):
@@ -41,12 +39,11 @@ class LisvapModel_ini(DynamicModel):
             # get the extent of the maps from the precipitation input maps
             # and the modelling extent from the MaskMap
             # cutmap[] defines the MaskMap inside the precipitation map
-            cutmap[0], cutmap[1], cutmap[2], cutmap[
-                3] = mapattrNetCDF(binding['TMinMaps'])
+            cutmap[0], cutmap[1], cutmap[2], cutmap[3] = mapattrNetCDF(binding['TMinMaps'])
         if option['writeNetcdfStack'] or option['writeNetcdf']:
             # if NetCDF is writen, the pr.nc is read to get the metadata
             # like projection
-            metaNetCDF(binding['TAvgMaps'])
+            metaNetCDF(binding['TMinMaps'])
 
         # ----------------------------------------
         # include output of tss and maps
@@ -71,11 +68,4 @@ class LisvapModel_ini(DynamicModel):
         self.sumEW=scalar(0.0)
         self.sumET=scalar(0.0)
 
-
-
         # ----------------------------------------------------------------------
-
-
-
-
-

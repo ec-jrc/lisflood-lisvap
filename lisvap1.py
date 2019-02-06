@@ -1,6 +1,5 @@
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
 """
 #######################################################
 
@@ -26,14 +25,16 @@ __status__ = "Development"
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import datetime
+
 from pyexpat import *
 import xml.dom.minidom
 from netCDF4 import Dataset
 from pcraster import *
 from pcraster.framework import *
-
 from Lisvap_initial import *
 from Lisvap_dynamic import *
+
 
 class LisvapModel(LisvapModel_ini, LisvapModel_dyn):
     """ Joining the initial and the dynamic part
@@ -59,14 +60,19 @@ def Lisvapexe():
         except: s = '\'' + binding[key] + '\''
     """
 
-    StepStart = int(binding['StepStart'])
-    StepEnd = int(binding['StepEnd'])
-    print "Start - End: ",StepStart," - ", StepEnd
+    StepStart = (binding['StepStart'])
+    StepEnd = (binding['StepEnd'])
+    start_date, end_date = datetime.datetime.strptime(StepStart, "%d/%m/%Y %H:%M"), datetime.datetime.strptime(StepEnd, "%d/%m/%Y %H:%M")
+    start_date_simulation = datetime.datetime.strptime(binding['CalendarDayStart'], "%d/%m/%Y %H:%M")
+    timestep_start = (start_date - start_date_simulation).days
+    timestep_end = (end_date - start_date_simulation).days
+    checkifDate('StepStart', 'StepEnd')
+    print 'Start date: {} ({}) - End date: {} ({})'.format(StepStart, timestep_start, StepEnd, timestep_end)
     if Flags['loud']:
         print"%-6s %10s %11s\n" %("Step","Date","ET0"),
 
     Lisvap = LisvapModel()
-    stLisvap = DynamicFrame(Lisvap, firstTimestep=StepStart, lastTimeStep=StepEnd)
+    stLisvap = DynamicFrame(Lisvap, firstTimestep=timestep_start, lastTimeStep=timestep_end)
     stLisvap.rquiet = True
     stLisvap.rtrace = False
     stLisvap.run()
