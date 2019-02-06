@@ -83,7 +83,7 @@ def metaNetCDF(name):
     nf1 = Dataset(filename, 'r')
     for var in nf1.variables:
         metadataNCDF[var] = nf1.variables[var].__dict__
-        print 'dict',metadataNCDF[var]
+        # print 'dict',metadataNCDF[var]
     nf1.close()
 
 def mapattrNetCDF(name):

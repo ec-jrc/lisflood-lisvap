@@ -40,7 +40,6 @@ class LisvapModel_ini(DynamicModel):
             # and the modelling extent from the MaskMap
             # cutmap[] defines the MaskMap inside the precipitation map
             cutmap[0], cutmap[1], cutmap[2], cutmap[3] = mapattrNetCDF(binding['TMinMaps'])
-            print 'cutmap', cutmap[0], cutmap[1], cutmap[2], cutmap[3]
         if option['writeNetcdfStack'] or option['writeNetcdf']:
             # if NetCDF is writen, the pr.nc is read to get the metadata
             # like projection
