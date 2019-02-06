@@ -27,9 +27,10 @@
 # report maps
 
 <setoption   default="1"  name="repET0Maps"/>
-<setoption   default="0"  name="repES0Maps"/>
+<setoption   default="1"  name="repES0Maps"/>
 <setoption   default="1"  name="repE0Maps"/>
-
+<setoption   default="1"  name="EFAS"/>
+<setoption   default="0"  name="CORDEX"/>
 
 </lfoptions>
 
