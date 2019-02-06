@@ -14,7 +14,6 @@ from zusatz import *
 from netCDF4 import Dataset
 import numpy as np
 import time as xtime
-import pdb
 
 # ------------------------------
 

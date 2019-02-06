@@ -31,7 +31,6 @@ class LisvapModel_dyn(DynamicModel):
         del timeMes[:]
         # CM: get time for operation "Start dynamic"
         timemeasure("Start dynamic")
-        #pdb.set_trace()
         # CM: date corresponding to the model time step (yyyy-mm-dd hh:mm:ss)
         self.CalendarDate = self.CalendarDayStart + datetime.timedelta(days=(self.currentTimeStep()-1) * self.DtDay)
         # CM: day of the year corresponding to the model time step

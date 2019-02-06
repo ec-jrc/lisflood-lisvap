@@ -74,7 +74,6 @@ class outputTssMap(object):
         # self.report(self.Precipitation,binding['TaMaps'])
 
         # if fast init than without time series
-        pdb.set_trace()
         if not(option['InitLisfloodwithoutSplit']):
 
             if Flags['loud']:

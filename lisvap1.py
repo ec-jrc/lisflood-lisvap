@@ -26,13 +26,7 @@ __status__ = "Development"
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from datetime import datetime
-
-d0 = date(2008, 8, 18)
-d1 = date(2008, 9, 26)
-delta = d1 - d0
-print delta.day
-
+import datetime
 
 from pyexpat import *
 import xml.dom.minidom
@@ -69,8 +63,8 @@ def Lisvapexe():
 
     StepStart = (binding['StepStart'])
     StepEnd = (binding['StepEnd'])
-    start_date, end_date = datetime.strptime(StepStart, "%d/%m/%Y %H:%M"), datetime.strptime(StepEnd, "%d/%m/%Y %H:%M")
-    start_date_simulation =  datetime.strptime(binding['CalendarDayStart'], "%d/%m/%Y %H:%M")
+    start_date, end_date = datetime.datetime.strptime(StepStart, "%d/%m/%Y %H:%M"), datetime.datetime.strptime(StepEnd, "%d/%m/%Y %H:%M")
+    start_date_simulation = datetime.datetime.strptime(binding['CalendarDayStart'], "%d/%m/%Y %H:%M")
     timestep_start = (start_date - start_date_simulation).days
     timestep_end = (end_date - start_date_simulation).days
     checkifDate('StepStart', 'StepEnd')

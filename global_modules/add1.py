@@ -15,7 +15,6 @@ import time as xtime
 import os
 import globals
 from bisect import bisect_left
-import pdb
 # ------------------------------
 
 def defsoil(name1, name2=None, name3=None):
@@ -465,7 +464,6 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False):
     # Attempt at checking if input files are not in the format we expect
     varNames = [nf1.variables.items()[it][0] for it in xrange(len(nf1.variables.items()))]
     targets = list()
-    #pdb.set_trace()
     for it in varNames:
         if not it == 'x' and not it == 'y' and not it == 'laea' and not it == "lambert_azimuthal_equal_area" and not it == 'time' and not it=='lat' and not it=='lon':
             targets.append(it)
@@ -671,7 +669,6 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
     """
     write a netcdf stack
     """
-    #pdb.set_trace()
     prefix = netfile.split('/')[-1].split('\\')[-1].split('.')[0]
     netfile = netfile.split('.')[0] + '.nc'
     row = np.abs(cutmap[3] - cutmap[2])
