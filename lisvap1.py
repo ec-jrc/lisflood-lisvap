@@ -26,6 +26,12 @@ __status__ = "Development"
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+from datetime import datetime
+
+d0 = date(2008, 8, 18)
+d1 = date(2008, 9, 26)
+delta = d1 - d0
+print delta.day
 
 
 from pyexpat import *
@@ -63,13 +69,17 @@ def Lisvapexe():
 
     StepStart = (binding['StepStart'])
     StepEnd = (binding['StepEnd'])
-    checkifDate('StepStart','StepEnd')
-    print "Start - End: ",StepStart," - ", StepEnd
+    start_date, end_date = datetime.strptime(StepStart, "%d/%m/%Y %H:%M"), datetime.strptime(StepEnd, "%d/%m/%Y %H:%M")
+    start_date_simulation =  datetime.strptime(binding['CalendarDayStart'], "%d/%m/%Y %H:%M")
+    timestep_start = (start_date - start_date_simulation).days
+    timestep_end = (end_date - start_date_simulation).days
+    checkifDate('StepStart', 'StepEnd')
+    print 'Start date: {} ({}) - End date: {} ({})'.format(StepStart, timestep_start, StepEnd, timestep_end)
     if Flags['loud']:
         print"%-6s %10s %11s\n" %("Step","Date","ET0"),
 
     Lisvap = LisvapModel()
-    stLisvap = DynamicFrame(Lisvap, firstTimestep=StepStart, lastTimeStep=StepEnd)
+    stLisvap = DynamicFrame(Lisvap, firstTimestep=timestep_start, lastTimeStep=timestep_end)
     stLisvap.rquiet = True
     stLisvap.rtrace = False
     stLisvap.run()
