@@ -51,13 +51,13 @@ time step [seconds] ALWAYS USE 86400!!
 </comment>
 </textvar>
 
-<textvar name="StepStart" value="02/01/2017 06:00">
+<textvar name="StepStart" value="02/01/1990 06:00">
 <comment>
 Number of first time step in simulation
 </comment>
 </textvar>
 
-<textvar name="StepEnd" value="10/01/2017 06:00">
+<textvar name="StepEnd" value="10/01/1990 06:00">
 <comment>
 Number of last time step
 </comment>
@@ -97,19 +97,19 @@ FILE PATHS
 **************************************************************
 </comment>
 
-<textvar name="PathOut" value="./data/">
+<textvar name="PathOut" value="/DATA/PycharmProjects/lisflood-lisvap/tests/data">
 <comment>
 Output path
 </comment>
 </textvar>
 
-<textvar name="PathBaseMapsIn" value="/home/efas/Lisvap4EFAS/mapsLisvap/">
+<textvar name="PathBaseMapsIn" value="/DATA/PycharmProjects/lisflood-lisvap/mapsLisvap/">
 <comment>
 Path to input base maps
 </comment>
 </textvar>
 
-<textvar name="PathMeteoIn" value="/H07_floods/Europe_Gridded_Meteo_Data/Europe_grids_2017/">
+<textvar name="PathMeteoIn" value="/media/sf_E_DRIVE/Projects/lisvap_data/meteoin">
 <comment>
 Path to input raw meteo maps
 E:/lisflood_test/LisvapWorld/meteo/raster
@@ -456,7 +456,7 @@ BASE INPUT MAPS
 **************************************************************
 </comment>
 
-<textvar name="MaskMap" value="/naha/Europe_2017/_Stuff/TEST/var_order/areaall.nc">
+<textvar name="MaskMap" value="/media/sf_E_DRIVE/Projects/lisvap_data/areaall.nc">
 <comment>
 Clone map
 </comment>

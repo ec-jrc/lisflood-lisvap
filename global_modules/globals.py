@@ -52,18 +52,19 @@ def globalFlags(arg):
     try:
         opts, args = getopt.getopt(arg, 'qvlcht', FlagName)
     except getopt.GetoptError:
+        from lisvap1 import usage
         usage()
-
-    for o, a in opts:
-        if o in ('-q', '--quiet'):
-            Flags['quiet'] = True          # Flag[0]=1
-        if o in ('-v', '--veryquiet'):
-            Flags['veryquiet'] = True      # Flag[1]=1
-        if o in ('-l', '--loud'):
-            Flags['loud'] = True  # Loud=True
-        if o in ('-c', '--checkfiles'):
-            Flags['check'] = True  # Check=True
-        if o in ('-h', '--noheader'):
-            Flags['noheader'] = True  # NoHeader=True
-        if o in ('-t', '--printtime'):
-            Flags['printtime'] = True      # Flag[2]=1
+    else:
+        for o, a in opts:
+            if o in ('-q', '--quiet'):
+                Flags['quiet'] = True          # Flag[0]=1
+            if o in ('-v', '--veryquiet'):
+                Flags['veryquiet'] = True      # Flag[1]=1
+            if o in ('-l', '--loud'):
+                Flags['loud'] = True  # Loud=True
+            if o in ('-c', '--checkfiles'):
+                Flags['check'] = True  # Check=True
+            if o in ('-h', '--noheader'):
+                Flags['noheader'] = True  # NoHeader=True
+            if o in ('-t', '--printtime'):
+                Flags['printtime'] = True      # Flag[2]=1

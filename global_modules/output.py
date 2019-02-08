@@ -101,7 +101,7 @@ class outputTssMap(object):
             # report end maps
             what = 'self.var.' + reportMapsEnd[maps]['outputVar'][0]
             where = binding[maps]
-            if not(where in checkifdouble):
+            if where not in checkifdouble:
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
 
@@ -143,14 +143,14 @@ class outputTssMap(object):
             # report maps for all timesteps
             what = 'self.var.' + reportMapsAll[maps]['outputVar'][0]
             where = binding[maps]
-            if not(where in checkifdouble):
+
+            if where not in checkifdouble:
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
 
                 if option['writeNetcdfStack']:
                     #print 'writenetcdfstack2',self.var.currentTimeStep(),what
-                    writenet(cdfFlag[2], eval(what), where, self.var.currentTimeStep(), maps, reportMapsAll[
-                             maps]['outputVar'][0], reportMapsAll[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                    writenet(cdfFlag[2], eval(what), where, self.var.currentTimeStep(), maps, reportMapsAll[maps]['outputVar'][0], reportMapsAll[maps]['unit'][0], 'f4', self.var.CalendarDate)
                     
                 else:
                     self.var.report(eval(what), where)
