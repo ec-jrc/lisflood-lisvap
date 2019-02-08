@@ -9,6 +9,7 @@ from tests import reference_nc_path, atol
 
 
 def test_output():
+    print '\n'
     output_path = binding['PathOut']
     output_e0 = os.path.join(output_path, 'e0.nc')
     results = []
@@ -20,20 +21,29 @@ def test_output():
         same_values = np.allclose(diff_values, np.zeros(diff_values.shape), atol=atol)
         all_ok = same_size and same_values
         if not all_ok:
-            max_diff = np.max(diff_values)
-            large_diff = max_diff > 2 * 0.01
             array_ok = np.isclose(diff_values, np.zeros(diff_values.shape), atol=atol)
-            perc_wrong = float(array_ok[array_ok is False].size * 100) / float(diff_values.size)
-            if perc_wrong >= 0.05:
-                print '[ERROR]'
-                print 'STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(step, perc_wrong, max_diff)
-                results.append(False)
-            elif perc_wrong >= 0.0001 and large_diff:
-                print '[WARNING]'
-                print 'STEP {}: {:3.9f}% of values have large difference. max diff: {:3.4f}'.format(step, perc_wrong, max_diff)
+            wrong_values_size = array_ok[array_ok is False].size
+            if wrong_values_size > 0:
+                max_diff = np.max(diff_values)
+                large_diff = max_diff > 2 * 0.01
+                perc_wrong = float(wrong_values_size * 100) / float(diff_values.size)
+                print 'Step {} ---> Max Diff: {:3.9f}, % Wrong values: {:3.9f} ({})'.format(step, max_diff, perc_wrong, wrong_values_size)
+                if perc_wrong >= 0.05:
+                    print '[ERROR]'
+                    print 'STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(step, perc_wrong, max_diff)
+                    results.append(False)
+                elif perc_wrong >= 0.0001 and large_diff:
+                    print '[WARNING]'
+                    print 'STEP {}: {:3.9f}% of values have large difference. max diff: {:3.4f}'.format(step, perc_wrong, max_diff)
+                    results.append(False)
+                else:
+                    print '[OK] Step: {}'.format(step)
+                    results.append(True)
             else:
+                print '[OK] Step: {}'.format(step)
                 results.append(True)
         else:
+            print '[OK] Step: {}'.format(step)
             results.append(True)
 
     assert all(results)
