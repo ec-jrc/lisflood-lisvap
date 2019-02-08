@@ -2,3 +2,9 @@
 *.py[cod]
 __pycache__/
 *.tmp
+*.nc
+*.xml
+!tests/data/e0_1_9.nc
+!lisvap4EFASCalibration2018.xml
+!OptionTserieMapsLisvap.xml
+!tests/data/tests_settings.xml

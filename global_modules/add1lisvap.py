@@ -286,21 +286,21 @@ def readmapsparse(name, time, oldmap):
     return map
 
 
-def readnetcdf(name, time):
+def readnetcdf(name, time, value=None):
     """
       load stack of maps 1 at each timestamp in netcdf format
     """
 
-    filename = name + ".nc"
+    filename = name + ".nc" if not name.endswith('.nc') else name
     # value = os.path.basename(name)
 
     number = time - 1
 
     nf1 = Dataset(filename, 'r')
-    value = nf1.variables.items()[-1][0]  # get the last variable name
+    value = nf1.variables.items()[-1][0] if not value else value # get the last variable name
     # bigmap=nf1.variables['value'][number,:,:]
-    mapnp = nf1.variables[value][
-        number, cutmap[2]:cutmap[3], cutmap[0]:cutmap[1]]
+    # print name, '----', value, '--------',  number, ' ----', cutmap
+    mapnp = nf1.variables[value][number, cutmap[2]:cutmap[3], cutmap[0]:cutmap[1]]
     nf1.close()
     mapnp[np.isnan(mapnp)] = -9999
     map = numpy2pcr(Scalar, mapnp, -9999)
