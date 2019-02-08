@@ -87,7 +87,9 @@ def optionBinding(settingsfile, optionxml):
     repTimeserie = {}
     repMaps = {}
 
-    # domopt = xml.dom.minidom.parseString(optionxml)
+    #  built-in variables
+    user['ProjectDir'] = os.path.normpath(os.path.join(os.path.dirname(__file__), '../'))
+
     domopt = xml.dom.minidom.parse(optionxml)
     dom = xml.dom.minidom.parse(settingsfile)
 
