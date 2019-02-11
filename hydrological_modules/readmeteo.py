@@ -8,11 +8,14 @@
 # Copyright:   (c) burekpe 2014
 # Licence:     <your licence>
 # -------------------------------------------------------------------------
+from pcraster import operations
+from pcraster.operations import scalar
 
-from global_modules.add1 import *
+from global_modules.add1 import readnetcdf
+from global_modules.globals import option, binding
 
 
-class readmeteo(object):
+class ReadMeteo(object):
 
     """
      # ************************************************************
@@ -52,6 +55,7 @@ class readmeteo(object):
                 # upward  short wave radiation [W/m2]
                 self.var.Rul = readnetcdf(binding['RulMaps'], self.var.currentTimeStep())
                 # upward long wave radiation [W/m2]
+
             if option['EFAS']:
                 self.var.TMin = readnetcdf(binding['TMinMaps'], self.var.currentTimeStep())
                 # Minimum daily temperature (C)
@@ -60,7 +64,6 @@ class readmeteo(object):
                 self.var.TAvg = (self.var.TMin + self.var.TMax) / 2.0
                                
                 # Average daily temperature (C)
-                
 
                 self.var.EAct = readnetcdf(binding['EActMaps'], self.var.currentTimeStep())
                 # actual vapor pressure; has to be in mbar = hPa
@@ -81,33 +84,28 @@ class readmeteo(object):
                 # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
                 # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
 
-
-
-        if self.var.TemperatureInKelvinFlag==1:
+        if self.var.TemperatureInKelvinFlag == 1:
             self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
             self.var.TMin = self.var.TMin - self.var.ZeroKelvin
             self.var.TMax = self.var.TMax - self.var.ZeroKelvin
 
-        self.var.DeltaT=pcraster.max(self.var.TMax-self.var.TMin,scalar(0.0))
-
+        self.var.DeltaT = operations.max(self.var.TMax-self.var.TMin, scalar(0.0))
 
         if option['CORDEX']:
             # correction from sea level pressure to pressure at elevation of dem
-            a = 16000+64*self.var.TAvg
-            self.var.Psurf = self.var.Psurf*(a-self.var.dem)/(a+self.var.dem)
+            a = 16000 + 64 * self.var.TAvg
+            self.var.Psurf = self.var.Psurf * (a - self.var.dem) / (a + self.var.dem)
             # and back to the high reso dem with adjusted temp
             self.var.Rds = self.var.Rds * self.var.WtoMJ
             self.var.Rdl = self.var.Rdl * self.var.WtoMJ
             self.var.Rus = self.var.Rus * self.var.WtoMJ
             self.var.Rul = self.var.Rul * self.var.WtoMJ
 
-
             self.var.Psurf = self.var.Psurf * 0.001
             # [Pa] to [KPa]
 
-
             self.var.EAct = (self.var.Psurf * self.var.Qair)/0.622
-             # [KPA] * [kg/kg] = KPa
+            # [KPA] * [kg/kg] = KPa
             self.var.Wind = self.var.Wind * 0.749
             # Adjust wind speed for measurement height: wind speed measured at
             # 10 m, but needed at 2 m height

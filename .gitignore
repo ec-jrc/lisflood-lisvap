@@ -20,3 +20,8 @@ __pycache__/
 !tests/data/tx_1_9.nc
 !tests/data/ta_1_9.nc
 !tests/data/rg_1_9.nc
+/.pytest_cache/
+/dt
+/LatHeatVap
+/psy
+/psy0
