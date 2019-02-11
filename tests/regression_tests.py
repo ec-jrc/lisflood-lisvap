@@ -3,7 +3,7 @@ import os
 import numpy as np
 from pcraster.numpy_operations import pcr2numpy
 
-from global_modules.add1lisvap import readnetcdf
+from global_modules.add1 import readnetcdf
 from global_modules.globals import binding
 from tests import reference_nc_paths, atol
 
@@ -13,10 +13,10 @@ def test_output():
     output_path = binding['PathOut']
     results = []
     for var in reference_nc_paths:
-        output_nc = os.path.join(output_path, '{}.nc'.format(var))
+        output_nc = os.path.join(output_path, var)
         for step in xrange(1, 10):
-            reference = pcr2numpy(readnetcdf(reference_nc_paths[var], step, value=var), -9999)
-            current_output = pcr2numpy(readnetcdf(output_nc, step, value=var), -9999)
+            reference = pcr2numpy(readnetcdf(reference_nc_paths[var], step, variable_name=var), -9999)
+            current_output = pcr2numpy(readnetcdf(output_nc, step, variable_name=var), -9999)
             same_size = reference.size == current_output.size
             diff_values = np.abs(reference - current_output)
             same_values = np.allclose(diff_values, np.zeros(diff_values.shape), atol=atol)

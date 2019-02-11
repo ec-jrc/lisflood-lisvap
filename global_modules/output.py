@@ -9,15 +9,14 @@
 # Licence:     <your licence>
 # -------------------------------------------------------------------------
 
-from pcraster import*
-from pcraster.framework import *
-import sys
 import os
-import string
-import math
 
-from global_modules.globals import *
-from global_modules.add1 import *
+from pcraster.operations import mapmaximum, catchmenttotal
+from pcraster.framework import report
+
+from .add1 import writenet, loadmap, valuecell
+from .globals import option, Flags, reportTimeSerieAct, reportMapsEnd, binding, reportMapsSteps, cdfFlag, reportMapsAll
+from .zusatz import TimeoutputTimeseries, LisfloodError
 
 
 class outputTssMap(object):
@@ -34,10 +33,8 @@ class outputTssMap(object):
     def initial(self):
         """ initial part of the output module
         """
-        #binding['Catchments'] = self.var.Catchments
         binding['1'] = None
         # output for single column eg mapmaximum
-
         self.var.Tss = {}
 
         for tss in reportTimeSerieAct.keys():
@@ -60,7 +57,6 @@ class outputTssMap(object):
 
             self.var.Tss[tss] = TimeoutputTimeseries(binding[tss], self.var, outpoints, noHeader=Flags['noheader'])
 
-
     def dynamic(self):
         """ dynamic part of the output module
         """
@@ -74,11 +70,11 @@ class outputTssMap(object):
         # self.report(self.Precipitation,binding['TaMaps'])
 
         # if fast init than without time series
-        if not(option['InitLisfloodwithoutSplit']):
+        if not option['InitLisfloodwithoutSplit']:
 
             if Flags['loud']:
                 # print the discharge of the first output map loc
-                print " %10.2f"  %self.var.Tss["DisTS"].firstout(self.var.ChanQ)
+                print " %10.2f" % self.var.Tss["DisTS"].firstout(self.var.ChanQ)
 
             for tss in reportTimeSerieAct.keys():
                 what = 'self.var.' + reportTimeSerieAct[tss]['outputVar'][0]
@@ -111,7 +107,6 @@ class outputTssMap(object):
                     head, tail = os.path.split(where)
                     if '.' in tail:
                         if option['writeNetcdf']:
-                            #print 'writeNetcdf'
                             writenet(0, eval(what), where, self.var.currentTimeStep(), maps, reportMapsEnd[maps][
                                      'outputVar'][0], reportMapsEnd[maps]['unit'][0], 'f4', self.var.CalendarDate, flagTime=False)
                         else:
