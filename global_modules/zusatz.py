@@ -22,8 +22,8 @@ from pcraster.framework.Timeoutput import TimeoutputTimeseries
 from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimum, mapmaximum, nominal
 from netCDF4 import Dataset
 
-from globals import (option, binding, ReportSteps, reportTimeSerieAct, reportMapsAll,
-                     reportMapsSteps, reportMapsEnd, MMaskMap, modelSteps, timeMes, timeMesString)
+from .globals import (option, binding, ReportSteps, reportTimeSerieAct, reportMapsAll,
+                      reportMapsSteps, reportMapsEnd, MMaskMap, modelSteps, timeMes, timeMesString)
 
 
 class LisfloodError(Exception):
@@ -63,8 +63,9 @@ def Calendar(input):
                     ]
     try:
         # try reading step number from number or string
+        # FIXME this branch try except seems to be not used as dates are now properlyl formatted
         date = float(input)
-    except:
+    except ValueError:
         # try reading a date in one of available formats
         for date_format in DATE_FORMATS:
             try:
@@ -73,26 +74,35 @@ def Calendar(input):
             except ValueError:
                 pass
         # if cannot read input then stop
-        msg = "Wrong step or date format in XML settings file\n" \
-              "Input " + str(input)
+        msg = """
+        Wrong step or date format in XML settings file
+        Input {}
+        """.format(input)
         raise LisfloodError(msg)
     else:
         return date
 
 
-def optionBinding(settingsfile, optionxml):
-    """ read settings file and returns
+def option_binding(settingsfile, optionxml):
+    """
+    Read settings and options XML files and set values for global dicts (bindongs and options)
+    It also adds the following built-in variables to be used in settings:
+
+    1. ProjectDir (root folder of lisvap)
+    2. ProjectPath (same as ProjectDir)
+
     bindings = key and value (filename or value)
     options  = control of Lisflood to use certain subroutines
     """
 
-    optionSetting = {}
+    option_setting = {}
     user = {}
     repTimeserie = {}
     repMaps = {}
 
     #  built-in variables
     user['ProjectDir'] = os.path.normpath(os.path.join(os.path.dirname(__file__), '../'))
+    user['ProjectPath'] = user['ProjectDir']
 
     domopt = xml.dom.minidom.parse(optionxml)
     dom = xml.dom.minidom.parse(settingsfile)
@@ -101,17 +111,15 @@ def optionBinding(settingsfile, optionxml):
     # and setting them tpo their default value
     optDef = domopt.getElementsByTagName("lfoptions")[0]
     for optset in optDef.getElementsByTagName("setoption"):
-        option[optset.attributes['name'].value] = bool(
-            int(optset.attributes['default'].value))
+        option[optset.attributes['name'].value] = bool(int(optset.attributes['default'].value))
 
     # getting option set in the specific settings file
     # and resetting them to their choice value
     optSet = dom.getElementsByTagName("lfoptions")[0]
     for optset in optSet.getElementsByTagName("setoption"):
-        optionSetting[optset.attributes['name'].value] = bool(
-            int(optset.attributes['choice'].value))
-    for key in optionSetting.keys():
-        option[key] = optionSetting[key]
+        option_setting[optset.attributes['name'].value] = bool(int(optset.attributes['choice'].value))
+    for key in option_setting.keys():
+        option[key] = option_setting[key]
 
     # reverse the initLisflood option to use it as a restriction for output
     # eg. produce output if not(initLisflood)
@@ -143,8 +151,6 @@ def optionBinding(settingsfile, optionxml):
                 expr = expr.replace(expr[a1:a2 + 1], s2)
         binding[i] = expr
 
-
-# ---------------------------------------------
     # Split the string ReportSteps into an int array
     # replace endtime with number
     # replace .. with sequence
@@ -163,8 +169,6 @@ def optionBinding(settingsfile, optionxml):
     ReportSteps['rep'] = map(int, jjj)
     # maps are reported at these time steps
 
-
-# -------------------------
     # running through all times series
     reportTimeSerie = domopt.getElementsByTagName("lftime")[0]
     for repTime in reportTimeSerie.getElementsByTagName("setserie"):
@@ -176,12 +180,14 @@ def optionBinding(settingsfile, optionxml):
         key = repTime.attributes['name'].value
         repTimeserie[key] = d
         repOpt = repTimeserie[key]['repoption']
+
         try:
             restOpt = repTimeserie[key]['restrictoption']
         except:
             # add restricted option if not in already
             repTimeserie[key]['restrictoption'] = ['']
             restOpt = repTimeserie[key]['restrictoption']
+
         try:
             test = repTimeserie[key]['operation']
         except:
@@ -207,7 +213,6 @@ def optionBinding(settingsfile, optionxml):
                         if allow:
                             reportTimeSerieAct[key] = repTimeserie[key]
 
-# -------------------------
     # running through all maps
 
     reportMap = domopt.getElementsByTagName("lfmaps")[0]
@@ -531,9 +536,8 @@ def remoteInputAccess(function, file_path, error_msg):
         function: function to be called to read/open the file.
         file_path: path of the file to be read/open.
     """
-    operating_system="Linux"
     num_trials = 1
-    bad_sep = "/" if operating_system == "Windows" else "\\"
+    bad_sep = "\\"
     file_path = file_path.replace(bad_sep, os.path.sep)
     root = os.path.sep.join(file_path.split(os.path.sep)[:4])
     while num_trials <= 10:

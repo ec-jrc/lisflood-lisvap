@@ -27,7 +27,7 @@ import sys
 from pyexpat import *
 
 from global_modules.globals import binding, Flags, globalFlags, timeMesSum, timeMesString
-from global_modules.zusatz import optionBinding, checkifDate, DynamicFrame
+from global_modules.zusatz import option_binding, checkifDate, DynamicFrame
 from Lisvap_dynamic import LisvapModelDyn
 from Lisvap_initial import LisvapModelIni
 
@@ -43,21 +43,22 @@ class LisvapModel(LisvapModelIni, LisvapModelDyn):
 
 
 def lisvapexe(settings_file, optionxml_file):
-    # optionBinding(settings, optionxml)
-    optionBinding(settings_file, optionxml_file)
+    # option_binding(settings, optionxml)
+    option_binding(settings_file, optionxml_file)
     # read all the possible option for modelling and for generating output
     # read the settingsfile with all information about the catchments(s)
     # and the choosen option for mdelling and output
     # bindkey = sorted(binding.keys())
 
-    StepStart = binding['StepStart']
-    StepEnd = binding['StepEnd']
-    start_date, end_date = datetime.datetime.strptime(StepStart, "%d/%m/%Y %H:%M"), datetime.datetime.strptime(StepEnd, "%d/%m/%Y %H:%M")
+    step_start = binding['StepStart']
+    step_end = binding['StepEnd']
+    start_date, end_date = datetime.datetime.strptime(step_start, "%d/%m/%Y %H:%M"), datetime.datetime.strptime(step_end, "%d/%m/%Y %H:%M")
     start_date_simulation = datetime.datetime.strptime(binding['CalendarDayStart'], "%d/%m/%Y %H:%M")
     timestep_start = (start_date - start_date_simulation).days + 1
     timestep_end = (end_date - start_date_simulation).days + 1
     checkifDate('StepStart', 'StepEnd')
-    print 'Start date: {} ({}) - End date: {} ({})'.format(StepStart, timestep_start, StepEnd, timestep_end)
+    print 'Start date: {} ({}) - End date: {} ({})'.format(step_start, timestep_start, step_end, timestep_end)
+
     if Flags['loud']:
         print "%-6s %10s %11s\n" % ("Step", "Date", "ET0")
 
