@@ -72,31 +72,35 @@ class LisvapModelDyn(DynamicModel):
         """
 
         if option['EFAS']:
-            ESat = 6.10588 * operations.exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
             # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
-            # #the formula above returns value in pascal, not mbar
+            # the formula above returns value in pascal, not mbar
             # Goudriaan equation (1977)
             # saturated vapour pressure [mbar]
             # TAvg [deg Celsius]
             # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
+            ESat = 6.10588 * operations.exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
+
             # Windspeed2 = self.Wind*0.749
             Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
 
-            DeltaT = operations.max(self.TMax - self.TMin, 0.0)
             # difference between daily maximum and minimum temperature [deg C]
+            DeltaT = operations.max(self.TMax - self.TMin, 0.0)
 
-            BU = operations.max(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
             # empirical constant in windspeed formula
             # if DeltaT is less than 12 degrees, BU=0.54
-            VapPressDef = operations.max(ESat - self.EAct, 0.0)
-            # Vapour pressure deficit [mbar]
+            BU = operations.max(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
 
-            EA = 0.26 * VapPressDef * (self.FactorCanopy + BU * Windspeed2)
+            # Vapour pressure deficit [mbar]
+            VapPressDef = operations.max(ESat - self.EAct, 0.0)
+
             # evaporative demand of reference vegetation canopy [mm/d]
-            EASoil = 0.26 * VapPressDef * (self.FactorSoil + BU * Windspeed2)
+            EA = 0.26 * VapPressDef * (self.FactorCanopy + BU * Windspeed2)
+
             # evaporative demand of bare soil surface [mm/d]
-            EAWater = 0.26 * VapPressDef * (self.FactorWater + BU * Windspeed2)
+            EASoil = 0.26 * VapPressDef * (self.FactorSoil + BU * Windspeed2)
+
             # evaporative demand of water surface [mm/d]
+            EAWater = 0.26 * VapPressDef * (self.FactorWater + BU * Windspeed2)
 
             # ************************************************************
             # ***** ANGOT RADIATION **************************************
@@ -111,22 +115,22 @@ class LisvapModelDyn(DynamicModel):
             sqr = operations.sqr
             cover = operations.cover
 
-            declin = -23.45*cos((360. * (self.CalendarDay + 10)) / 365.)
             # solar declination [degrees]
-        
-            solar_constant = self.AvSolarConst*(1+(0.033 * np.cos(2 * self.Pi * self.CalendarDay/365.)))
+            declin = -23.45*cos((360. * (self.CalendarDay + 10)) / 365.)
+
             # solar constant at top of the atmosphere [J/m2/s]
+            solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.CalendarDay/365.)))
+
             self.PD = -2.65  # correction constant
             tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat))/(cos(declin) * cos(self.Lat))
             tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
-            DayLength = 12. + (24. / 180.) * tmp2
             # daylength [hour]
-
-            DayLength = cover(DayLength, 0.0)
+            day_length = 12. + (24. / 180.) * tmp2
+            day_length = cover(day_length, 0.0)
             # Daylength equation can produce MV at high latitudes,
             # this statements sets day length to 0 in that case  
  
-            int_solar_height = 3600. * (DayLength*sin(declin)*sin(self.Lat) + (24./self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
+            int_solar_height = 3600. * (day_length * sin(declin) * sin(self.Lat) + (24./self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
             # integral of solar height [s] over the day
 
             int_solar_height = operations.max(int_solar_height, 0.0)
@@ -136,7 +140,6 @@ class LisvapModelDyn(DynamicModel):
 
             RadiationAngot=int_solar_height * solar_constant
             # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
-
 
             # ************************************************************
             # ***** NET ABSORBED RADIATION *******************************
@@ -180,13 +183,13 @@ class LisvapModelDyn(DynamicModel):
             AdjCC = operations.ifthenelse(AdjCC > 1, 1, AdjCC)
 
             # Net emissivity
-            RN = self.StefBolt*((self.TAvg+273)**4)*EmNet*AdjCC
+            RN = self.StefBolt * ((self.TAvg + 273)**4) * EmNet * AdjCC
         
-            RNA = operations.max(((1-self.AlbedoCanopy)*Rgd-RN)/(1E6*LatHeatVap),0.0);
+            RNA = operations.max(((1 - self.AlbedoCanopy) * Rgd - RN) / (1E6 * LatHeatVap), 0.0)
             # net absorbed radiation of reference vegetation canopy [mm/d]
-            RNASoil = operations.max(((1-self.AlbedoSoil)*Rgd-RN)/(1E6*LatHeatVap),0.0);
+            RNASoil = operations.max(((1 - self.AlbedoSoil) * Rgd - RN) / (1E6 * LatHeatVap), 0.0)
             # net absorbed radiation of bare soil surface
-            RNAWater = operations.max(((1-self.AlbedoWater)*Rgd-RN)/(1E6*LatHeatVap),0.0);
+            RNAWater = operations.max(((1 - self.AlbedoWater) * Rgd - RN) / (1E6 * LatHeatVap), 0.0)
 
             # net absorbed radiation of water surface
             # Qnet (NetRadiation), in MJm-2d-1

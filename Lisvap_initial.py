@@ -54,14 +54,15 @@ class LisvapModelIni(DynamicModel):
         # include all the hydrological modules
         self.misc_module = MiscInitial(self)
         self.readmeteo_module = ReadMeteo(self)
+        self.ReportSteps = None
+        self.sumEW = None
+        self.sumET = None
 
-# ====== INITIAL ================================
+    # ====== INITIAL ================================
     def initial(self):
         """ Initial part of LISFLOOD
             calls the initial part of the hydrological modules
         """
-        # MMaskMap = self.MaskMap
-        # for checking maps
         self.ReportSteps = ReportSteps['rep']
         self.misc_module.initial()
         self.output_module.initial()
