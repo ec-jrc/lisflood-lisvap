@@ -51,13 +51,13 @@ time step [seconds] ALWAYS USE 86400!!
 </comment>
 </textvar>
 
-<textvar name="StepStart" value="02/01/2017 06:00">
+<textvar name="StepStart" value="02/01/1990 06:00">
 <comment>
 Number of first time step in simulation
 </comment>
 </textvar>
 
-<textvar name="StepEnd" value="02/01/2018 06:00">
+<textvar name="StepEnd" value="01/03/1990 06:00">
 <comment>
 Number of last time step
 </comment>
@@ -456,7 +456,7 @@ BASE INPUT MAPS
 **************************************************************
 </comment>
 
-<textvar name="MaskMap" value="/naha/Europe_2017/_Stuff/TEST/var_order/areaall.nc">
+<textvar name="MaskMap" value="$(PathMeteoIn)/areaall.nc">
 <comment>
 Clone map
 </comment>
