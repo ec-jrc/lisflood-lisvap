@@ -13,12 +13,14 @@
 import xml.dom.minidom
 import datetime
 from time import *
+import time as xtime
 
-from pcraster import*
+from pcraster import *
 from pcraster.framework import *
 
 from globals import *
 from netCDF4 import Dataset
+
 
 class LisfloodError(Exception):
 
@@ -33,6 +35,7 @@ class LisfloodError(Exception):
 
     def __str__(self):
         return self._msg
+
 
 def Calendar(input):
     """ Get date or number of steps from input.
@@ -57,7 +60,6 @@ def Calendar(input):
     try:
         # try reading step number from number or string
         date = float(input)
-        return date
     except:
         # try reading a date in one of available formats
         for date_format in DATE_FORMATS:
@@ -70,15 +72,14 @@ def Calendar(input):
         msg = "Wrong step or date format in XML settings file\n" \
               "Input " + str(input)
         raise LisfloodError(msg)
-        quit(1)
-
-    return date
+    else:
+        return date
 
 
 def optionBinding(settingsfile, optionxml):
     """ read settings file and returns
     bindings = key and value (filename or value)
-    options  = controll of Lisflood to use certain subroutines
+    options  = control of Lisflood to use certain subroutines
     """
 
     optionSetting = {}
@@ -86,7 +87,9 @@ def optionBinding(settingsfile, optionxml):
     repTimeserie = {}
     repMaps = {}
 
-    # domopt = xml.dom.minidom.parseString(optionxml)
+    #  built-in variables
+    user['ProjectDir'] = os.path.normpath(os.path.join(os.path.dirname(__file__), '../'))
+
     domopt = xml.dom.minidom.parse(optionxml)
     dom = xml.dom.minidom.parse(settingsfile)
 
@@ -97,8 +100,8 @@ def optionBinding(settingsfile, optionxml):
         option[optset.attributes['name'].value] = bool(
             int(optset.attributes['default'].value))
 
-        # getting option set in the specific settings file
-        # and resetting them to their choice value
+    # getting option set in the specific settings file
+    # and resetting them to their choice value
     optSet = dom.getElementsByTagName("lfoptions")[0]
     for optset in optSet.getElementsByTagName("setoption"):
         optionSetting[optset.attributes['name'].value] = bool(
@@ -114,16 +117,15 @@ def optionBinding(settingsfile, optionxml):
     # get all the bindings in the first part of the settingsfile = lfuser
     lfuse = dom.getElementsByTagName("lfuser")[0]
     for userset in lfuse.getElementsByTagName("textvar"):
-        user[userset.attributes['name'].value] = str(
-            userset.attributes['value'].value)
+        user[userset.attributes['name'].value] = str(userset.attributes['value'].value)
+        binding[userset.attributes['name'].value] = str(userset.attributes['value'].value)
 
-        # get all the binding in the last part of the settingsfile  = lfbinding
+    # get all the binding in the last part of the settingsfile  = lfbinding
     bind = dom.getElementsByTagName("lfbinding")[0]
     for bindset in bind.getElementsByTagName("textvar"):
-        binding[bindset.attributes['name'].value] = str(
-            bindset.attributes['value'].value)
+        binding[bindset.attributes['name'].value] = str(bindset.attributes['value'].value)
 
-        # replace/add the information from lfuser to lfbinding
+    # replace/add the information from lfuser to lfbinding
     for i in binding.keys():
         expr = binding[i]
         while expr.find('$(') > -1:
@@ -133,7 +135,8 @@ def optionBinding(settingsfile, optionxml):
                 s2 = user[expr[a1 + 2:a2]]
             except KeyError:
                 print 'no ', expr[a1 + 2:a2], ' in lfuser defined'
-            expr = expr.replace(expr[a1:a2 + 1], s2)
+            else:
+                expr = expr.replace(expr[a1:a2 + 1], s2)
         binding[i] = expr
 
 
@@ -545,15 +548,16 @@ def remoteInputAccess(function, file_path, error_msg):
             num_trials = 10 + 1
         except IOError:
             if os.path.exists(root) and not os.path.exists(file_path):
-                raise LisfloodFileError(file_path, error_msg)
+                raise LisfloodError(file_path)
             elif num_trials == 10:
                 raise Exception("Cannot access file {0}!\nNetwork down for too long OR bad root directory {1}!".format(file_path, root))
             else:
                 num_trials += 1
                 print("Trying to access file {0}: attempt n. {1}".format(file_path, num_trials))
-                xtime.sleep(READ_PAUSE)
+                xtime.sleep(5)
     return obj
-    
+
+
 def datetoInt(dateIn,both=False):
     """ Get number of steps between dateIn and CalendarDayStart.
     
