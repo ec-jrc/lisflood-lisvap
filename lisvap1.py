@@ -46,9 +46,11 @@ class LisvapModel(LisvapModel_ini, LisvapModel_dyn):
 # ============== LISFLOOD execute ==================
 # ==================================================
 
-def Lisvapexe():
 
-    optionBinding(settings, optionxml)
+def Lisvapexe(settings_file, optionxml_file):
+
+    # optionBinding(settings, optionxml)
+    optionBinding(settings_file, optionxml_file)
     # read all the possible option for modelling and for generating output
     # read the settingsfile with all information about the catchments(s)
     # and the choosen option for mdelling and output
@@ -60,8 +62,8 @@ def Lisvapexe():
         except: s = '\'' + binding[key] + '\''
     """
 
-    StepStart = (binding['StepStart'])
-    StepEnd = (binding['StepEnd'])
+    StepStart = binding['StepStart']
+    StepEnd = binding['StepEnd']
     start_date, end_date = datetime.datetime.strptime(StepStart, "%d/%m/%Y %H:%M"), datetime.datetime.strptime(StepEnd, "%d/%m/%Y %H:%M")
     start_date_simulation = datetime.datetime.strptime(binding['CalendarDayStart'], "%d/%m/%Y %H:%M")
     timestep_start = (start_date - start_date_simulation).days + 1
@@ -113,6 +115,7 @@ def usage():
     """
     sys.exit(1)
 
+
 def headerinfo():
 
    print "Lisvap ",__version__," ",__date__,
@@ -135,11 +138,11 @@ if __name__ == "__main__":
     LF_Path = os.path.dirname(sys.argv[0])
     LF_Path = os.path.abspath(LF_Path)
     optionxml = os.path.normpath(LF_Path + "/OptionTserieMapsLisvap.xml")
-
     settings = sys.argv[1]    # setting.xml file
 
     args = sys.argv[2:]
     globalFlags(args)
     # setting of global flag e.g checking input maps, producing more output information
-    if not(Flags['veryquiet']) and not(Flags['quiet']) : headerinfo()
-    Lisvapexe()
+    if not Flags['veryquiet'] and not Flags['quiet']:
+        headerinfo()
+    Lisvapexe(settings, optionxml)
