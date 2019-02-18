@@ -23,17 +23,17 @@ def test_output():
             all_ok = same_size and same_values
             if not all_ok:
                 array_ok = np.isclose(diff_values, np.zeros(diff_values.shape), atol=atol)
-                wrong_values_size = array_ok[array_ok is False].size
+                wrong_values_size = array_ok[~array_ok].size
                 if wrong_values_size > 0:
                     max_diff = np.max(diff_values)
                     large_diff = max_diff > 2 * 0.01
                     perc_wrong = float(wrong_values_size * 100) / float(diff_values.size)
                     print 'Var: {} - Step {} ---> Max Diff: {:3.9f}, % Wrong values: {:3.9f} ({})'.format(var, step, max_diff, perc_wrong, wrong_values_size)
-                    if perc_wrong >= 0.05:
+                    if perc_wrong >= 0.001:
                         print '[ERROR]'
                         print 'Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff)
                         results.append(False)
-                    elif perc_wrong >= 0.0001 and large_diff:
+                    elif perc_wrong >= 0.01 and large_diff:
                         print '[WARNING]'
                         print 'Var: {} - STEP {}: {:3.9f}% of values have large difference. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff)
                         results.append(False)
