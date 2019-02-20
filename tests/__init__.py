@@ -8,7 +8,7 @@ from global_modules.zusatz import option_binding
 current_dir = os.path.dirname(__file__)
 settings_path = os.path.join(current_dir, 'data/tests_settings.xml')
 optionxml = os.path.join(current_dir, 'data/OptionTserieMapsLisvap.xml')
-reference_nc_filenames = ['data/e0_1_9', 'data/es_1_9', 'data/et_1_9']
+reference_nc_filenames = ['data/e0_1_15', 'data/es_1_15', 'data/et_1_15']
 reference_nc_paths = {nc[5:7]: os.path.join(current_dir, nc) for nc in reference_nc_filenames}
 atol = 0.01
 
