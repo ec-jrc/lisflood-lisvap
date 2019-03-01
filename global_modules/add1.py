@@ -9,8 +9,6 @@
 # Licence:     <your licence>
 # -------------------------------------------------------------------------
 
-import pickle
-import re
 import warnings
 import datetime
 import time as xtime
@@ -88,7 +86,6 @@ def metaNetCDF(name):
     nf1 = Dataset(filename, 'r')
     for var in nf1.variables:
         metadataNCDF[var] = nf1.variables[var].__dict__
-        # print 'dict',metadataNCDF[var]
     nf1.close()
 
 

@@ -33,7 +33,8 @@ class LisvapModelIni(DynamicModel):
             defines the mask map and the outlet points
             initialization of the hydrological modules
         """
-        DynamicModel.__init__(self)
+        # DynamicModel.__init__(self)
+        super(DynamicModel, self).__init__()
 
         # try to make the maskmap more flexible e.g. col, row,x1,y1  or x1,x2,y1,y2
         self.MaskMap = loadsetclone('MaskMap')
