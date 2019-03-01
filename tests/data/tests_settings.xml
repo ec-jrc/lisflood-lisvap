@@ -57,13 +57,13 @@ Number of first time step in simulation
 </comment>
 </textvar>
 
-<textvar name="StepEnd" value="10/01/1990 06:00">
+<textvar name="StepEnd" value="16/01/1990 06:00">
 <comment>
 Number of last time step
 </comment>
 </textvar>
 
-<textvar name="ReportSteps" value="1..9">
+<textvar name="ReportSteps" value="1..15">
 <comment>
 </comment>
 </textvar>
@@ -344,38 +344,38 @@ INPUT METEOROLOGICAL TIMESERIES AS MAPS
 **************************************************************
 </comment>
 
-<textvar name="TMaxMaps" value="$(PathMeteoIn)/tx_1_9">
+<textvar name="TMaxMaps" value="$(PathMeteoIn)/tx_1_15">
 <comment>
 Maximum daily temperature [K]
 </comment>
 </textvar>
 
-<textvar name="TMinMaps" value="$(PathMeteoIn)/tn_1_9">
+<textvar name="TMinMaps" value="$(PathMeteoIn)/tn_1_15">
 <comment>
 Minimum daily temperature [K]
 </comment>
 </textvar>
 
 
-<textvar name="EActMaps" value="$(PathMeteoIn)/pd_1_9">
+<textvar name="EActMaps" value="$(PathMeteoIn)/pd_1_15">
 <comment>
 Actual vapour pressure [mbar]
 
 </comment>
 </textvar>
 
-<textvar name="WindMaps" value="$(PathMeteoIn)/ws_1_9">
+<textvar name="WindMaps" value="$(PathMeteoIn)/ws_1_15">
 <comment>
 Wind speed at 10 m from surface [m/s]
 </comment>
 </textvar>
 
-<textvar name="RgdMaps" value="$(PathMeteoIn)/rg_1_9">
+<textvar name="RgdMaps" value="$(PathMeteoIn)/rg_1_15">
 <comment>
 rgd - calculated solar radiation [W/m2]
 </comment>
 </textvar>
-<textvar name="TAvgMaps" value="$(PathMeteoIn)/ta_1_9">
+<textvar name="TAvgMaps" value="$(PathMeteoIn)/ta_1_15">
 <comment>
 average daily temperature [C or K]
 </comment>
@@ -456,7 +456,7 @@ BASE INPUT MAPS
 **************************************************************
 </comment>
 
-<textvar name="MaskMap" value="/DATA/PycharmProjects/lisflood-lisvap/tests/data/areaall.nc">
+<textvar name="MaskMap" value="$(ProjectDir)/tests/data/areaall.nc">
 <comment>
 Clone map
 </comment>
