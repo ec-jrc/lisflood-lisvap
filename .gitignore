@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+### Jekyll template
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+.idea/
+*.py[cod]
+__pycache__/
