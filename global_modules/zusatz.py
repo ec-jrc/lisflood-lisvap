@@ -9,17 +9,21 @@
 # Licence:     <your licence>
 # -------------------------------------------------------------------------
 
-
+import os
+import sys
 import xml.dom.minidom
 import datetime
-from time import *
-import time as xtime
+import time
+from decimal import Decimal
 
-from pcraster import *
-from pcraster.framework import *
-
-from globals import *
+import pcraster
+from pcraster.framework.dynamicFramework import DynamicFramework
+from pcraster.framework.Timeoutput import TimeoutputTimeseries
+from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimum, mapmaximum, nominal
 from netCDF4 import Dataset
+
+from .globals import (option, binding, ReportSteps, reportTimeSerieAct, reportMapsAll,
+                      reportMapsSteps, reportMapsEnd, MMaskMap, modelSteps, timeMes, timeMesString)
 
 
 class LisfloodError(Exception):
@@ -59,8 +63,9 @@ def Calendar(input):
                     ]
     try:
         # try reading step number from number or string
+        # FIXME this branch try except seems to be not used as dates are now properlyl formatted
         date = float(input)
-    except:
+    except ValueError:
         # try reading a date in one of available formats
         for date_format in DATE_FORMATS:
             try:
@@ -69,26 +74,35 @@ def Calendar(input):
             except ValueError:
                 pass
         # if cannot read input then stop
-        msg = "Wrong step or date format in XML settings file\n" \
-              "Input " + str(input)
+        msg = """
+        Wrong step or date format in XML settings file
+        Input {}
+        """.format(input)
         raise LisfloodError(msg)
     else:
         return date
 
 
-def optionBinding(settingsfile, optionxml):
-    """ read settings file and returns
+def option_binding(settingsfile, optionxml):
+    """
+    Read settings and options XML files and set values for global dicts (bindongs and options)
+    It also adds the following built-in variables to be used in settings:
+
+    1. ProjectDir (root folder of lisvap)
+    2. ProjectPath (same as ProjectDir)
+
     bindings = key and value (filename or value)
     options  = control of Lisflood to use certain subroutines
     """
 
-    optionSetting = {}
+    option_setting = {}
     user = {}
     repTimeserie = {}
     repMaps = {}
 
     #  built-in variables
     user['ProjectDir'] = os.path.normpath(os.path.join(os.path.dirname(__file__), '../'))
+    user['ProjectPath'] = user['ProjectDir']
 
     domopt = xml.dom.minidom.parse(optionxml)
     dom = xml.dom.minidom.parse(settingsfile)
@@ -97,17 +111,15 @@ def optionBinding(settingsfile, optionxml):
     # and setting them tpo their default value
     optDef = domopt.getElementsByTagName("lfoptions")[0]
     for optset in optDef.getElementsByTagName("setoption"):
-        option[optset.attributes['name'].value] = bool(
-            int(optset.attributes['default'].value))
+        option[optset.attributes['name'].value] = bool(int(optset.attributes['default'].value))
 
     # getting option set in the specific settings file
     # and resetting them to their choice value
     optSet = dom.getElementsByTagName("lfoptions")[0]
     for optset in optSet.getElementsByTagName("setoption"):
-        optionSetting[optset.attributes['name'].value] = bool(
-            int(optset.attributes['choice'].value))
-    for key in optionSetting.keys():
-        option[key] = optionSetting[key]
+        option_setting[optset.attributes['name'].value] = bool(int(optset.attributes['choice'].value))
+    for key in option_setting.keys():
+        option[key] = option_setting[key]
 
     # reverse the initLisflood option to use it as a restriction for output
     # eg. produce output if not(initLisflood)
@@ -139,8 +151,6 @@ def optionBinding(settingsfile, optionxml):
                 expr = expr.replace(expr[a1:a2 + 1], s2)
         binding[i] = expr
 
-
-# ---------------------------------------------
     # Split the string ReportSteps into an int array
     # replace endtime with number
     # replace .. with sequence
@@ -159,8 +169,6 @@ def optionBinding(settingsfile, optionxml):
     ReportSteps['rep'] = map(int, jjj)
     # maps are reported at these time steps
 
-
-# -------------------------
     # running through all times series
     reportTimeSerie = domopt.getElementsByTagName("lftime")[0]
     for repTime in reportTimeSerie.getElementsByTagName("setserie"):
@@ -172,12 +180,14 @@ def optionBinding(settingsfile, optionxml):
         key = repTime.attributes['name'].value
         repTimeserie[key] = d
         repOpt = repTimeserie[key]['repoption']
+
         try:
             restOpt = repTimeserie[key]['restrictoption']
         except:
             # add restricted option if not in already
             repTimeserie[key]['restrictoption'] = ['']
             restOpt = repTimeserie[key]['restrictoption']
+
         try:
             test = repTimeserie[key]['operation']
         except:
@@ -203,7 +213,6 @@ def optionBinding(settingsfile, optionxml):
                         if allow:
                             reportTimeSerieAct[key] = repTimeserie[key]
 
-# -------------------------
     # running through all maps
 
     reportMap = domopt.getElementsByTagName("lfmaps")[0]
@@ -287,19 +296,15 @@ def optionBinding(settingsfile, optionxml):
                         if allow:
                             reportMapsEnd[key] = repMaps[key]
 
-    # return option,binding,ReportSteps
-    # return option,ReportSteps
-    # return ReportSteps
-    return
-
 
 def counted(fn):
     def wrapper(*args, **kwargs):
-        wrapper.called+= 1
+        wrapper.called += 1
         return fn(*args, **kwargs)
-    wrapper.called= 0
-    wrapper.__name__= fn.__name__
+    wrapper.called = 0
+    wrapper.__name__ = fn.__name__
     return wrapper
+
 
 @counted
 def checkmap(name, value, map, flagmap, find):
@@ -313,24 +318,21 @@ def checkmap(name, value, map, flagmap, find):
         except:
             msg = "Map: " + name + " in " + value + " does not fit"
             if name == "LZAvInflowMap":
-                msg +="\nMaybe run initial run first"
+                msg += "\nTry to execute the initial run first"
             raise LisfloodError(msg)
 
         mvmap = maptotal(smap)
-        mv = cellvalue(mvmap, 1, 1)[0]
+        mv = pcraster.cellvalue(mvmap, 1, 1)[0]
         s.append(mv)
 
         less = maptotal(ifthenelse(defined(MMaskMap), amap - smap, scalar(0)))
-        s.append(cellvalue(less, 1, 1)[0])
+        s.append(pcraster.cellvalue(less, 1, 1)[0])
         less = mapminimum(scalar(map))
-        s.append(cellvalue(less, 1, 1)[0])
+        s.append(pcraster.cellvalue(less, 1, 1)[0])
         less = maptotal(scalar(map))
-        if mv > 0:
-            s.append(cellvalue(less, 1, 1)[0] / mv)
-        else:
-            s.append('0')
+        s.append(pcraster.cellvalue(less, 1, 1)[0] / mv) if mv > 0 else s.append('0')
         less = mapmaximum(scalar(map))
-        s.append(cellvalue(less, 1, 1)[0])
+        s.append(pcraster.cellvalue(less, 1, 1)[0])
         if find > 0:
             if find == 2:
                 s.append('last_Map_used')
@@ -348,6 +350,7 @@ def checkmap(name, value, map, flagmap, find):
         print "%-25s%-40s%11s%11s%11s%11s%11s" %("Name","File/Value","nonMV","MV","min","mean","max")
     print "%-25s%-40s%11i%11i%11.2f%11.2f%11.2f" %(s[0],s[1][-39:],s[2],s[3],s[4],s[5],s[6])
     return
+
 
 def checkifDate(start,end):
     """ Check simulation start and end dates or timesteps
@@ -382,9 +385,11 @@ def checkifDate(start,end):
     modelSteps.append(intStart)
     modelSteps.append(intEnd)
     return
+
+
 def timemeasure(name,loops=0):
 
-    timeMes.append(clock())
+    timeMes.append(time.clock())
     if loops == 0:
         s = name
     else:
@@ -443,28 +448,25 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
         self._sampleValues = None
 
         _idMap = False
-        if isinstance(idMap, str) or isinstance(idMap, pcraster._pcraster.Field):
+        if isinstance(idMap, (str, pcraster.pcraster.Field)):
             _idMap = True
 
-        nrRows = self._userModel.nrTimeSteps(
-        ) - self._userModel.firstTimeStep() + 1
+        nrRows = self._userModel.nrTimeSteps() - self._userModel.firstTimeStep() + 1
 
         if _idMap:
             self._spatialId = idMap
             if isinstance(idMap, str):
                 self._spatialId = pcraster.readmap(idMap)
 
-            _allowdDataTypes = [
-                pcraster.Nominal, pcraster.Ordinal, pcraster.Boolean]
+            _allowdDataTypes = [pcraster.Nominal, pcraster.pcraster.Ordinal, pcraster.Boolean]
             if self._spatialId.dataType() not in _allowdDataTypes:
                 #raise Exception(
                 #    "idMap must be of type Nominal, Ordinal or Boolean")
                 # changed into creating a nominal map instead of bailing out
-                self._spatialId = pcraster.nominal(self._spatialId)
+                self._spatialId = nominal(self._spatialId)
 
             if self._spatialId.isSpatial():
-                self._maxId, valid = pcraster.cellvalue(
-                    pcraster.mapmaximum(pcraster.ordinal(self._spatialId)), 1)
+                self._maxId, valid = pcraster.pcraster.cellvalue(pcraster.operations.mapmaximum(pcraster.operations.ordinal(self._spatialId)), 1)
             else:
                 self._maxId = 1
 
@@ -474,20 +476,18 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
             # for cellId in range(1, self._maxId + 1):
             # self._sampleAddresses.append(self._getIndex(cellId))
 
-            self._sampleAddresses = [1 for i in xrange(self._maxId)]
+            self._sampleAddresses = [1 for _ in xrange(self._maxId)]
             # init with the left/top cell - could also be 0 but then you have to catch it in
             # the sample routine and put an exeption in
-            nrCells = pcraster.clone().nrRows() * pcraster.clone().nrCols()
+            nrCells = pcraster.pcraster.clone().nrRows() * pcraster.pcraster.clone().nrCols()
             for cell in xrange(1, nrCells + 1):
-                if (pcraster.cellvalue(self._spatialId, cell)[1]):
-                    self._sampleAddresses[
-                        pcraster.cellvalue(self._spatialId, cell)[0] - 1] = cell
+                if pcraster.pcraster.cellvalue(self._spatialId, cell)[1]:
+                    self._sampleAddresses[pcraster.pcraster.cellvalue(self._spatialId, cell)[0] - 1] = cell
 
             self._spatialIdGiven = True
 
             nrCols = self._maxId
-            self._sampleValues = [
-                [Decimal("NaN")] * nrCols for _ in [0] * nrRows]
+            self._sampleValues = [[Decimal("NaN")] * nrCols for _ in [0] * nrRows]
         else:
             self._sampleValues = [[Decimal("NaN")] * 1 for _ in [0] * nrRows]
 
@@ -497,8 +497,8 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
         """
         try:
             cellIndex = self._sampleAddresses[0]
-            tmp = pcraster.areaaverage(pcraster.spatial(expression), pcraster.spatial(self._spatialId))
-            value, valid = pcraster.cellvalue(tmp, cellIndex)
+            tmp = pcraster.pcraster.areaaverage(pcraster.pcraster.spatial(expression), pcraster.pcraster.spatial(self._spatialId))
+            value, valid = pcraster.pcraster.cellvalue(tmp, cellIndex)
             if not valid:
                value = Decimal("NaN")
         except:
@@ -510,6 +510,7 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
 #####################################################################################################################
 # TOOLS TO OPEN/READ INPUT FILES ITERATIVELY, IN CASE OF NETWORK TEMPORARILY DOWN
 #####################################################################################################################
+
 
 def iterOpenNetcdf(file_path, error_msg, mode, **kwargs):
     """Wrapper around netCDF4.Dataset function exploiting the iterAccess class to access file_path according to the specified mode"""
@@ -524,7 +525,7 @@ def iterReadPCRasterMap(file_path, error_msg=""):
 
 def iterSetClonePCR(file_path, error_msg=""):
     """Wrapper around pcraster.setclone function exploiting the iterAccess class to access file_path."""
-    return remoteInputAccess(pcraster.setclone, file_path, error_msg)
+    return remoteInputAccess(pcraster.pcraster.setclone, file_path, error_msg)
 
 
 def remoteInputAccess(function, file_path, error_msg):
@@ -535,9 +536,8 @@ def remoteInputAccess(function, file_path, error_msg):
         function: function to be called to read/open the file.
         file_path: path of the file to be read/open.
     """
-    operating_system="Linux"
     num_trials = 1
-    bad_sep = "/" if operating_system == "Windows" else "\\"
+    bad_sep = "\\"
     file_path = file_path.replace(bad_sep, os.path.sep)
     root = os.path.sep.join(file_path.split(os.path.sep)[:4])
     while num_trials <= 10:
@@ -554,11 +554,11 @@ def remoteInputAccess(function, file_path, error_msg):
             else:
                 num_trials += 1
                 print("Trying to access file {0}: attempt n. {1}".format(file_path, num_trials))
-                xtime.sleep(5)
+                time.sleep(5)
     return obj
 
 
-def datetoInt(dateIn,both=False):
+def datetoInt(dateIn, both=False):
     """ Get number of steps between dateIn and CalendarDayStart.
     
     Get the number of steps between dateIn and CalendarDayStart and return it as integer number.
@@ -578,24 +578,23 @@ def datetoInt(dateIn,both=False):
     # CM: get model time step as float form 'DtSec' in Settings.xml file
     DtSec = float(binding['DtSec'])
     # CM: compute fraction of day corresponding to model time step as float
-    DtDay = float(DtSec / 86400)
+    # DtDay = float(DtSec / 86400)
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
 
     if type(date1) is datetime.datetime:
-         str1 = date1.strftime("%d/%m/%Y %H:%M")
-         # CM: get total number of seconds corresponding to the time interval between dateIn and CalendarDayStart
-         timeinterval_in_sec = int((date1 - begin).total_seconds())
-         # CM: get total number of steps between dateIn and CalendarDayStart
-         int1 = int(timeinterval_in_sec/DtSec +1)
-         # int1 = (date1 - begin).days + 1
+        str1 = date1.strftime("%d/%m/%Y %H:%M")
+        # CM: get total number of seconds corresponding to the time interval between dateIn and CalendarDayStart
+        timeinterval_in_sec = int((date1 - begin).total_seconds())
+        # CM: get total number of steps between dateIn and CalendarDayStart
+        int1 = int(timeinterval_in_sec/DtSec + 1)
+        # int1 = (date1 - begin).days + 1
     else:
         int1 = int(date1)
         str1 = str(date1)
-    if both: return int1,str1
-    else: return int1
+    return int1, str1 if both else int1
 
 
-def inttoDate(intIn,refDate):
+def inttoDate(intIn, refDate):
     """ Get date corresponding to a number of steps from a reference date.
 
     Get date corresponding to a number of steps from a reference date and return it as datetime.

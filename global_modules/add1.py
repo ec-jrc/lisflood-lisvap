@@ -8,15 +8,20 @@
 # Copyright:   (c) burekpe 2014
 # Licence:     <your licence>
 # -------------------------------------------------------------------------
-from zusatz import *
-from netCDF4 import num2date, date2num
-import numpy as np
+
+import warnings
+import datetime
 import time as xtime
 import os
 from bisect import bisect_left
 
+import numpy as np
+from pcraster import pcraster, numpy_operations, Nominal, Boolean, Scalar, operations
+from netCDF4 import num2date, date2num, Dataset
 
-# ------------------------------
+from .zusatz import LisfloodError, iterOpenNetcdf, iterSetClonePCR, iterReadPCRasterMap, checkmap, Calendar
+from .globals import binding, metadataNCDF, maskmapAttr, Flags, cutmap
+
 
 def defsoil(name1, name2=None, name3=None):
     """ loads 3 array in a list
@@ -51,28 +56,23 @@ def valuecell(mask, coordx, coordstr):
     for xy in coordx:
         try:
             coord.append(float(xy))
-        except:
-            msg = "Gauges: " + xy + " in " + coordstr + " is not a coordinate"
+        except ValueError:
+            msg = 'Gauges: {} in {} is not a coordinate'.format(xy, coordstr)
             raise LisfloodError(msg)
 
     null = np.zeros((pcraster.clone().nrRows(), pcraster.clone().nrCols()))
     null[null == 0] = -9999
 
     for i in xrange(int(len(coord) / 2)):
-        col = int(
-            (coord[i * 2] - pcraster.clone().west()) / pcraster.clone().cellSize())
-        row = int(
-            (pcraster.clone().north() - coord[i * 2 + 1]) / pcraster.clone().cellSize())
-        # if col >= 0 and row >= 0 and col < pcraster.clone().nrCols() and row < pcraster.clone().nrRows():
-        if col >= 0 and row >= 0 and col < pcraster.clone().nrCols() and row < pcraster.clone().nrRows():
+        col = int((coord[i * 2] - pcraster.clone().west()) / pcraster.clone().cellSize())
+        row = int((pcraster.clone().north() - coord[i * 2 + 1]) / pcraster.clone().cellSize())
+        if 0 <= col < pcraster.clone().nrCols() and 0 <= row < pcraster.clone().nrRows():
             null[row, col] = i + 1
         else:
-            msg = "Coordinates: " + str(coord[i * 2]) + ',' + str(
-                coord[i * 2 + 1]) + " to put value in is outside mask map - col,row: " + str(col) + ',' + str(row)
+            msg = 'Coordinates: {}, {} to put value in is outside mask map - col,row: {}, {}'.format(coord[i * 2], coord[i * 2 + 1], col, row)
             raise LisfloodError(msg)
 
-    map = numpy2pcr(Nominal, null, -9999)
-    return map
+    return numpy_operations.numpy2pcr(Nominal, null, -9999)
 
 
 def metaNetCDF(name):
@@ -86,7 +86,6 @@ def metaNetCDF(name):
     nf1 = Dataset(filename, 'r')
     for var in nf1.variables:
         metadataNCDF[var] = nf1.variables[var].__dict__
-        # print 'dict',metadataNCDF[var]
     nf1.close()
 
 
@@ -110,10 +109,6 @@ def mapattrNetCDF(name):
         x2 = nf1.variables['x'][1]
         y1 = nf1.variables['y'][0]
         y2 = nf1.variables['y'][1]
-    # x1 = nf1.variables['lon'][0]
-    # x2 = nf1.variables['lon'][1]
-    # y1 = nf1.variables['lat'][0]
-    # y2 = nf1.variables['lat'][1]
     nf1.close()
     if maskmapAttr['cell'] != round(np.abs(x2 - x1), 5) or maskmapAttr['cell'] != round(np.abs(y2 - y1), 5):
         raise LisfloodError("Cell size different in maskmap {} and {}".format(binding['MaskMap'], filename))
@@ -146,23 +141,22 @@ def loadsetclone(name):
         # CM: coord[4]=yupleft
         # setclone row col cellsize xupleft yupleft
         try:
-            setclone(int(coord[1]), int(coord[0]), float(coord[2]), float(coord[3]), float(coord[4]))  # CM: pcraster
+            pcraster.setclone(int(coord[1]), int(coord[0]), float(coord[2]), float(coord[3]), float(coord[4]))  # CM: pcraster
         except:
             rem = "[" + str(coord[0]) + " " + str(coord[1]) + " " + str(coord[2]) + " " + str(coord[3]) + " " + str(coord[4]) + "]"
-            msg = "Maskmap: " + rem + \
-                  " are not valid coordinates (col row cellsize xupleft yupleft)"
+            msg = "Maskmap: " + rem + " are not valid coordinates (col row cellsize xupleft yupleft)"
             raise LisfloodError(msg)
         mapnp = np.ones((int(coord[1]), int(coord[0])))
         # mapnp[mapnp == 0] = 1
-        map = numpy2pcr(Boolean, mapnp, -9999)
+        map = numpy_operations.numpy2pcr(Boolean, mapnp, -9999)
     elif len(coord) == 1:
         # CM: read information on clone map from map (pcraster or netcdf)
         try:
             # try to read a pcraster map
             iterSetClonePCR(filename)
-            map = boolean(iterReadPCRasterMap(filename))
+            map = operations.boolean(iterReadPCRasterMap(filename))
             flagmap = True
-            mapnp = pcr2numpy(map, np.nan)
+            # mapnp = numpy_operations.pcr2numpy(map, np.nan)
         except:
             # try to read a netcdf file
             filename = os.path.splitext(binding[name])[0] + '.nc'
@@ -179,14 +173,14 @@ def loadsetclone(name):
                 x1 = nf1.variables['lon'][0]
                 x2 = nf1.variables['lon'][1]
                 y1 = nf1.variables['lat'][0]
-                y2 = nf1.variables['lat'][1]
+                # y2 = nf1.variables['lat'][1]
                 xlast = nf1.variables['lon'][-1]
                 ylast = nf1.variables['lat'][-1]
             else:
                 x1 = nf1.variables['x'][0]
                 x2 = nf1.variables['x'][1]
                 y1 = nf1.variables['y'][0]
-                y2 = nf1.variables['y'][1]
+                # y2 = nf1.variables['y'][1]
                 xlast = nf1.variables['x'][-1]
                 ylast = nf1.variables['y'][-1]
 
@@ -198,15 +192,14 @@ def loadsetclone(name):
             mapnp = np.array(nf1.variables[value][0:nrRows, 0:nrCols])
             nf1.close()
             # setclone  row col cellsize xupleft yupleft
-            setclone(nrRows, nrCols, cellSize, x, y)
-            map = numpy2pcr(Boolean, mapnp, 0)
+            pcraster.setclone(nrRows, nrCols, cellSize, x, y)
+            map = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
             # map = boolean(map)
             flagmap = True
         if Flags['check']:
             checkmap(name, filename, map, flagmap, 0)
     else:
-        msg = "Maskmap: " + Mask + \
-              " is not a valid mask map nor valid coordinates"
+        msg = "Maskmap: {} is not a valid mask map nor valid coordinates".format(name)
         raise LisfloodError(msg)
 
     # Definition of cellsize, coordinates of the meteomaps and maskmap
@@ -220,43 +213,49 @@ def loadsetclone(name):
     return map
 
 
-def decompress(map):
-    # dmap=np.ma.masked_all(maskinfo['shapeflat'], dtype=map.dtype)
-    dmap = maskinfo['maskall'].copy()
-    dmap[~maskinfo['maskflat']] = map[:]
-    dmap = dmap.reshape(maskinfo['shape'])
-    # check if integer map (like outlets, lakes etc
-    try:
-        checkint = str(map.dtype)
-    except:
-        checkint = "x"
-    if checkint in ["int16", "int32", "int64"]:
-        dmap[dmap.mask] = -9999
-        map = numpy2pcr(Nominal, dmap, -9999)
-    elif checkint == "int8":
-        dmap[dmap < 0] = -9999
-        map = numpy2pcr(Nominal, dmap, -9999)
-    else:
-        dmap[dmap.mask] = -9999
-        map = numpy2pcr(Scalar, dmap, -9999)
-    return map
+# def decompress(map):
+#     # dmap=np.ma.masked_all(maskinfo['shapeflat'], dtype=map.dtype)
+#     dmap = maskinfo['maskall'].copy()
+#     dmap[~maskinfo['maskflat']] = map[:]
+#     dmap = dmap.reshape(maskinfo['shape'])
+#     # check if integer map (like outlets, lakes etc
+#     try:
+#         checkint = str(map.dtype)
+#     except:
+#         checkint = "x"
+#     if checkint in ["int16", "int32", "int64"]:
+#         dmap[dmap.mask] = -9999
+#         map = numpy_operations.numpy2pcr(Nominal, dmap, -9999)
+#     elif checkint == "int8":
+#         dmap[dmap < 0] = -9999
+#         map = numpy_operations.numpy2pcr(Nominal, dmap, -9999)
+#     else:
+#         dmap[dmap.mask] = -9999
+#         map = numpy_operations.numpy2pcr(Scalar, dmap, -9999)
+#     return map
 
 
-def makenumpy(map):
-    if not ('numpy.ndarray' in str(type(map))):
-        out = np.empty(maskinfo['mapC'])
-        out.fill(map)
-        return out
-    else:
-        return map
+# def makenumpy(map):
+#     if not ('numpy.ndarray' in str(type(map))):
+#         out = np.empty(maskinfo['mapC'])
+#         out.fill(map)
+#         return out
+#     else:
+#         return map
 
 
 def loadmap(name):
     """
+    :param name: Variable name as defined in XML settings or a filename of a netCDF or PCRaster map
     load a static map either value or pcraster map or netcdf
     """
     value = binding[name]
     filename = value
+
+    map = None
+    flagmap = False
+
+    # Try first to load the value from settings
     try:
         map = float(value)
         flagmap = False
@@ -264,17 +263,15 @@ def loadmap(name):
     except ValueError:
         try:
             # try to read a pcraster map
-            map = readmap(value)
+            map = pcraster.readmap(value)
             flagmap = True
             load = True
         except:
             load = False
-    if not (load):
-        # read a netcdf  (single one not a stack)
-        # filename=name+".nc"
 
+    if not load:
+        # read a netcdf  (single one not a stack)
         filename = value.split('.')[0] + '.nc'
-        # value = os.path.basename(value).split('.')[0]
 
         # get mapextend of netcdf map
         # and calculate the cutting
@@ -286,20 +283,21 @@ def loadmap(name):
         mapnp = nf1.variables[value][cut2:cut3, cut0:cut1]
         nf1.close()
 
-        # check if integer map (like outlets, lakes etc
+        # check if integer map (like outlets, lakes etc)
         checkint = str(mapnp.dtype)
         if checkint == "int16" or checkint == "int32":
             mapnp[mapnp.mask] = -9999
-            map = numpy2pcr(Nominal, mapnp, -9999)
+            map = numpy_operations.numpy2pcr(Nominal, mapnp, -9999)
         elif checkint == "int8":
-            map = numpy2pcr(Nominal, mapnp, 0)
+            map = numpy_operations.numpy2pcr(Nominal, mapnp, 0)
         else:
             mapnp[np.isnan(mapnp)] = -9999
-            map = numpy2pcr(Scalar, mapnp, -9999)
+            map = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
 
         # if the map is a ldd
         if value.split('.')[0][-3:] == 'ldd':
-            map = ldd(nominal(map))
+            # FIXME weak...filename must contain 'ldd' string
+            map = operations.ldd(operations.nominal(map))
         flagmap = True
 
     if Flags['check']:
@@ -307,138 +305,27 @@ def loadmap(name):
     return map
 
 
-def takeClosest(myList, myNumber):
+def take_closest(a_list, a_number):
     """ Returns the closest left value to myNumber in myList
     
     Assumes myList is sorted. Returns closest left value to myNumber.
     If myList is sorted in raising order, it returns the closest smallest value.
     https://stackoverflow.com/questions/12141150/from-list-of-integers-get-number-closest-to-a-given-value
     
-    :param myList: list of ordered values
-    :param myNumber: number to be searche in myList
-    :return: closest left number to myNumber in myList
+    :param a_list: list of ordered values
+    :param a_number: number to be searche in a_list
+    :return: closest left number to a_number in a_list
     """
-    pos = bisect_left(myList, myNumber)
+    pos = bisect_left(a_list, a_number)
     if pos == 0:
-        return myList[0]
-    if pos == len(myList):
-        return myList[-1]
-    before = myList[pos - 1]
-    # after = myList[pos]
-    # if after - myNumber < myNumber - before:
-    #    return after
-    # else:
+        return a_list[0]
+    if pos == len(a_list):
+        return a_list[-1]
+    before = a_list[pos - 1]
     return before
 
 
-def loadLAI(value, pcrvalue, i, pcr=False):
-    """
-    load Leaf are map stacks  or water use maps stacks
-    """
-    pcrmap = False
-    try:
-        map = iterReadPCRasterMap(pcrvalue)
-        filename = pcrvalue
-        pcrmap = True
-    except:
-        filename = os.path.splitext(value)[0] + '.nc'
-        # get mapextend of netcdf map
-        # and calculate the cutting
-        cut0, cut1, cut2, cut3 = mapattrNetCDF(filename)
-        nf1 = iterOpenNetcdf(filename, "", 'r')
-        value = nf1.variables.items()[-1][0]  # get the last variable name
-        mapnp = nf1.variables[value][i, cut2:cut3, cut0:cut1]
-        nf1.close()
-        mapC = compressArray(mapnp, pcr=False, name=filename)
-        # mapnp[np.isnan(mapnp)] = -9999
-        # map = numpy2pcr(Scalar, mapnp, -9999)
-        # if check use a pcraster map
-        if Flags['check' or pcr]:
-            map = decompress(mapC)
-    if pcrmap: mapC = compressArray(map, name=filename)
-    if Flags['check']:
-        checkmap(os.path.basename(pcrvalue), filename, map, True, 0)
-    if pcr: return map
-    return mapC
-
-
-def readmapsparse(name, time, oldmap):
-    """
-    load stack of maps 1 at each timestamp in Pcraster format
-    """
-    filename = generateName(name, time)
-    try:
-        map = iterReadPCRasterMap(filename)
-        find = 1
-    except:
-        find = 2
-        if oldmap is None:
-            for i in range(time - 1, 0, -1):
-                altfilename = generateName(name, i)
-                if os.path.exists(altfilename):
-                    map = iterReadPCRasterMap(altfilename)
-                    find = 1
-                    # break
-            if find == 2:
-                msg = "no map in stack has a smaller time stamp than: " + filename
-                raise LisfloodError(msg)
-        else:
-            map = oldmap
-            if Flags['loud']:
-                s = " last_%s" % (os.path.basename(name))
-                print s,
-    if Flags['check']:
-        checkmap(os.path.basename(name), filename, map, True, find)
-    mapC = compressArray(map, name=filename)
-    return mapC
-
-
-# CM mod
-# def readnetcdf(name, time):
-#     """
-#     load stack of maps 1 at each timestamp in netcdf format
-#     """
-#     filename = name + ".nc"
-#     nf1 = iterOpenNetcdf(filename, "Netcdf map stacks: \n", "r")
-#     variable_name = nf1.variables.items()[-1][0]  # get the last variable name
-#     mapnp = nf1.variables[variable_name][time - 1,cutmap[2]:cutmap[3],cutmap[0]:cutmap[1]]
-#     nf1.close()
-#     mapC = compressArray(mapnp,pcr=False,name=filename)
-#     timename = os.path.basename(name) + str(time)
-#     if Flags['check']:
-#        map = decompress(mapC)
-#        checkmap(timename, filename, map, True, 1)
-#     return mapC
-# CM mod
-#
-# CM def
-
-# def Calendar(input):
-#    """
-#    get the date from CalendarDayStart in the settings xml
-#    """
-#    try:
-#        value = float(input)
-#        return(value)
-#    except ValueError:
-#        d = input.replace('.', '/')
-#        d = d.replace('-', '/')
-#        year = d.split('/')[-1:][0].split()[0]
-#        #print 'year',year
-#        if len(year) == 4:
-#            formatstr = "%d/%m/%Y %H:%M"
-#        else:
-#            formatstr = "%d/%m/%y %H:%M"
-#        if len(year) == 1:
-#           d = d.replace('/', '.', 1)
-#            d = d.replace('/', '/0')
-#            d = d.replace('.', '/')
-#            print d
-#        date = datetime.datetime.strptime(d, formatstr)
-#        # value=str(int(date.strftime("%j")))
-#        return date
-
-def readnetcdf(name, time, timestampflag='closest', averageyearflag=False):
+def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, variable_name=None):
     """ Read maps from netCDF stacks (forcings, fractions, water demand)
 
     Read maps from netCDF stacks (forcings, fractions, water demand).
@@ -454,26 +341,28 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False):
     :param time: current simulation timestep of the model as integer number (referred to CalendarStartDay)
     :param timestampflag: look for exact time stamp in netcdf file ('exact') or for the closest (left) time stamp available ('closest')
     :param averageyearflag: if True, use "average year" netcdf file over the entire model simulation period
+    :param variable_name: if given, will select the variable from netcdf instead of guessing
     :returns: content of netCDF map for timestep "time" (mapC)
     :except: if current simulation timestep is not stored in the stack, it stops with error message (if timestampflag='exact')
     """
 
-    filename = name + ".nc"
+    filename = name + ".nc" if not name.endswith('nc') else name
     nf1 = iterOpenNetcdf(filename, "Netcdf map stacks: \n", "r")
 
     # read information from netCDF file
     # original code 
     # Attempt at checking if input files are not in the format we expect
-    varNames = [nf1.variables.items()[it][0] for it in xrange(len(nf1.variables.items()))]
-    targets = list()
-    for it in varNames:
-        if not it == 'x' and not it == 'y' and not it == 'laea' and not it == "lambert_azimuthal_equal_area" and not it == 'time' and not it == 'lat' and not it == 'lon':
-            targets.append(it)
-    # Return warning if we have more than 1 non-coordinate-related variable (i.e. x, y, laea, time) OR if the last variable in the netCDF file is not the variable to get data for
-    if len(targets) > 1 or not str(nf1.variables.items()[-1]).find(targets[0]) > -1:
-        warnings.warn("Wrong number of variables found in netCDF file %s" % filename)
-    else:
-        variable_name = targets[0]
+    if not variable_name:
+        varNames = [nf1.variables.items()[it][0] for it in xrange(len(nf1.variables.items()))]
+        # targets = list()
+        skip_names = ('x', 'y', 'laea', 'lambert_azimuthal_equal_area', 'time', 'lat', 'lon')
+        targets = [it for it in varNames if it not in skip_names]
+        # Return warning if we have more than 1 non-coordinate-related variable
+        # (i.e. x, y, laea, time) OR if the last variable in the netCDF file is not the variable to get data for
+        if len(targets) > 1 or not str(nf1.variables.items()[-1]).find(targets[0]) > -1:
+            warnings.warn("Wrong number of variables found in netCDF file %s" % filename)
+        else:
+            variable_name = targets[0]
 
     t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
     t_unit = nf1.variables['time'].units  # get unit (u'hours since 2015-01-01 06:00:00')
@@ -481,12 +370,6 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False):
         t_cal = nf1.variables['time'].calendar  # get calendar from netCDF file
     except AttributeError:  # Attribute does not exist
         t_cal = u"gregorian"  # Use standard calendar
-    # CM: get year from time unit in case average year is used
-    if averageyearflag:
-        # CM: get date of the first step in netCDF file containing average year values
-        first_date = num2date(t_steps[0], t_unit, t_cal)
-        # CM: get year of the first step in netCDF file containing average year values
-        t_ref_year = first_date.year
 
     begin = Calendar(binding['CalendarDayStart'])
     DtSec = float(binding['DtSec'])
@@ -494,32 +377,37 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False):
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
 
     # get date of current simulation step
-    currentDate = Calendar(time)
+    current_date = Calendar(time)
 
-    if type(currentDate) is not datetime.datetime:
-        currentDate = begin + datetime.timedelta(days=(currentDate - 1) * DtDay)
+    if not isinstance(current_date, datetime.datetime):
+        current_date = begin + datetime.timedelta(days=(current_date - 1) * DtDay)
 
     # if reading from an average year NetCDF stack, ignore the year in current simulation date and change it to the netCDF time unit year
     if averageyearflag:
+        # CM: get year from time unit in case average year is used
+        # CM: get date of the first step in netCDF file containing average year values
+        first_date = num2date(t_steps[0], t_unit, t_cal)
+        # CM: get year of the first step in netCDF file containing average year values
+        t_ref_year = first_date.year
         try:
-            currentDate = currentDate.replace(year=t_ref_year)
-        except:
+            current_date = current_date.replace(year=t_ref_year)
+        except ValueError:
             # CM: if simulation year is leap and average year is not, switch 29/2 with 28/2
-            currentDate = currentDate.replace(day=28)
-            currentDate = currentDate.replace(year=t_ref_year)
+            current_date = current_date.replace(day=28)
+            current_date = current_date.replace(year=t_ref_year)
 
     # get timestep in netCDF file corresponding to current simulation date
-    current_ncdf_step = date2num(currentDate, units=t_unit, calendar=t_cal)
+    current_ncdf_step = date2num(current_date, units=t_unit, calendar=t_cal)
 
     # read netCDF map
-    if not (current_ncdf_step in t_steps):
-        if (timestampflag == 'exact'):
+    if current_ncdf_step not in t_steps:
+        if timestampflag == 'exact':
             # look for exact time stamp when loading data
-            msg = "Date " + str(currentDate) + " not stored in " + filename
+            msg = "Date " + str(current_date) + " not stored in " + filename
             raise LisfloodError(msg)
-        elif (timestampflag == 'closest'):
+        elif timestampflag == 'closest':
             # CM: get the closest value
-            current_ncdf_step_new = takeClosest(t_steps, current_ncdf_step)
+            current_ncdf_step_new = take_closest(t_steps, current_ncdf_step)
             # CM: set current_ncdf_step to the closest available time step in netCDF file
             current_ncdf_step = current_ncdf_step_new
 
@@ -531,42 +419,11 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False):
     nf1.close()
     # return mapnp
     mapnp[np.isnan(mapnp)] = -9999
-    map = numpy2pcr(Scalar, mapnp, -9999)
+    map = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
     timename = os.path.basename(name) + str(time)
     if Flags['check']:
         checkmap(timename, filename, map, True, 1)
     return map
-
-
-def readnetcdfsparse(name, time, oldmap):
-    """
-    NO LONGER USED
-    load stack of maps 1 at each timestamp in Netcdf format
-    """
-    try:
-        mapC = readnetcdf(name, time)
-        find = 1
-        # print name+str(time)+"   "+str(find)
-    except:
-        find = 2
-        if oldmap is None:
-            for i in range(time - 1, 0, -1):
-                try:
-                    mapC = readnetcdf(name, i)
-                    find = 1
-                    break
-                except:
-                    pass
-                # print name+"   "+str(time)+"   "+str(find)+"   "+str(i)
-            if find == 2:
-                msg = "no map in stack has a smaller time stamp than: " + str(time)
-                raise LisfloodError(msg)
-        else:
-            mapC = oldmap
-            if Flags['loud']:
-                s = " last_" + (os.path.basename(name)) + str(time)
-                # print s,
-    return mapC
 
 
 def checknetcdf(name, start, end):
@@ -583,7 +440,7 @@ def checknetcdf(name, start, end):
     :raises Exception: stop if netCDF maps do not cover simulation time period
     """
 
-    filename = name + ".nc"
+    filename = name + '.nc' if not name.endswith('.nc') else name
     nf1 = iterOpenNetcdf(filename, "Netcdf map stacks: \n", "r")
 
     # read information from netCDF file
@@ -608,64 +465,64 @@ def checknetcdf(name, start, end):
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
 
     date_first_sim_step = Calendar(start)
-    if type(date_first_sim_step) is not datetime.datetime:
+    if not isinstance(date_first_sim_step, datetime.datetime):
         date_first_sim_step = begin + datetime.timedelta(days=(date_first_sim_step - 1) * DtDay)
-    if (date_first_sim_step < date_first_step_in_ncdf):
-        msg = "First simulation time step is before first time step in netCDF input data file \n" \
-              "File name: " + filename + "\n" \
-                                         "netCDF start date: " + date_first_step_in_ncdf.strftime('%d/%m/%Y %H:%M') + "\n" \
-                                                                                                                      "simulation start date: " + date_first_sim_step.strftime(
-            '%d/%m/%Y %H:%M')
+    if date_first_sim_step < date_first_step_in_ncdf:
+        msg = """
+        First simulation time step is before first time step in netCDF input data file 
+        File name: {}
+        netCDF start date: {}
+        simulation start date: {}
+        """.format(filename, date_first_step_in_ncdf.strftime('%d/%m/%Y %H:%M'), date_first_sim_step.strftime('%d/%m/%Y %H:%M'))
         raise LisfloodError(msg)
-        quit(1)
 
     date_last_sim_step = Calendar(end)
-    if type(date_last_sim_step) is not datetime.datetime:
+    if not isinstance(date_last_sim_step, datetime.datetime):
         date_last_sim_step = begin + datetime.timedelta(days=(date_last_sim_step - 1) * DtDay)
-    if (date_last_sim_step > date_last_step_in_ncdf):
-        msg = "Last simulation time step is after last time step in netCDF input data file \n" \
-              "File name: " + filename + "\n" \
-                                         "netCDF last date: " + date_last_step_in_ncdf.strftime('%d/%m/%Y %H:%M') + "\n" \
-                                                                                                                    "simulation last date: " + date_last_sim_step.strftime(
-            '%d/%m/%Y %H:%M')
+    if date_last_sim_step > date_last_step_in_ncdf:
+        msg = """
+        Last simulation time step is after last time step in netCDF input data file 
+        File name: {}
+        netCDF last date: {}
+        simulation last date: {}
+        """.format(filename, date_last_step_in_ncdf.strftime('%d/%m/%Y %H:%M'), date_last_sim_step.strftime('%d/%m/%Y %H:%M'))
         raise LisfloodError(msg)
-        quit(1)
 
     return
 
-
-def generateName(name, time):
-    """Returns a filename based on the name and time step passed in.
-    The resulting name obeys the 8.3 DOS style format. The time step
-    will be added to the end of the filename and be prepended by 0's if
-    needed.
-    The time step normally ranges from [1, nrTimeSteps].
-    The length of the name should be max 8 characters to leave room for
-    the time step.
-    The name passed in may contain a directory name.
-    See also: generateNameS(), generateNameST()
-    """
-    head, tail = os.path.split(name)
-    if re.search("\.", tail):
-        msg = "File extension given in '" + name + "' not allowed"
-        raise LisfloodError(msg)
-    if len(tail) == 0:
-        msg = "No filename specified"
-        raise LisfloodError(msg)
-    if len(tail) > 8:
-        msg = "Filename '" + name + "' must be shorter than 8 characters"
-        raise LisfloodError(msg)
-    if time < 0:
-        msg = "Timestep must be larger than 0"
-        raise LisfloodError(msg)
-
-    nr = "%d" % (time)
-    space = 11 - (len(tail) + len(nr))
-    assert space >= 0
-    result = "%s%s%s" % (tail, space * "0", nr)
-    result = "%s.%s" % (result[:8], result[8:])
-    assert len(result) == 12
-    return os.path.join(head, result)
+#
+# def generateName(name, time):
+#     """Returns a filename based on the name and time step passed in.
+#     The resulting name obeys the 8.3 DOS style format. The time step
+#     will be added to the end of the filename and be prepended by 0's if
+#     needed.
+#     The time step normally ranges from [1, nrTimeSteps].
+#     The length of the name should be max 8 characters to leave room for
+#     the time step.
+#     The name passed in may contain a directory name.
+#     See also: generateNameS(), generateNameST()
+#     """
+#     head, tail = os.path.split(name)
+#     if re.search("\.", tail):
+#         msg = "File extension given in '" + name + "' not allowed"
+#         raise LisfloodError(msg)
+#     if len(tail) == 0:
+#         msg = "No filename specified"
+#         raise LisfloodError(msg)
+#     if len(tail) > 8:
+#         msg = "Filename '" + name + "' must be shorter than 8 characters"
+#         raise LisfloodError(msg)
+#     if time < 0:
+#         msg = "Timestep must be larger than 0"
+#         raise LisfloodError(msg)
+#
+#     nr = "%d" % (time)
+#     space = 11 - (len(tail) + len(nr))
+#     assert space >= 0
+#     result = "%s%s%s" % (tail, space * "0", nr)
+#     result = "%s.%s" % (result[:8], result[8:])
+#     assert len(result) == 12
+#     return os.path.join(head, result)
 
 
 def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flagTime=True):
@@ -682,55 +539,43 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
 
         # general Attributes
         nf1.history = 'Created ' + xtime.ctime(xtime.time())
-        # nf1.history = 'Created ' + time.ctime(time.time())
-
         nf1.Conventions = 'CF-1.4'
         nf1.Source_Software = 'Python netCDF4'
         nf1.source = 'Lisvap output maps'
 
         # Dimension
-
         if 'y' in metadataNCDF.keys():
-            lat = nf1.createDimension('y', row)  # x 950
-            latitude = nf1.createVariable('y', 'f8', ('y'))
+            nf1.createDimension('y', row)  # x 950
+            latitude = nf1.createVariable('y', 'f8', ('y',))
             for i in metadataNCDF['y']:
-                exec ('%s="%s"') % ("latitude." + i, metadataNCDF['y'][i])
+                exec '%s="%s"' % ("latitude." + i, metadataNCDF['y'][i])
 
         if 'lat' in metadataNCDF.keys():
-            lat = nf1.createDimension('lat', row)  # x 950
-            latitude = nf1.createVariable('lat', 'f8', ('lat'))
+            nf1.createDimension('lat', row)  # x 950
+            latitude = nf1.createVariable('lat', 'f8', ('lat',))
             for i in metadataNCDF['lat']:
-                exec ('%s="%s"') % ("latitude." + i, metadataNCDF['lat'][i])
+                exec '%s="%s"' % ("latitude." + i, metadataNCDF['lat'][i])
         if 'x' in metadataNCDF.keys():
-            lon = nf1.createDimension('x', col)  # x 1000
+            nf1.createDimension('x', col)  # x 1000
             longitude = nf1.createVariable('x', 'f8', ('x',))
             for i in metadataNCDF['x']:
-                exec ('%s="%s"') % ("longitude." + i, metadataNCDF['x'][i])
+                exec '%s="%s"' % ("longitude." + i, metadataNCDF['x'][i])
 
         if 'lon' in metadataNCDF.keys():
-            lon = nf1.createDimension('lon', col)
+            nf1.createDimension('lon', col)
             longitude = nf1.createVariable('lon', 'f8', ('lon',))
             for i in metadataNCDF['lon']:
-                exec ('%s="%s"') % ("longitude." + i, metadataNCDF['lon'][i])
+                exec '%s="%s"' % ("longitude." + i, metadataNCDF['lon'][i])
 
         if flagTime:
             nf1.createDimension('time', None)
-            time = nf1.createVariable('time', 'f8', ('time'))
+            time = nf1.createVariable('time', 'f8', ('time',))
             time.standard_name = 'time'
-            # time.units ='days since 1990-01-01 00:00:00.0'
             time.units = 'days since %s' % startdate.strftime("%Y-%m-%d %H:%M:%S.0")
             time.calendar = 'gregorian'
-            # for i in metadataNCDF['time']: exec('%s="%s"') % ("time."+i, metadataNCDF['time'][i])
-
             value = nf1.createVariable(prefix, fillval, ('time', 'y', 'x'), zlib=True)
-            # value = nf1.createVariable(
-            #    prefix, fillval, ('time', 'lat', 'lon'), zlib=True,least_significant_digit=2)
-
         else:
             value = nf1.createVariable(prefix, fillval, ('y', 'x'), zlib=True)
-            # value = nf1.createVariable(prefix, fillval, ('lat', 'lon'), zlib=True )
-            # value = nf1.createVariable(prefix,'f4',('time','lat','lon'),zlib=True,complevel=9,least_significant_digit=digit)
-            # value = nf1.createVariable(prefix,'f4',('time','lat','lon'),zlib=True,least_significant_digit=digit)
 
         value.standard_name = value_standard_name
         value.long_name = value_long_name
@@ -740,6 +585,7 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         if 'laea' in metadataNCDF.keys():
             proj = nf1.createVariable('laea', 'i4')
             proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
+            # FIXME magic numbers
             proj.false_easting = 4321000.0
             proj.false_northing = 3210000.0
             proj.longitude_of_projection_origin = 10.0
@@ -748,17 +594,11 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             proj.inverse_flattening = 298.257223563
             proj.proj4_params = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
             proj.EPSG_code = "EPSG:3035"
-            # for i in metadataNCDF['laea']:
-            # exec('%s="%s"') % (
-            #    "proj." + i, metadataNCDF['laea'][i])
-            # print metadataNCDF['laea'][i]
-            # exec('%s="%s\n"') % ("proj." + i, metadataNCDF['laea'][i])
 
         if 'lambert_azimuthal_equal_area' in metadataNCDF.keys():
             proj = nf1.createVariable('laea', 'i4')
             for i in metadataNCDF['lambert_azimuthal_equal_area']:
-                exec ('%s="%s"') % (
-                    "proj." + i, metadataNCDF['lambert_azimuthal_equal_area'][i])
+                exec '%s="%s"' % ("proj." + i, metadataNCDF['lambert_azimuthal_equal_area'][i])
 
         """
         EUROPE
@@ -793,9 +633,10 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
     else:
         nf1 = Dataset(netfile, 'a')
 
+    mapnp = numpy_operations.pcr2numpy(inputmap, np.nan)
     if flagTime:
         nf1.variables['time'][flag] = timestep - 1
-    mapnp = pcr2numpy(inputmap, np.nan)
+
     if flagTime:
         nf1.variables[prefix][flag, :, :] = mapnp
     else:
@@ -804,58 +645,62 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
     nf1.close()
 
 
-def dumpObject(name, var, num):
-    path1 = os.path.join(str(num), 'stateVar', name)
-    file_object1 = open(path1, 'w')
-    pickle.dump(var, file_object1)
-    file_object1.close()
-
-
-def loadObject(name, num):
-    path1 = os.path.join(str(num), 'stateVar', name)
-    filehandler1 = open(path1, 'r')
-    # CM: read a string from the open file object file and interpret it as a pickle data stream, rec
-    var = pickle.load(filehandler1)
-    filehandler1.close()
-    return (var)
-
-
-def dumpPCRaster(name, var, num):
-    path1 = os.path.join(str(num), 'stateVar', name)
-    report(var, path1)
-
-
-def loadPCRaster(name, num):
-    path1 = os.path.join(str(num), 'stateVar', name)
-    var = iterReadPCRasterMap(path1)
-    return (var)
-
-
-def perturbState(var, method="normal", minVal=0, maxVal=1, mu=0, sigma=1, spatial=True, single=True):
-    try:
-        numVals = len(var)
-    except:
-        numVals = 1
-    if method == "normal":
-        if spatial:
-            domain = len(var[0])
-            out = var
-            for i in range(numVals):
-                out[i] = np.minimum(np.maximum(np.random.normal(mu, sigma, domain), minVal), maxVal)
-        else:
-            if single:
-                out = np.minimum(np.maximum(np.random.normal(mu, sigma, numVals), minVal), maxVal)
-            else:
-                out = list(np.minimum(np.maximum(np.random.normal(mu, sigma, numVals), minVal), maxVal))
-    if method == "uniform":
-        if spatial:
-            domain = len(var[0])
-            out = var
-            for i in range(numVals):
-                out[i] = np.random.uniform(minVal, maxVal, domain)
-        else:
-            if single:
-                out = np.random.uniform(minVal, maxVal, numVals)
-            else:
-                out = list(np.random.uniform(minVal, maxVal, numVals))
-    return out
+# def dumpObject(name, var, num):
+#     path1 = os.path.join(str(num), 'stateVar', name)
+#     file_object1 = open(path1, 'w')
+#     pickle.dump(var, file_object1)
+#     file_object1.close()
+#
+#
+# def loadObject(name, num):
+#     path1 = os.path.join(str(num), 'stateVar', name)
+#     filehandler1 = open(path1, 'r')
+#     # CM: read a string from the open file object file and interpret it as a pickle data stream, rec
+#     var = pickle.load(filehandler1)
+#     filehandler1.close()
+#     return var
+#
+# #
+# # def dumpPCRaster(name, var, num):
+# #     path1 = os.path.join(str(num), 'stateVar', name)
+# #     report(var, path1)
+#
+#
+# def loadPCRaster(name, num):
+#     path1 = os.path.join(str(num), 'stateVar', name)
+#     var = iterReadPCRasterMap(path1)
+#     return var
+#
+#
+# def perturbState(var, method="normal", minVal=0, maxVal=1, mu=0, sigma=1, spatial=True, single=True):
+#     if method not in ('normal', 'uniform'):
+#         raise ValueError('Method {} not allowed'.format(method))
+#     try:
+#         numVals = len(var)
+#     except:
+#         numVals = 1
+#
+#     if method == "normal":
+#         if spatial:
+#             domain = len(var[0])
+#             out = var
+#             for i in range(numVals):
+#                 out[i] = np.minimum(np.maximum(np.random.normal(mu, sigma, domain), minVal), maxVal)
+#         else:
+#             if single:
+#                 out = np.minimum(np.maximum(np.random.normal(mu, sigma, numVals), minVal), maxVal)
+#             else:
+#                 out = list(np.minimum(np.maximum(np.random.normal(mu, sigma, numVals), minVal), maxVal))
+#         return out
+#     elif method == "uniform":
+#         if spatial:
+#             domain = len(var[0])
+#             out = var
+#             for i in range(numVals):
+#                 out[i] = np.random.uniform(minVal, maxVal, domain)
+#         else:
+#             if single:
+#                 out = np.random.uniform(minVal, maxVal, numVals)
+#             else:
+#                 out = list(np.random.uniform(minVal, maxVal, numVals))
+#         return out
