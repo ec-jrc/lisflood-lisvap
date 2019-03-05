@@ -7,3 +7,17 @@ _site/
 .idea/
 *.py[cod]
 __pycache__/
+*.gem
+*.sublime-project
+*.sublime-workspace
+.bundle
+.DS_Store
+.sass-cache
+_asset_bundler_cache
+_site
+codekit-config.json
+example/_site
+Gemfile.lock
+node_modules
+npm-debug.log*
+_pdf/
