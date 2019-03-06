@@ -100,9 +100,9 @@ analytics:
 
 # Site Author
 author:
-  name             : "JRC D2,E1"
+  name             : "JRC E1 Disaster Risk Management"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "Index"
+  bio              : ""
   location         : ""
   email            :
   uri              :
@@ -113,7 +113,7 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           :
+  github           : "ec-jrc"
   gitlab           :
   google_plus      :
   keybase          :
@@ -163,10 +163,9 @@ exclude:
   - "*.sh"
 keep_files:
   - .git
-  - .svn
+  -
 encoding: "utf-8"
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
-
 
 # Conversion
 markdown: kramdown
@@ -206,7 +205,6 @@ plugins:
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-gist
-  - jekyll-feed
   - jemoji
 
 # mimic GitHub Pages with --safe
@@ -214,9 +212,7 @@ whitelist:
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-gist
-  - jekyll-feed
   - jemoji
-
 
 # Archives
 #  Type
