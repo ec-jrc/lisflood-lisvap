@@ -161,9 +161,10 @@ exclude:
   - /docs # ignore Minimal Mistakes /docs
   - /test # ignore Minimal Mistakes /test
   - "*.sh"
+
 keep_files:
   - .git
-  -
+
 encoding: "utf-8"
 markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 
@@ -200,13 +201,16 @@ timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 # Plugins (previously gems:)
 plugins:
-  - jekyll-gist
-  - jemoji
-
+#  - jemoji
+#  - jekyll-redirect-from
+#  - jekyll-sitemap
+#  - jekyll-feed
 # mimic GitHub Pages with --safe
 whitelist:
-  - jekyll-gist
-  - jemoji
+#  - jemoji
+#  - jekyll-redirect-from
+#  - jekyll-sitemap
+#  - jekyll-feed
 
 # Archives
 #  Type

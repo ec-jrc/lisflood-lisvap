@@ -21,3 +21,8 @@ Gemfile.lock
 node_modules
 npm-debug.log*
 _pdf/
+/tests
+/psy
+/LatHeatVap
+/psy0
+/dt
