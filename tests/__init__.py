@@ -24,7 +24,8 @@ def setup_module():
     output_path = binding['PathOut']
     for var in reference_nc_paths:
         output_nc = os.path.join(output_path, var) + '.nc'
-        os.remove(output_nc)
+        if os.path.exists(output_nc):
+            os.remove(output_nc)
     # execute current version of lisvap
     lisvapexe(settings_path, optionxml)
 

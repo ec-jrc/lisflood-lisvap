@@ -15,6 +15,7 @@ import xml.dom.minidom
 import datetime
 import time
 from decimal import Decimal
+from dateutil import parser
 
 import pcraster
 from pcraster.framework.dynamicFramework import DynamicFramework
@@ -52,32 +53,18 @@ def Calendar(input):
     :returns: date as datetime or time step number as float 
     :raises ValueError: stop if input is not a step number AND it is in wrong date format
     """
+    if isinstance(input, (float, int)):
+        return float(input)
 
-    # list with all possible input date formats
-    DATE_FORMATS = ['%d/%m/%Y %H:%M', '%Y/%m/%d %H:%M', '%d/%m/%Y', '%Y/%m/%d',
-                    '%d/%m/%y %H:%M', '%y/%m/%d %H:%M', '%d/%m/%y', '%y/%m/%d',
-                    '%d-%m-%Y %H:%M', '%Y-%m-%d %H:%M', '%d-%m-%Y', '%Y-%m-%d',
-                    '%d-%m-%y %H:%M', '%y-%m-%d %H:%M', '%d-%m-%y', '%y-%m-%d',
-                    '%d.%m.%Y %H:%M', '%Y.%m.%d %H:%M', '%d-%m-%Y', '%Y.%m.%d',
-                    '%d.%m.%y %H:%M', '%y.%m.%d %H:%M', '%d.%m.%y', '%y.%m.%d'
-                    ]
     try:
         # try reading step number from number or string
-        # FIXME this branch try except seems to be not used as dates are now properlyl formatted
-        date = float(input)
-    except ValueError:
-        # try reading a date in one of available formats
-        for date_format in DATE_FORMATS:
-            try:
-                date = datetime.datetime.strptime(input, date_format)
-                return date
-            except ValueError:
-                pass
+        date = parser.parse(input, dayfirst=True)
+    except (TypeError, ValueError) as e:
         # if cannot read input then stop
         msg = """
-        Wrong step or date format in XML settings file
+        Wrong step or date format: {},
         Input {}
-        """.format(input)
+        """.format(e, input)
         raise LisfloodError(msg)
     else:
         return date
