@@ -2,13 +2,13 @@
 main:
   - section_title: "LISFLOOD"
 
-  - title: "Model Documentation"
+  - title: "Lisflood Model"
     url: https://ec-jrc.github.io/lisflood-model/
-  - title: "User Guide"
+  - title: "Lisflood User Guide"
     url: https://ec-jrc.github.io/lisflood-code/
   - title: "Use Cases"
-    url: /year-archive/
+    url: https://github.com/ec-jrc/lisflood-usecases
   - title: "Utilities"
-    url: https://mmistakes.github.io/minimal-mistakes/about/
+    url: https://github.com/ec-jrc/lisflood-utilities
   - title: "LISVAP"
-    url: /collection-archive/
+    url: https://ec-jrc.github.io/lisflood-lisvap/
