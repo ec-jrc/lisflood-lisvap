@@ -212,30 +212,157 @@ class LisvapModelDyn(DynamicModel):
             
             # slope of saturated vapour pressure curve [mbar/deg C]
 
-            # ************************************************************
-            # ***** EA: EVAPORATIVE DEMAND *******************************
-            # ************************************************************
+    elif option['CORDEX']:
 
-            # Evaporative demand is calculated for three reference surfaces:
-            # 1. Reference vegetation canopy
-            # 2. Bare soil surface
-            # 3. Open water surface
-            self.ETRef = ((Delta * RNA) + (Psychro * EA)) / (Delta + Psychro)
-            # potential reference evapotranspiration rate [mm/day]
-            self.ESRef = ((Delta * RNASoil) + (Psychro * EASoil)) / (Delta + Psychro)
-            # potential evaporation rate from a bare soil surface [mm/day]
-            self.EWRef = ((Delta * RNAWater) + (Psychro * EAWater)) / (Delta + Psychro)
-            # potential evaporation rate from water surface [mm/day]
+        
 
-            # ************************************************************
-            # ***** WRITING RESULTS: TIME SERIES AND MAPS ****************
-            # ************************************************************
 
-            self.output_module.dynamic()
+        #Windspeed2 = self.Wind*0.749
+        Windspeed2 = self.Wind # already multiplied by 0.749 in module readmeteo
 
-            timemeasure("All")  # 10 timing after all
-            for i in xrange(len(timeMes)):
-                if self.currentTimeStep() == self.firstTimeStep():
-                    timeMesSum.append(timeMes[i] - timeMes[0])
-                else:
-                    timeMesSum[i] += timeMes[i] - timeMes[0]
+        DeltaT=pcraster.max(self.TMax-self.TMin, 0.0);
+        # difference between daily maximum and minimum temperature [deg C]
+
+        BU=pcraster.max(0.54+0.35*((DeltaT-12)/4), 0.54);
+        # empirical constant in windspeed formula
+        # if DeltaT is less than 12 degrees, BU=0.54
+
+
+        ESat=6.10588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
+       #ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102)) #the formula above returns value in pascal, not mbar
+        # Goudriaan equation (1977)
+        # saturated vapour pressure [mbar]
+        # TAvg [deg Celsius]
+        # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
+
+        VapPressDef = pcraster.max(ESat-self.EAct, 0.0)
+        # Vapour pressure deficit [mbar]
+
+
+        # Evaporative demand is calculated for three reference surfaces:
+        #
+        # 1. Reference vegetation canopy
+        # 2. Bare soil surface
+        # 3. Open water surface
+        EA=0.26*VapPressDef*(self.FactorCanopy+BU*Windspeed2);
+                # evaporative demand of reference vegetation canopy [mm/d]
+        EASoil=0.26*VapPressDef*(self.FactorSoil+BU*Windspeed2);
+                # evaporative demand of bare soil surface [mm/d]
+        EAWater=0.26*VapPressDef*(self.FactorWater+BU*Windspeed2);
+                # evaporative demand of water surface [mm/d]
+
+
+        LatHeatVap = 2.501-0.002361*self.TAvg
+        # latent heat of vaporization [MJ/kg]
+
+        Psychro0=0.00163*(self.Press0/LatHeatVap);
+        # psychrometric constant at sea level [mbar/deg C]
+        # Corrected constant, was wrong originally
+        # Psychro0 should be around 0.67 mbar/ deg C
+
+        Psychro=Psychro0*((293-0.0065*self.Dem)/293)**5.26;
+        # Correction for altitude (FAO, http://www.fao.org/docrep/X0490E/x0490e00.htm )
+        # Note that previously some equation from Supit et al was used,
+        # but this produced complete rubbish!
+
+        Delta=((238.102*17.32491*ESat)/((self.TAvg+238.102)**2));
+        # slope of saturated vapour pressure curve [mbar/deg C]
+
+
+        # ************************************************************
+        # ***** ANGOT RADIATION **************************************
+        # ************************************************************
+
+        sin = pcraster.sin
+        cos = pcraster.cos
+        tan = pcraster.tan
+        asin = pcraster.asin
+        scalar = pcraster.scalar
+
+        Declin=-23.45*cos((360.*(self.CalendarDay+10))/(365.));
+        # solar declination [degrees]
+        
+        SolarConstant=self.AvSolarConst*(1+(0.033*np.cos(2*self.Pi*self.CalendarDay/365.)));
+        # solar constant at top of the atmosphere [J/m2/s]
+
+        tmp1=((-sin(self.PD/self.Pi))+sin(Declin)*sin(self.Lat))/((cos(Declin)*cos(self.Lat))); 
+        tmp2=pcraster.ifthenelse(tmp1 < 0,pcraster.scalar(asin(tmp1))-360.,pcraster.scalar(asin(tmp1)))
+        DayLength=12.+(24./180.)*tmp2;
+        # daylength [hour]
+
+        DayLength=pcraster.cover(DayLength,0.0);
+        # Daylength equation can produce MV at high latitudes,
+        # this statements sets day length to 0 in that case  
+ 
+        IntSolarHeight=3600.*(DayLength*sin(Declin)*sin(self.Lat)+
+                       (24./self.Pi)*cos(Declin)*cos(self.Lat)*pcraster.sqrt(1-pcraster.sqr(tan(Declin)*tan(self.Lat))));
+        # integral of solar height [s] over the day
+
+        IntSolarHeight=pcraster.max(IntSolarHeight,0.0);
+        # Integral of solar height cannot be negative,
+        # so truncate at 0
+        IntSolarHeight=pcraster.cover(IntSolarHeight,0.0)
+
+        RadiationAngot=IntSolarHeight*SolarConstant; 
+        # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
+
+
+
+
+        # ************************************************************
+        # ***** NET ABSORBED RADIATION *******************************
+        # ************************************************************
+
+        # equation Allen et al. 1994
+        # using the digital elevation model
+        # from:  An Update for the Definition of Reference Evapotranspiration  Allen et al. 1994
+        
+        Rds = self.Rds
+        Rso=RadiationAngot*(0.75+(2*10**-5*self.Dem))
+        TransAtm_Allen=Rds/Rso;
+        TransAtm_Allen=pcraster.cover(TransAtm_Allen,0)
+        AdjCC=1.8*TransAtm_Allen-0.35;
+        AdjCC=pcraster.ifthenelse(AdjCC < 0, 0.05, AdjCC);
+        AdjCC=pcraster.ifthenelse(AdjCC > 1, 1, AdjCC);
+
+
+        EmNet=(0.56-0.079*pcraster.sqrt(self.EAct))
+        # Net emissivity
+        RN = self.StefBolt*((self.TAvg+273)**4)*EmNet*AdjCC
+        # net  longwave radiation [J/m2/day]
+
+        RNA=pcraster.max(((1-self.AlbedoCanopy)*Rds-RN)/(1E6*LatHeatVap),0.0);
+        # net absorbed radiation of reference vegetation canopy [mm/d]
+        RNASoil=pcraster.max(((1-self.AlbedoSoil)*Rds-RN)/(1E6*LatHeatVap),0.0);
+        # net absorbed radiation of bare soil surface
+        RNAWater=pcraster.max(((1-self.AlbedoWater)*Rds-RN)/(1E6*LatHeatVap),0.0);
+        # net absorbed radiation of water surface
+
+
+
+
+        # ************************************************************
+        # ***** EA: EVAPORATIVE DEMAND *******************************
+        # ************************************************************
+        # Evaporative demand is calculated for three reference surfaces:
+        # 1. Reference vegetation canopy
+        # 2. Bare soil surface
+        # 3. Open water surface
+        self.ETRef = ((Delta * RNA) + (Psychro * EA)) / (Delta + Psychro)
+        # potential reference evapotranspiration rate [mm/day]
+        self.ESRef = ((Delta * RNASoil) + (Psychro * EASoil)) / (Delta + Psychro)
+        # potential evaporation rate from a bare soil surface [mm/day]
+        self.EWRef = ((Delta * RNAWater) + (Psychro * EAWater)) / (Delta + Psychro)
+        # potential evaporation rate from water surface [mm/day]
+        # ************************************************************
+        # ***** WRITING RESULTS: TIME SERIES AND MAPS ****************
+        # ************************************************************
+
+        self.output_module.dynamic()
+
+        timemeasure("All")  # 10 timing after all
+        for i in xrange(len(timeMes)):
+            if self.currentTimeStep() == self.firstTimeStep():
+                timeMesSum.append(timeMes[i] - timeMes[0])
+            else:
+                timeMesSum[i] += timeMes[i] - timeMes[0]
