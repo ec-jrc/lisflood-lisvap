@@ -184,7 +184,7 @@ class LisvapModelDyn(DynamicModel):
 
             # Net emissivity
             RN = self.StefBolt * ((self.TAvg + 273)**4) * EmNet * AdjCC
-        
+
             RNA = operations.max(((1 - self.AlbedoCanopy) * Rgd - RN) / (1E6 * LatHeatVap), 0.0)
             # net absorbed radiation of reference vegetation canopy [mm/d]
             RNASoil = operations.max(((1 - self.AlbedoSoil) * Rgd - RN) / (1E6 * LatHeatVap), 0.0)
@@ -209,137 +209,122 @@ class LisvapModelDyn(DynamicModel):
 
             Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
             report(Delta, 'dt')
-            
+
             # slope of saturated vapour pressure curve [mbar/deg C]
 
-    elif option['CORDEX']:
+        elif option['CORDEX']:
 
-        
+            # Windspeed2 = self.Wind*0.749
+            Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
 
+            DeltaT = operations.max(self.TMax-self.TMin, 0.0)
+            # difference between daily maximum and minimum temperature [deg C]
 
-        #Windspeed2 = self.Wind*0.749
-        Windspeed2 = self.Wind # already multiplied by 0.749 in module readmeteo
+            BU = operations.max(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
+            # empirical constant in windspeed formula
+            # if DeltaT is less than 12 degrees, BU=0.54
 
-        DeltaT=pcraster.max(self.TMax-self.TMin, 0.0);
-        # difference between daily maximum and minimum temperature [deg C]
+            ESat = 6.10588 * operations.exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
+            # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102)) #the formula above returns value in pascal, not mbar
+            # Goudriaan equation (1977)
+            # saturated vapour pressure [mbar]
+            # TAvg [deg Celsius]
+            # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
 
-        BU=pcraster.max(0.54+0.35*((DeltaT-12)/4), 0.54);
-        # empirical constant in windspeed formula
-        # if DeltaT is less than 12 degrees, BU=0.54
+            VapPressDef = operations.max(ESat-self.EAct, 0.0)
+            # Vapour pressure deficit [mbar]
 
+            # Evaporative demand is calculated for three reference surfaces:
+            #
+            # 1. Reference vegetation canopy
+            # 2. Bare soil surface
+            # 3. Open water surface
+            EA = 0.26 * VapPressDef * (self.FactorCanopy + BU * Windspeed2)
+            # evaporative demand of reference vegetation canopy [mm/d]
+            EASoil = 0.26 * VapPressDef * (self.FactorSoil + BU * Windspeed2)
+            # evaporative demand of bare soil surface [mm/d]
+            EAWater = 0.26 * VapPressDef * (self.FactorWater + BU * Windspeed2)
+            # evaporative demand of water surface [mm/d]
 
-        ESat=6.10588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
-       #ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102)) #the formula above returns value in pascal, not mbar
-        # Goudriaan equation (1977)
-        # saturated vapour pressure [mbar]
-        # TAvg [deg Celsius]
-        # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
+            LatHeatVap = 2.501 - 0.002361 * self.TAvg
+            # latent heat of vaporization [MJ/kg]
 
-        VapPressDef = pcraster.max(ESat-self.EAct, 0.0)
-        # Vapour pressure deficit [mbar]
+            Psychro0 = 0.00163 * (self.Press0 / LatHeatVap)
+            # psychrometric constant at sea level [mbar/deg C]
+            # Corrected constant, was wrong originally
+            # Psychro0 should be around 0.67 mbar/ deg C
 
+            Psychro = Psychro0 * ((293 - 0.0065 * self.Dem) / 293) ** 5.26
+            # Correction for altitude (FAO, http://www.fao.org/docrep/X0490E/x0490e00.htm )
+            # Note that previously some equation from Supit et al was used,
+            # but this produced complete rubbish!
 
-        # Evaporative demand is calculated for three reference surfaces:
-        #
-        # 1. Reference vegetation canopy
-        # 2. Bare soil surface
-        # 3. Open water surface
-        EA=0.26*VapPressDef*(self.FactorCanopy+BU*Windspeed2);
-                # evaporative demand of reference vegetation canopy [mm/d]
-        EASoil=0.26*VapPressDef*(self.FactorSoil+BU*Windspeed2);
-                # evaporative demand of bare soil surface [mm/d]
-        EAWater=0.26*VapPressDef*(self.FactorWater+BU*Windspeed2);
-                # evaporative demand of water surface [mm/d]
+            Delta = (238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2)
+            # slope of saturated vapour pressure curve [mbar/deg C]
 
+            # ************************************************************
+            # ***** ANGOT RADIATION **************************************
+            # ************************************************************
 
-        LatHeatVap = 2.501-0.002361*self.TAvg
-        # latent heat of vaporization [MJ/kg]
+            sin = operations.sin
+            cos = operations.cos
+            tan = operations.tan
+            asin = operations.asin
+            scalar = operations.scalar
 
-        Psychro0=0.00163*(self.Press0/LatHeatVap);
-        # psychrometric constant at sea level [mbar/deg C]
-        # Corrected constant, was wrong originally
-        # Psychro0 should be around 0.67 mbar/ deg C
+            Declin = -23.45 * cos((360. * (self.CalendarDay + 10)) / 365.)
+            # solar declination [degrees]
 
-        Psychro=Psychro0*((293-0.0065*self.Dem)/293)**5.26;
-        # Correction for altitude (FAO, http://www.fao.org/docrep/X0490E/x0490e00.htm )
-        # Note that previously some equation from Supit et al was used,
-        # but this produced complete rubbish!
+            SolarConstant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.CalendarDay/365.)))
+            # solar constant at top of the atmosphere [J/m2/s]
 
-        Delta=((238.102*17.32491*ESat)/((self.TAvg+238.102)**2));
-        # slope of saturated vapour pressure curve [mbar/deg C]
+            tmp1 = ((-sin(self.PD / self.Pi)) + sin(Declin) * sin(self.Lat)) / (cos(Declin) * cos(self.Lat))
+            tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
+            DayLength = 12. + (24. / 180.) * tmp2
+            # daylength [hour]
 
+            DayLength = operations.cover(DayLength, 0.0)
+            # Daylength equation can produce MV at high latitudes,
+            # this statements sets day length to 0 in that case
 
-        # ************************************************************
-        # ***** ANGOT RADIATION **************************************
-        # ************************************************************
+            IntSolarHeight = 3600. * (DayLength * sin(Declin) * sin(self.Lat) + (24./self.Pi) * cos(Declin)*cos(self.Lat) * operations.sqrt(1-operations.sqr(tan(Declin) * tan(self.Lat))))
+            # integral of solar height [s] over the day
 
-        sin = pcraster.sin
-        cos = pcraster.cos
-        tan = pcraster.tan
-        asin = pcraster.asin
-        scalar = pcraster.scalar
+            IntSolarHeight = operations.max(IntSolarHeight, 0.0)
+            # Integral of solar height cannot be negative,
+            # so truncate at 0
+            IntSolarHeight = operations.cover(IntSolarHeight, 0.0)
 
-        Declin=-23.45*cos((360.*(self.CalendarDay+10))/(365.));
-        # solar declination [degrees]
-        
-        SolarConstant=self.AvSolarConst*(1+(0.033*np.cos(2*self.Pi*self.CalendarDay/365.)));
-        # solar constant at top of the atmosphere [J/m2/s]
+            RadiationAngot = IntSolarHeight * SolarConstant
+            # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
 
-        tmp1=((-sin(self.PD/self.Pi))+sin(Declin)*sin(self.Lat))/((cos(Declin)*cos(self.Lat))); 
-        tmp2=pcraster.ifthenelse(tmp1 < 0,pcraster.scalar(asin(tmp1))-360.,pcraster.scalar(asin(tmp1)))
-        DayLength=12.+(24./180.)*tmp2;
-        # daylength [hour]
+            # ************************************************************
+            # ***** NET ABSORBED RADIATION *******************************
+            # ************************************************************
 
-        DayLength=pcraster.cover(DayLength,0.0);
-        # Daylength equation can produce MV at high latitudes,
-        # this statements sets day length to 0 in that case  
- 
-        IntSolarHeight=3600.*(DayLength*sin(Declin)*sin(self.Lat)+
-                       (24./self.Pi)*cos(Declin)*cos(self.Lat)*pcraster.sqrt(1-pcraster.sqr(tan(Declin)*tan(self.Lat))));
-        # integral of solar height [s] over the day
+            # equation Allen et al. 1994
+            # using the digital elevation model
+            # from:  An Update for the Definition of Reference Evapotranspiration  Allen et al. 1994
 
-        IntSolarHeight=pcraster.max(IntSolarHeight,0.0);
-        # Integral of solar height cannot be negative,
-        # so truncate at 0
-        IntSolarHeight=pcraster.cover(IntSolarHeight,0.0)
+            Rds = self.Rds
+            Rso = RadiationAngot * (0.75 + (2 * 10 ** -5 * self.Dem))
+            TransAtm_Allen = Rds/Rso
+            TransAtm_Allen = operations.cover(TransAtm_Allen, 0)
+            AdjCC = 1.8 * TransAtm_Allen - 0.35
+            AdjCC = operations.ifthenelse(AdjCC < 0, 0.05, AdjCC)
+            AdjCC = operations.ifthenelse(AdjCC > 1, 1, AdjCC)
 
-        RadiationAngot=IntSolarHeight*SolarConstant; 
-        # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
+            EmNet = (0.56 - 0.079 * operations.sqrt(self.EAct))
+            # Net emissivity
+            RN = self.StefBolt * ((self.TAvg + 273) ** 4) * EmNet*AdjCC
+            # net  longwave radiation [J/m2/day]
 
-
-
-
-        # ************************************************************
-        # ***** NET ABSORBED RADIATION *******************************
-        # ************************************************************
-
-        # equation Allen et al. 1994
-        # using the digital elevation model
-        # from:  An Update for the Definition of Reference Evapotranspiration  Allen et al. 1994
-        
-        Rds = self.Rds
-        Rso=RadiationAngot*(0.75+(2*10**-5*self.Dem))
-        TransAtm_Allen=Rds/Rso;
-        TransAtm_Allen=pcraster.cover(TransAtm_Allen,0)
-        AdjCC=1.8*TransAtm_Allen-0.35;
-        AdjCC=pcraster.ifthenelse(AdjCC < 0, 0.05, AdjCC);
-        AdjCC=pcraster.ifthenelse(AdjCC > 1, 1, AdjCC);
-
-
-        EmNet=(0.56-0.079*pcraster.sqrt(self.EAct))
-        # Net emissivity
-        RN = self.StefBolt*((self.TAvg+273)**4)*EmNet*AdjCC
-        # net  longwave radiation [J/m2/day]
-
-        RNA=pcraster.max(((1-self.AlbedoCanopy)*Rds-RN)/(1E6*LatHeatVap),0.0);
-        # net absorbed radiation of reference vegetation canopy [mm/d]
-        RNASoil=pcraster.max(((1-self.AlbedoSoil)*Rds-RN)/(1E6*LatHeatVap),0.0);
-        # net absorbed radiation of bare soil surface
-        RNAWater=pcraster.max(((1-self.AlbedoWater)*Rds-RN)/(1E6*LatHeatVap),0.0);
-        # net absorbed radiation of water surface
-
-
-
+            RNA = operations.max(((1 - self.AlbedoCanopy) * Rds - RN) / (1E6 * LatHeatVap), 0.0)
+            # net absorbed radiation of reference vegetation canopy [mm/d]
+            RNASoil = operations.max(((1 - self.AlbedoSoil) * Rds - RN) / (1E6 * LatHeatVap), 0.0)
+            # net absorbed radiation of bare soil surface
+            RNAWater = operations.max(((1 - self.AlbedoWater) * Rds - RN) / (1E6 * LatHeatVap), 0.0)
+            # net absorbed radiation of water surface
 
         # ************************************************************
         # ***** EA: EVAPORATIVE DEMAND *******************************

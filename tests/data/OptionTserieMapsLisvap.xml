@@ -35,7 +35,6 @@
 </lfoptions>
 
 
-
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -58,8 +57,6 @@
 
 </lftime>
 
-
-
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -73,14 +70,11 @@
 # all:         reported on all steps
 # restrictoption:  time serie is only reported if this option(s) are active
 
-
-
 <lfmaps>
 
-<setmap name="ET0Maps"   outputVar="ETRef" unit="mm day-1"  end=""  steps="" all="repET0Maps"   restrictoption="" /> 
-<setmap name="E0Maps"    outputVar="EWRef"  unit="mm day-1"  end=""  steps="" all="repE0Maps"    restrictoption="" /> 
-<setmap name="ES0Maps"   outputVar="ESRef" unit="mm day-1"  end=""  steps="" all="repES0Maps"   restrictoption="" /> 
-
+<setmap name="ET0Maps"   outputVar="ETRef"  unit="mm day-1"  end=""  steps="" all="repET0Maps" restrictoption="" />
+<setmap name="E0Maps"    outputVar="EWRef"  unit="mm day-1"  end=""  steps="" all="repE0Maps"  restrictoption="" />
+<setmap name="ES0Maps"   outputVar="ESRef"  unit="mm day-1"  end=""  steps="" all="repES0Maps" restrictoption="" />
 
 </lfmaps>
 
