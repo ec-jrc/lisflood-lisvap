@@ -1,87 +1,84 @@
 <lisflood>
-<lfoptions>
-# all the option all listed here
-# 0 in default = this option is by default not used
-# 1 in default = this is used by default
-# if an option is used can be specified in the settingsfile
+    <lfoptions>
+        # all the option all listed here
+        # 0 in default = this option is by default not used
+        # 1 in default = this is used by default
+        # if an option is used can be specified in the settingsfile
 
-# -------------------
-# option to turn modules on
+        # -------------------
+        # option to turn modules on
 
-<setoption   default="0"  name="InitLisflood"/>
-<setoption   default="0"  name="InitLisfloodwithoutSplit"/>
+        <setoption default="0" name="InitLisflood"/>
+        <setoption default="0" name="InitLisfloodwithoutSplit"/>
 
-# option to read NetCDF
-<setoption   default="0"  name="readNetcdfStack"/>
-<setoption   default="0"  name="writeNetcdfStack"/>
-<setoption   default="0"  name="writeNetcdf"/>
-
-
-# -------------------
-# report time series
-
-<setoption   default="0"  name="repAvTimeseries"/>
+        # option to read NetCDF
+        <setoption default="0" name="readNetcdfStack"/>
+        <setoption default="0" name="writeNetcdfStack"/>
+        <setoption default="0" name="writeNetcdf"/>
 
 
-# -------------------
-# report maps
+        # -------------------
+        # report time series
 
-<setoption   default="1"  name="repET0Maps"/>
-<setoption   default="1"  name="repES0Maps"/>
-<setoption   default="1"  name="repE0Maps"/>
-<setoption   default="1"  name="EFAS"/>
-<setoption   default="0"  name="CORDEX"/>
-
-</lfoptions>
+        <setoption default="0" name="repAvTimeseries"/>
 
 
+        # -------------------
+        # report maps
 
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-# report Times Series
-
-
-<lftime>
-# all possible output as time series are listed here
-# name:        name of this variable in the settings.xml
-# outputVar:   name of the output variable in the code
-# where:       where is the time series reported: e.g. gauges, sites, 1, Catchments, LakeSites etc.
-# repoption:       time serie is reported if one of these option is active
-# restrictoption:  time serie is only reported if this option(s) are active
-# operation:   operation to be done before reporting e.g. mapmaximum, total (=catchmenttotal) 
- 
-<setserie name="TAvgTS"   outputVar="TAvg"   where="1"      repoption="repAvTimeseries"  />
-<setserie name="ET0TS"    outputVar="ETRef"  where="1"      repoption="repAvTimeseries"  />
-<setserie name="E0TS"     outputVar="EWRef"  where="1"      repoption="repAvTimeseries"  />
-<setserie name="ES0TS"    outputVar="ESRef"  where="1"      repoption="repAvTimeseries"  />
-
-</lftime>
+        <setoption default="1" name="repET0Maps"/>
+        <setoption default="1" name="repES0Maps"/>
+        <setoption default="1" name="repE0Maps"/>
+        <setoption default="1" name="EFAS"/>
+        <setoption default="0" name="CORDEX"/>
+        <setoption default="1" name="useTavg"/>
+    </lfoptions>
 
 
-
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-# Report Maps
-# all possible output as maps listed here
-# name:        name of this variable in the settings.xml
-# outputVar:   name of the output variable in the code
-# unit:        what unit has this variable e.g. m, mm, degree   !!! has to checked!!
-# end:         reported only at last step
-# steps:       reported at report steps
-# all:         reported on all steps
-# restrictoption:  time serie is only reported if this option(s) are active
+    #-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
+    # report Times Series
 
 
+    <lftime>
+        # all possible output as time series are listed here
+        # name: name of this variable in the settings.xml
+        # outputVar: name of the output variable in the code
+        # where: where is the time series reported: e.g. gauges, sites, 1, Catchments, LakeSites etc.
+        # repoption: time serie is reported if one of these option is active
+        # restrictoption: time serie is only reported if this option(s) are active
+        # operation: operation to be done before reporting e.g. mapmaximum, total (=catchmenttotal)
 
-<lfmaps>
+        <setserie name="TAvgTS" outputVar="TAvg" where="1" repoption="repAvTimeseries"/>
+        <setserie name="ET0TS" outputVar="ETRef" where="1" repoption="repAvTimeseries"/>
+        <setserie name="E0TS" outputVar="EWRef" where="1" repoption="repAvTimeseries"/>
+        <setserie name="ES0TS" outputVar="ESRef" where="1" repoption="repAvTimeseries"/>
 
-<setmap name="ET0Maps"   outputVar="ETRef" unit="mm day-1"  end=""  steps="" all="repET0Maps"   restrictoption="" /> 
-<setmap name="E0Maps"    outputVar="EWRef"  unit="mm day-1"  end=""  steps="" all="repE0Maps"    restrictoption="" /> 
-<setmap name="ES0Maps"   outputVar="ESRef" unit="mm day-1"  end=""  steps="" all="repES0Maps"   restrictoption="" /> 
+    </lftime>
 
 
-</lfmaps>
+    #-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
+    # Report Maps
+    # all possible output as maps listed here
+    # name: name of this variable in the settings.xml
+    # outputVar: name of the output variable in the code
+    # unit: what unit has this variable e.g. m, mm, degree !!! has to checked!!
+    # end: reported only at last step
+    # steps: reported at report steps
+    # all: reported on all steps
+    # restrictoption: time serie is only reported if this option(s) are active
+
+
+    <lfmaps>
+
+        <setmap name="ET0Maps" outputVar="ETRef" unit="mm day-1" end="" steps="" all="repET0Maps" restrictoption=""/>
+        <setmap name="E0Maps" outputVar="EWRef" unit="mm day-1" end="" steps="" all="repE0Maps" restrictoption=""/>
+        <setmap name="ES0Maps" outputVar="ESRef" unit="mm day-1" end="" steps="" all="repES0Maps" restrictoption=""/>
+
+
+    </lfmaps>
 
 </lisflood>

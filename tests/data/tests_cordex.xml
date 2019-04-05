@@ -102,13 +102,13 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 </comment>
             </textvar>
 
-            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/mapsLisvap/">
+            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/mapsLisvap">
                 <comment>
                     Path to input base maps
                 </comment>
             </textvar>
 
-            <textvar name="PathMeteoIn" value="$(ProjectDir)/tests/data/input/cordex/">
+            <textvar name="PathMeteoIn" value="$(ProjectDir)/tests/data/input/cordex">
                 <comment>
                     Path to input raw meteo maps
                     E:/lisflood_test/LisvapWorld/meteo/raster
@@ -252,16 +252,17 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
     </lfuser>
 
     <lfoptions>
-        <setoption name="useRgdMaps" choice="1"></setoption>
-        <setoption name="useRNMaps" choice="1"></setoption>
+        <setoption name="useRgdMaps" choice="1"/>
+        <setoption name="useRNMaps" choice="1"/>
 
-        <setoption name="readNetcdfStack" choice="1"></setoption>
-        <setoption name="writeNetcdfStack" choice="1"></setoption>
+        <setoption name="readNetcdfStack" choice="1"/>
+        <setoption name="writeNetcdfStack" choice="1"/>
 
-        <setoption name="repE0Maps" choice="1"></setoption>
-        <setoption name="repESMaps" choice="1"></setoption>
-        <setoption name="EFAS" choice="0"></setoption>
-        <setoption name="CORDEX" choice="1"></setoption>
+        <setoption name="repE0Maps" choice="1"/>
+        <setoption name="repESMaps" choice="1"/>
+        <setoption name="EFAS" choice="0"/>
+        <setoption name="CORDEX" choice="1"/>
+        <setoption name="useTavg" choice="0" />
     </lfoptions>
 
 
@@ -403,23 +404,23 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 **************************************************************
             </comment>
 
-            <textvar name="TMaxMaps" value="$(PathMeteoIn)/Tmax_BCed_1981-2010_1981-2010">
+            <textvar name="TMaxMaps" value="$(PathMeteoIn)/tmax_1_15">
                 <comment>
                     Maximum daily temperature [K]
                 </comment>
             </textvar>
 
-            <textvar name="TMinMaps" value="$(PathMeteoIn)/Tmin_BCed_1981-2010_1981-2010">
+            <textvar name="TMinMaps" value="$(PathMeteoIn)/tmin_1_15">
                 <comment>
                     Minimum daily temperature [K]
                 </comment>
             </textvar>
 
-            <textvar name="TAvgMaps" value="$(PathMeteoIn)/T_BCed_1981-2010_1981-2010">
-                <comment>
-                    average daily temperature [K]
-                </comment>
-            </textvar>
+<!--            <textvar name="TAvgMaps" value="$(PathMeteoIn)/tavg_1_15">-->
+<!--                <comment>-->
+<!--                    average daily temperature [K]-->
+<!--                </comment>-->
+<!--            </textvar>-->
 
             <textvar name="TDewMaps" value="$(PathMeteoIn)/$(PrefixTDew)">
                 <comment>
@@ -435,19 +436,19 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 </comment>
             </textvar>
 
-            <textvar name="PSurfMaps" value="$(PathMeteoIn)/ps_BCed_1981-2010_1981-2010">
+            <textvar name="PSurfMaps" value="$(PathMeteoIn)/ps_1_15">
                 <comment>
                     Instantaneous sea level pressure [Pa]
                 </comment>
             </textvar>
 
-            <textvar name="QAirMaps" value="$(PathMeteoIn)/huss_BCed_1981-2010_1981-2010">
+            <textvar name="QAirMaps" value="$(PathMeteoIn)/huss_1_15">
                 <comment>
                     2 m instantaneous specific humidity [kg/kg]
                 </comment>
             </textvar>
 
-            <textvar name="WindMaps" value="$(PathMeteoIn)/sfcWind_BCed_1981-2010_1981-2010">
+            <textvar name="WindMaps" value="$(PathMeteoIn)/sfcWind_1_15">
                 <comment>
                     Wind speed at 10 m from surface [m/s]
                 </comment>
@@ -481,25 +482,25 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 </comment>
             </textvar>
 
-            <textvar name="RdsMaps" value="$(PathMeteoIn)/rsds_BCed_1981-2010_1981-2010">
+            <textvar name="RdsMaps" value="$(PathMeteoIn)/rsds_1_15">
                 <comment>
                     rds - Downward short wave radiation [W/m2]
                 </comment>
             </textvar>
 
-            <textvar name="RdlMaps" value="$(PathMeteoIn)/rlds_BCed_1981-2010_1981-2010">
+            <textvar name="RdlMaps" value="$(PathMeteoIn)/rlds_1_15">
                 <comment>
                     rdl - Down long wave radiation [W/m2]
                 </comment>
             </textvar>
 
-            <textvar name="RusMaps" value="$(PathMeteoIn)/rsus_BCed_1981-2010_1981-2010">
+            <textvar name="RusMaps" value="$(PathMeteoIn)/rsus_1_15">
                 <comment>
                     rus - up short wave radiation [W/m2]
                 </comment>
             </textvar>
 
-            <textvar name="RulMaps" value="$(PathMeteoIn)/rlus_BCed_1981-2010_1981-2010">
+            <textvar name="RulMaps" value="$(PathMeteoIn)/rlus_1_15">
                 <comment>
                     rul - up long wave radiation [W/m2]
                 </comment>
@@ -574,7 +575,7 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 **************************************************************
             </comment>
 
-            <textvar name="MaskMap" value="$(PathBaseMapsIn)/area.map">
+            <textvar name="MaskMap" value="$(ProjectDir)/tests/data/areaall.nc">
                 <comment>
                     Clone map
                 </comment>

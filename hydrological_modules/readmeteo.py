@@ -39,9 +39,12 @@ class ReadMeteo(object):
         # ************************************************************
         if option['readNetcdfStack']:
             if option['CORDEX']:
-                self.var.TAvg = readnetcdf(binding['TAvgMaps'], self.var.currentTimeStep())
                 self.var.TMin = readnetcdf(binding['TMinMaps'], self.var.currentTimeStep())
                 self.var.TMax = readnetcdf(binding['TMaxMaps'], self.var.currentTimeStep())
+                if option['useTavg']:
+                    self.var.TAvg = readnetcdf(binding['TAvgMaps'], self.var.currentTimeStep())
+                else:
+                    self.var.TAvg = .5 * (self.var.TMin + self.var.TMax)
 
                 self.var.Psurf = readnetcdf(binding['PSurfMaps'], self.var.currentTimeStep())
                 self.var.Qair = readnetcdf(binding['QAirMaps'], self.var.currentTimeStep())
@@ -56,13 +59,15 @@ class ReadMeteo(object):
                 self.var.Rul = readnetcdf(binding['RulMaps'], self.var.currentTimeStep())
                 # upward long wave radiation [W/m2]
 
-            if option['EFAS']:
+            elif option['EFAS']:
+
                 self.var.TMin = readnetcdf(binding['TMinMaps'], self.var.currentTimeStep())
                 # Minimum daily temperature (C)
                 self.var.TMax = readnetcdf(binding['TMaxMaps'], self.var.currentTimeStep())
                 # Maximum daily temperature (C)
+
+                # FIXME do we need to use option['useTavg'] also here as it is in CORDEX run?
                 self.var.TAvg = (self.var.TMin + self.var.TMax) / 2.0
-                               
                 # Average daily temperature (C)
 
                 self.var.EAct = readnetcdf(binding['EActMaps'], self.var.currentTimeStep())
@@ -84,27 +89,27 @@ class ReadMeteo(object):
                 # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
                 # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
 
-        if self.var.TemperatureInKelvinFlag == 1:
+        if self.var.TemperatureInKelvinFlag:
             self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
             self.var.TMin = self.var.TMin - self.var.ZeroKelvin
             self.var.TMax = self.var.TMax - self.var.ZeroKelvin
 
-        self.var.DeltaT = operations.max(self.var.TMax-self.var.TMin, scalar(0.0))
+        self.var.DeltaT = operations.max(self.var.TMax - self.var.TMin, scalar(0.0))
 
         if option['CORDEX']:
             # correction from sea level pressure to pressure at elevation of dem
-            a = 16000 + 64 * self.var.TAvg
-            self.var.Psurf = self.var.Psurf * (a - self.var.dem) / (a + self.var.dem)
+            # a = 16000 + 64 * self.var.TAvg
+            # self.var.Psurf = self.var.Psurf * (a - self.var.dem) / (a + self.var.dem)
             # and back to the high reso dem with adjusted temp
-            self.var.Rds = self.var.Rds * self.var.WtoMJ
-            self.var.Rdl = self.var.Rdl * self.var.WtoMJ
-            self.var.Rus = self.var.Rus * self.var.WtoMJ
-            self.var.Rul = self.var.Rul * self.var.WtoMJ
-
-            self.var.Psurf = self.var.Psurf * 0.001
-            # [Pa] to [KPa]
-
-            self.var.EAct = (self.var.Psurf * self.var.Qair)/0.622
+            # self.var.Rds = self.var.Rds * self.var.WtoMJ
+            # self.var.Rdl = self.var.Rdl * self.var.WtoMJ
+            # self.var.Rus = self.var.Rus * self.var.WtoMJ
+            # self.var.Rul = self.var.Rul * self.var.WtoMJ
+            self.var.Rds = self.var.Rds * 86400
+            self.var.Rdl = self.var.Rdl * 86400
+            self.var.Rus = self.var.Rus * 86400
+            self.var.Rul = self.var.Rul * 86400
+            self.var.EAct = (self.var.Psurf * self.var.Qair) / 62.2
             # [KPA] * [kg/kg] = KPa
             self.var.Wind = self.var.Wind * 0.749
             # Adjust wind speed for measurement height: wind speed measured at

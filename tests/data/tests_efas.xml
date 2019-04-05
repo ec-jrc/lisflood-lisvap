@@ -372,11 +372,11 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                     rgd - calculated solar radiation [W/m2]
                 </comment>
             </textvar>
-            <textvar name="TAvgMaps" value="$(PathMeteoIn)/ta_1_15">
-                <comment>
-                    average daily temperature [C or K]
-                </comment>
-            </textvar>
+<!--            <textvar name="TAvgMaps" value="$(PathMeteoIn)/ta_1_15">-->
+<!--                <comment>-->
+<!--                    average daily temperature [C or K]-->
+<!--                </comment>-->
+<!--            </textvar>-->
             <textvar name="PSurfMaps" value="0">
                 <comment>
                     Instantaneous sea level pressure [Pa]

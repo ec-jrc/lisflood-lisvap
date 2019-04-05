@@ -51,7 +51,7 @@ class LisvapModelDyn(DynamicModel):
         self.TimeSinceStart = self.currentTimeStep() - self.firstTimeStep() + 1
 
         if Flags['loud']:
-            print "%-6i %10s" %(self.currentTimeStep(),self.CalendarDate.strftime("%d/%m/%Y")) ,
+            print "%-6i %10s" %(self.currentTimeStep(),self.CalendarDate.strftime("%d/%m/%Y")),
         elif not Flags['check']:
             if Flags['quiet'] and not Flags['veryquiet']:
                 sys.stdout.write(".")
@@ -63,13 +63,14 @@ class LisvapModelDyn(DynamicModel):
         """ up to here it was fun, now the real stuff starts
         """
         self.readmeteo_module.dynamic()
-        timemeasure("Read meteo") # 1. timing after read input maps
+        timemeasure("Read meteo")  # 1. timing after read input maps
 
         if Flags['check']:
             return  # if check then finish here
 
         """ Here it starts with meteorological modules:
         """
+        # self.PD = -2.65  # correction constant
 
         if option['EFAS']:
             # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
@@ -121,7 +122,6 @@ class LisvapModelDyn(DynamicModel):
             # solar constant at top of the atmosphere [J/m2/s]
             solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.CalendarDay/365.)))
 
-            self.PD = -2.65  # correction constant
             tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat))/(cos(declin) * cos(self.Lat))
             tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
             # daylength [hour]
@@ -217,7 +217,7 @@ class LisvapModelDyn(DynamicModel):
             # Windspeed2 = self.Wind*0.749
             Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
 
-            DeltaT = operations.max(self.TMax-self.TMin, 0.0)
+            DeltaT = operations.max(self.TMax - self.TMin, 0.0)
             # difference between daily maximum and minimum temperature [deg C]
 
             BU = operations.max(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
@@ -231,7 +231,7 @@ class LisvapModelDyn(DynamicModel):
             # TAvg [deg Celsius]
             # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
 
-            VapPressDef = operations.max(ESat-self.EAct, 0.0)
+            VapPressDef = operations.max(ESat - self.EAct, 0.0)
             # Vapour pressure deficit [mbar]
 
             # Evaporative demand is calculated for three reference surfaces:
@@ -271,6 +271,8 @@ class LisvapModelDyn(DynamicModel):
             tan = operations.tan
             asin = operations.asin
             scalar = operations.scalar
+            sqr = operations.sqr
+            sqrt = operations.sqrt
 
             Declin = -23.45 * cos((360. * (self.CalendarDay + 10)) / 365.)
             # solar declination [degrees]
@@ -279,7 +281,7 @@ class LisvapModelDyn(DynamicModel):
             # solar constant at top of the atmosphere [J/m2/s]
 
             tmp1 = ((-sin(self.PD / self.Pi)) + sin(Declin) * sin(self.Lat)) / (cos(Declin) * cos(self.Lat))
-            tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
+            tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1)) - 360., scalar(asin(tmp1)))
             DayLength = 12. + (24. / 180.) * tmp2
             # daylength [hour]
 
@@ -287,7 +289,7 @@ class LisvapModelDyn(DynamicModel):
             # Daylength equation can produce MV at high latitudes,
             # this statements sets day length to 0 in that case
 
-            IntSolarHeight = 3600. * (DayLength * sin(Declin) * sin(self.Lat) + (24./self.Pi) * cos(Declin)*cos(self.Lat) * operations.sqrt(1-operations.sqr(tan(Declin) * tan(self.Lat))))
+            IntSolarHeight = 3600. * (DayLength * sin(Declin) * sin(self.Lat) + (24./self.Pi) * cos(Declin) * cos(self.Lat) * sqrt(1 - sqr(tan(Declin) * tan(self.Lat))))
             # integral of solar height [s] over the day
 
             IntSolarHeight = operations.max(IntSolarHeight, 0.0)
@@ -316,7 +318,7 @@ class LisvapModelDyn(DynamicModel):
 
             EmNet = (0.56 - 0.079 * operations.sqrt(self.EAct))
             # Net emissivity
-            RN = self.StefBolt * ((self.TAvg + 273) ** 4) * EmNet*AdjCC
+            RN = self.StefBolt * ((self.TAvg + 273) ** 4) * EmNet * AdjCC
             # net  longwave radiation [J/m2/day]
 
             RNA = operations.max(((1 - self.AlbedoCanopy) * Rds - RN) / (1E6 * LatHeatVap), 0.0)
@@ -342,7 +344,8 @@ class LisvapModelDyn(DynamicModel):
         # ************************************************************
         # ***** WRITING RESULTS: TIME SERIES AND MAPS ****************
         # ************************************************************
-
+        # self.sumET += self.ETRef
+        # self.sumEW += self.EWRef
         self.output_module.dynamic()
 
         timemeasure("All")  # 10 timing after all

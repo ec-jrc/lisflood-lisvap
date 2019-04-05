@@ -62,13 +62,12 @@ class MiscInitial(object):
         self.var.Press0 = loadmap('Press0')
         self.var.Dem = loadmap('Dem')
         self.var.AvSolarConst = loadmap('AvSolarConst')
-        # self.var.PD = loadmap('PD')
+        self.var.PD = loadmap('PD')
         self.var.Lat = loadmap('Lat')
         self.var.StefBolt = loadmap('StefBolt')
         self.var.AlbedoSoil = loadmap('AlbedoSoil')
         ##############################
         self.var.AlbedoCanopy = loadmap('AlbedoCanopy')
-        self.var.AlbedoSoil = loadmap('AlbedoSoil')
         self.var.AlbedoWater = loadmap('AlbedoWater')
 
         self.var.dem = cover(loadmap('Dem'), scalar(0.0))
