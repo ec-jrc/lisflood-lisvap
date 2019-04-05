@@ -125,7 +125,7 @@ def option_binding(settingsfile, optionxml):
         binding[bindset.attributes['name'].value] = str(bindset.attributes['value'].value)
 
     # replace/add the information from lfuser to lfbinding
-    for i in binding.keys():
+    for i in binding:
         expr = binding[i]
         while expr.find('$(') > -1:
             a1 = expr.find('$(')

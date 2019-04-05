@@ -10,13 +10,13 @@ current_dir = os.path.dirname(__file__)
 
 
 class TestEFAS(object):
-    settings_path = os.path.join(current_dir, 'data/tests_efas.xml')
-    optionxml = os.path.join(current_dir, 'data/OptionTserieMapsLisvap.xml')
     domain = 'efas'
+    settings_path = os.path.join(current_dir, 'data/tests_efas.xml')
+    optionxml = os.path.join(current_dir, 'data/OptionTserieMapsLisvap_efas.xml')
 
     @classmethod
     def setup_class(cls):
-        option_binding(cls.settings_path, cls.optionxml)
+        # option_binding(cls.settings_path, cls.optionxml)
         # execute current version of lisvap
         lisvapexe(cls.settings_path, cls.optionxml)
 
@@ -27,6 +27,7 @@ class TestEFAS(object):
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
+        binding = {}
 
     @listest(domain, 'e0')
     def test_e0(self):
@@ -42,13 +43,13 @@ class TestEFAS(object):
 
 
 class TestCORDEX(object):
-    settings_path = os.path.join(current_dir, 'data/tests_cordex.xml')
-    optionxml = os.path.join(current_dir, 'data/OptionTserieMapsLisvap.xml')
     domain = 'cordex'
+    settings_path = os.path.join(current_dir, 'data/tests_cordex.xml')
+    optionxml = os.path.join(current_dir, 'data/OptionTserieMapsLisvap_cordex.xml')
 
     @classmethod
     def setup_class(cls):
-        option_binding(cls.settings_path, cls.optionxml)
+        # option_binding(cls.settings_path, cls.optionxml)
         lisvapexe(cls.settings_path, cls.optionxml)
 
     @classmethod
@@ -58,6 +59,7 @@ class TestCORDEX(object):
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
+        binding = {}
 
     @listest(domain, 'e0')
     def test_e0(self):

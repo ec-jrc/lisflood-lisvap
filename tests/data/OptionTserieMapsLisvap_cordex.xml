@@ -31,6 +31,7 @@
 <setoption   default="1"  name="repE0Maps"/>
 <setoption   default="1"  name="EFAS"/>
 <setoption   default="0"  name="CORDEX"/>
+<setoption   default="0"  name="useTavg"/>
 
 </lfoptions>
 

@@ -7,25 +7,15 @@ __pycache__/
 
 # unignoring xml settings for templates and tests
 !lisvap4EFASCalibration2018.xml
-!OptionTserieMapsLisvap.xml
+!OptionTserieMapsLisvap*.xml
 !tests/data/tests_efas.xml
 !tests/data/tests_cordex.xml
 
-# unignoring reference data for tests
-!tests/data/reference/efas/e0_1_15.nc
-!tests/data/reference/efas/et_1_15.nc
-!tests/data/reference/efas/es_1_15.nc
+# unignoring reference and input data for tests
+!tests/data/reference/**/*.nc
+!tests/data/input/**/*.nc
 # unignoring area.nc for tests
 !tests/data/areaall.nc
-# unignoring forcing tests
-!tests/data/input/efas/pr_1_15.nc
-!tests/data/input/efas/pd_1_15.nc
-!tests/data/input/efas/ws_1_15.nc
-!tests/data/input/efas/tn_1_15.nc
-!tests/data/input/efas/tx_1_15.nc
-!tests/data/input/efas/ta_1_15.nc
-!tests/data/input/efas/rg_1_15.nc
-
 
 /.pytest_cache/
 /dt
