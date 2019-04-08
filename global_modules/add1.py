@@ -20,7 +20,8 @@ from pcraster import pcraster, numpy_operations, Nominal, Boolean, Scalar, opera
 from netCDF4 import num2date, date2num, Dataset
 
 from .zusatz import LisfloodError, iterOpenNetcdf, iterSetClonePCR, iterReadPCRasterMap, checkmap, Calendar
-from .globals import binding, metadataNCDF, maskmapAttr, Flags, cutmap
+from .globals import metadataNCDF, maskmapAttr, cutmap
+from global_modules import LisSettings
 
 
 def defsoil(name1, name2=None, name3=None):
@@ -94,6 +95,7 @@ def mapattrNetCDF(name):
     get the map attributes like col, row etc from a ntcdf map
     and define the rectangular of the mask map inside the netcdf map
     """
+    settings = LisSettings.instance()
     filename = os.path.splitext(name)[0] + '.nc'
     nf1 = iterOpenNetcdf(filename, "Checking netcdf map \n", 'r')
     # original code
@@ -111,7 +113,7 @@ def mapattrNetCDF(name):
         y2 = nf1.variables['y'][1]
     nf1.close()
     if maskmapAttr['cell'] != round(np.abs(x2 - x1), 5) or maskmapAttr['cell'] != round(np.abs(y2 - y1), 5):
-        raise LisfloodError("Cell size different in maskmap {} and {}".format(binding['MaskMap'], filename))
+        raise LisfloodError("Cell size different in maskmap {} and {}".format(settings.binding['MaskMap'], filename))
     half_cell = maskmapAttr['cell'] / 2
     x = x1 - half_cell  # |
     y = y1 + half_cell  # | coordinates of the upper left corner of the input file upper left pixel
@@ -128,7 +130,8 @@ def loadsetclone(name):
     :param name: name of the key in Settings.xml containing path and name of mask map as string
     :return: map: mask map (False=include in modelling; True=exclude from modelling) as pcraster
     """
-    filename = binding[name]
+    settings = LisSettings.instance()
+    filename = settings.binding[name]
     coord = filename.split()  # CM: returns a list of all the words in the string
     if len(coord) == 5:
         # CM: read information on clone map from Settings.xml
@@ -159,7 +162,7 @@ def loadsetclone(name):
             # mapnp = numpy_operations.pcr2numpy(map, np.nan)
         except:
             # try to read a netcdf file
-            filename = os.path.splitext(binding[name])[0] + '.nc'
+            filename = os.path.splitext(settings.binding[name])[0] + '.nc'
             nf1 = iterOpenNetcdf(filename, "", "r")
             value = nf1.variables.items()[-1][0]  # get the last variable name
             # original code
@@ -196,7 +199,7 @@ def loadsetclone(name):
             map = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
             # map = boolean(map)
             flagmap = True
-        if Flags['check']:
+        if settings.flags['check']:
             checkmap(name, filename, map, flagmap, 0)
     else:
         msg = "Maskmap: {} is not a valid mask map nor valid coordinates".format(name)
@@ -213,43 +216,13 @@ def loadsetclone(name):
     return map
 
 
-# def decompress(map):
-#     # dmap=np.ma.masked_all(maskinfo['shapeflat'], dtype=map.dtype)
-#     dmap = maskinfo['maskall'].copy()
-#     dmap[~maskinfo['maskflat']] = map[:]
-#     dmap = dmap.reshape(maskinfo['shape'])
-#     # check if integer map (like outlets, lakes etc
-#     try:
-#         checkint = str(map.dtype)
-#     except:
-#         checkint = "x"
-#     if checkint in ["int16", "int32", "int64"]:
-#         dmap[dmap.mask] = -9999
-#         map = numpy_operations.numpy2pcr(Nominal, dmap, -9999)
-#     elif checkint == "int8":
-#         dmap[dmap < 0] = -9999
-#         map = numpy_operations.numpy2pcr(Nominal, dmap, -9999)
-#     else:
-#         dmap[dmap.mask] = -9999
-#         map = numpy_operations.numpy2pcr(Scalar, dmap, -9999)
-#     return map
-
-
-# def makenumpy(map):
-#     if not ('numpy.ndarray' in str(type(map))):
-#         out = np.empty(maskinfo['mapC'])
-#         out.fill(map)
-#         return out
-#     else:
-#         return map
-
-
 def loadmap(name):
     """
     :param name: Variable name as defined in XML settings or a filename of a netCDF or PCRaster map
     load a static map either value or pcraster map or netcdf
     """
-    value = binding[name]
+    settings = LisSettings.instance()
+    value = settings.binding[name]
     filename = value
 
     map = None
@@ -300,7 +273,7 @@ def loadmap(name):
             map = operations.ldd(operations.nominal(map))
         flagmap = True
 
-    if Flags['check']:
+    if settings.flags['check']:
         checkmap(name, filename, map, flagmap, 0)
     return map
 
@@ -348,7 +321,7 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
 
     filename = name + ".nc" if not name.endswith('nc') else name
     nf1 = iterOpenNetcdf(filename, "Netcdf map stacks: \n", "r")
-
+    settings = LisSettings.instance()
     # read information from netCDF file
     # original code 
     # Attempt at checking if input files are not in the format we expect
@@ -371,8 +344,8 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
     except AttributeError:  # Attribute does not exist
         t_cal = u"gregorian"  # Use standard calendar
 
-    begin = Calendar(binding['CalendarDayStart'])
-    DtSec = float(binding['DtSec'])
+    begin = Calendar(settings.binding['CalendarDayStart'])
+    DtSec = float(settings.binding['DtSec'])
     DtDay = float(DtSec / 86400)
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
 
@@ -421,7 +394,7 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
     mapnp[np.isnan(mapnp)] = -9999
     map = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
     timename = os.path.basename(name) + str(time)
-    if Flags['check']:
+    if settings.flags['check']:
         checkmap(timename, filename, map, True, 1)
     return map
 
@@ -457,10 +430,10 @@ def checknetcdf(name, start, end):
     date_last_step_in_ncdf = num2date(t_steps[-1], units=t_unit, calendar=t_cal)
 
     nf1.close()
-
+    settings = LisSettings.instance()
     # CM: calendar date start (CalendarDayStart)
-    begin = Calendar(binding['CalendarDayStart'])
-    DtSec = float(binding['DtSec'])
+    begin = Calendar(settings.binding['CalendarDayStart'])
+    DtSec = float(settings.binding['DtSec'])
     DtDay = float(DtSec / 86400)
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
 
@@ -489,40 +462,6 @@ def checknetcdf(name, start, end):
         raise LisfloodError(msg)
 
     return
-
-#
-# def generateName(name, time):
-#     """Returns a filename based on the name and time step passed in.
-#     The resulting name obeys the 8.3 DOS style format. The time step
-#     will be added to the end of the filename and be prepended by 0's if
-#     needed.
-#     The time step normally ranges from [1, nrTimeSteps].
-#     The length of the name should be max 8 characters to leave room for
-#     the time step.
-#     The name passed in may contain a directory name.
-#     See also: generateNameS(), generateNameST()
-#     """
-#     head, tail = os.path.split(name)
-#     if re.search("\.", tail):
-#         msg = "File extension given in '" + name + "' not allowed"
-#         raise LisfloodError(msg)
-#     if len(tail) == 0:
-#         msg = "No filename specified"
-#         raise LisfloodError(msg)
-#     if len(tail) > 8:
-#         msg = "Filename '" + name + "' must be shorter than 8 characters"
-#         raise LisfloodError(msg)
-#     if time < 0:
-#         msg = "Timestep must be larger than 0"
-#         raise LisfloodError(msg)
-#
-#     nr = "%d" % (time)
-#     space = 11 - (len(tail) + len(nr))
-#     assert space >= 0
-#     result = "%s%s%s" % (tail, space * "0", nr)
-#     result = "%s.%s" % (result[:8], result[8:])
-#     assert len(result) == 12
-#     return os.path.join(head, result)
 
 
 def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flagTime=True):
@@ -643,64 +582,3 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         # without timeflag
         nf1.variables[prefix][:, :] = mapnp
     nf1.close()
-
-
-# def dumpObject(name, var, num):
-#     path1 = os.path.join(str(num), 'stateVar', name)
-#     file_object1 = open(path1, 'w')
-#     pickle.dump(var, file_object1)
-#     file_object1.close()
-#
-#
-# def loadObject(name, num):
-#     path1 = os.path.join(str(num), 'stateVar', name)
-#     filehandler1 = open(path1, 'r')
-#     # CM: read a string from the open file object file and interpret it as a pickle data stream, rec
-#     var = pickle.load(filehandler1)
-#     filehandler1.close()
-#     return var
-#
-# #
-# # def dumpPCRaster(name, var, num):
-# #     path1 = os.path.join(str(num), 'stateVar', name)
-# #     report(var, path1)
-#
-#
-# def loadPCRaster(name, num):
-#     path1 = os.path.join(str(num), 'stateVar', name)
-#     var = iterReadPCRasterMap(path1)
-#     return var
-#
-#
-# def perturbState(var, method="normal", minVal=0, maxVal=1, mu=0, sigma=1, spatial=True, single=True):
-#     if method not in ('normal', 'uniform'):
-#         raise ValueError('Method {} not allowed'.format(method))
-#     try:
-#         numVals = len(var)
-#     except:
-#         numVals = 1
-#
-#     if method == "normal":
-#         if spatial:
-#             domain = len(var[0])
-#             out = var
-#             for i in range(numVals):
-#                 out[i] = np.minimum(np.maximum(np.random.normal(mu, sigma, domain), minVal), maxVal)
-#         else:
-#             if single:
-#                 out = np.minimum(np.maximum(np.random.normal(mu, sigma, numVals), minVal), maxVal)
-#             else:
-#                 out = list(np.minimum(np.maximum(np.random.normal(mu, sigma, numVals), minVal), maxVal))
-#         return out
-#     elif method == "uniform":
-#         if spatial:
-#             domain = len(var[0])
-#             out = var
-#             for i in range(numVals):
-#                 out[i] = np.random.uniform(minVal, maxVal, domain)
-#         else:
-#             if single:
-#                 out = np.random.uniform(minVal, maxVal, numVals)
-#             else:
-#                 out = list(np.random.uniform(minVal, maxVal, numVals))
-#         return out

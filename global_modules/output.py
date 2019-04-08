@@ -15,11 +15,11 @@ from pcraster.operations import mapmaximum, catchmenttotal
 from pcraster.framework import report
 
 from .add1 import writenet, loadmap, valuecell
-from .globals import option, Flags, reportTimeSerieAct, reportMapsEnd, binding, reportMapsSteps, cdfFlag, reportMapsAll
+from .globals import cdfFlag
 from .zusatz import TimeoutputTimeseries, LisfloodError
 
 
-class outputTssMap(object):
+class OutputTssMap(object):
 
     """
     # ************************************************************
@@ -29,23 +29,24 @@ class outputTssMap(object):
 
     def __init__(self, out_variable):
         self.var = out_variable
+        self.settings = self.var.settings
 
     def initial(self):
         """ initial part of the output module
         """
-        binding['1'] = None
+        self.settings.binding['1'] = None
         # output for single column eg mapmaximum
         self.var.Tss = {}
 
-        for tss in reportTimeSerieAct.keys():
-            where = reportTimeSerieAct[tss]['where'][0]
-            outpoints = binding[where]
+        for tss in self.settings.report_timeseries:
+            where = self.settings.report_timeseries[tss]['where'][0]
+            outpoints = self.settings.binding[where]
             if where == "1":
                 pass
             elif where == "Catchments":
                 pass
             else:
-                coord = binding[where].split()  # could be gauges, sites, lakeSites etc.
+                coord = self.settings.binding[where].split()  # could be gauges, sites, lakeSites etc.
                 if len(coord) % 2 == 0:
                     outpoints = valuecell(self.var.MaskMap, coord, outpoints)
                 else:
@@ -55,7 +56,7 @@ class outputTssMap(object):
                         msg = outpoints + " is not an existing file"
                         raise LisfloodError(msg)
 
-            self.var.Tss[tss] = TimeoutputTimeseries(binding[tss], self.var, outpoints, noHeader=Flags['noheader'])
+            self.var.Tss[tss] = TimeoutputTimeseries(self.settings.binding[tss], self.var, outpoints, noHeader=self.settings.flags['noheader'])
 
     def dynamic(self):
         """ dynamic part of the output module
@@ -70,15 +71,15 @@ class outputTssMap(object):
         # self.report(self.Precipitation,binding['TaMaps'])
 
         # if fast init than without time series
-        if not option['InitLisfloodwithoutSplit']:
+        if not self.settings.options['InitLisfloodwithoutSplit']:
 
-            if Flags['loud']:
+            if self.settings.flags['loud']:
                 # print the discharge of the first output map loc
                 print " %10.2f" % self.var.Tss["DisTS"].firstout(self.var.ChanQ)
 
-            for tss in reportTimeSerieAct.keys():
-                what = 'self.var.' + reportTimeSerieAct[tss]['outputVar'][0]
-                how = reportTimeSerieAct[tss]['operation'][0]
+            for tss in self.settings.report_timeseries:
+                what = 'self.var.' + self.settings.report_timeseries[tss]['outputVar'][0]
+                how = self.settings.report_timeseries[tss]['operation'][0]
                 if how == 'mapmaximum':
                     changed = mapmaximum(eval(what))
                     what = 'changed'
@@ -93,10 +94,10 @@ class outputTssMap(object):
 
         checkifdouble = []  # list to check if map is reported more than once
 
-        for maps in reportMapsEnd.keys():
+        for maps in self.settings.report_maps_end:
             # report end maps
-            what = 'self.var.' + reportMapsEnd[maps]['outputVar'][0]
-            where = binding[maps]
+            what = 'self.var.' + self.settings.report_maps_end[maps]['outputVar'][0]
+            where = self.settings.binding[maps]
             if where not in checkifdouble:
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
@@ -106,47 +107,44 @@ class outputTssMap(object):
                     # suffix
                     head, tail = os.path.split(where)
                     if '.' in tail:
-                        if option['writeNetcdf']:
-                            writenet(0, eval(what), where, self.var.currentTimeStep(), maps, reportMapsEnd[maps][
-                                     'outputVar'][0], reportMapsEnd[maps]['unit'][0], 'f4', self.var.CalendarDate, flagTime=False)
+                        if self.settings.options['writeNetcdf']:
+                            writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps][
+                                     'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.CalendarDate, flagTime=False)
                         else:
                             report(eval(what), where)
                     else:
-                        if option['writeNetcdfStack']:
-                            #print 'writenetcdfStack'
-                            writenet(0, eval(what), where, self.var.currentTimeStep(), maps, reportMapsSteps[
-                                     maps]['outputVar'][0], reportMapsSteps[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                        if self.settings.options['writeNetcdfStack']:
+                            writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
+                                     maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.CalendarDate)
                         else:
                             self.var.report(eval(what), where)
 
-        for maps in reportMapsSteps.keys():
+        for maps in self.settings.report_maps_steps.keys():
             # report reportsteps maps
-            what = 'self.var.' + reportMapsSteps[maps]['outputVar'][0]
-            where = binding[maps]
+            what = 'self.var.' + self.settings.report_maps_steps[maps]['outputVar'][0]
+            where = self.settings.binding[maps]
             if not(where in checkifdouble):
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
                 if self.var.currentTimeStep() in self.var.ReportSteps:
-                    if option['writeNetcdfStack']:
-                        #print 'writenetstack1'
-                        writenet(cdfFlag[1], eval(what), where, self.var.currentTimeStep(), maps, reportMapsSteps[
-                                 maps]['outputVar'][0], reportMapsSteps[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                    if self.settings.options['writeNetcdfStack']:
+                        writenet(cdfFlag[1], eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
+                                 maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.CalendarDate)
                     else:
                         self.var.report(eval(what), where)
 
-        for maps in reportMapsAll.keys():
+        for maps in self.settings.report_maps_all:
             # report maps for all timesteps
-            what = 'self.var.' + reportMapsAll[maps]['outputVar'][0]
-            where = binding[maps]
+            what = 'self.var.' + self.settings.report_maps_all[maps]['outputVar'][0]
+            where = self.settings.binding[maps]
 
             if where not in checkifdouble:
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
 
-                if option['writeNetcdfStack']:
-                    #print 'writenetcdfstack2',self.var.currentTimeStep(),what
-                    writenet(cdfFlag[2], eval(what), where, self.var.currentTimeStep(), maps, reportMapsAll[
-                             maps]['outputVar'][0], reportMapsAll[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                if self.settings.options['writeNetcdfStack']:
+                    writenet(cdfFlag[2], eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_all[
+                             maps]['outputVar'][0], self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.CalendarDate)
                 else:
                     self.var.report(eval(what), where)
 

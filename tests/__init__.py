@@ -5,9 +5,9 @@ from pyexpat import *
 import numpy as np
 from pcraster.numpy_operations import pcr2numpy
 
-from global_modules.globals import binding
-
+from global_modules import LisSettings
 from global_modules.add1 import readnetcdf
+from global_modules.zusatz import iterOpenNetcdf
 
 current_dir = os.path.dirname(__file__)
 
@@ -25,8 +25,20 @@ reference_files = {
 atol = 0.01
 
 
+def netcdf_steps(netfile):
+    """
+    :param netfile: path to netcdf file
+    :return: int , num of steps
+    """
+    netfile = '{}.{}'.format(netfile, 'nc') if not netfile.endswith('.nc') else netfile
+    nf1 = iterOpenNetcdf(netfile, "Netcdf map stacks: \n", "r")
+    t_steps = nf1.variables['time'][:]
+    return len(t_steps)
+
+
 def check_var_step(domain, var, step):
-    output_path = binding['PathOut']
+    settings = LisSettings.instance()
+    output_path = settings.binding['PathOut']
     output_nc = os.path.join(output_path, var)
     reference = pcr2numpy(readnetcdf(reference_files[domain][var], step, variable_name=var), -9999)
     current_output = pcr2numpy(readnetcdf(output_nc, step, variable_name=var), -9999)
@@ -37,11 +49,9 @@ def check_var_step(domain, var, step):
     array_ok = np.isclose(diff_values, np.zeros(diff_values.shape), atol=atol)
     wrong_values_size = array_ok[~array_ok].size
     perc_wrong = float(wrong_values_size * 100) / float(diff_values.size)
-    print '[+] Step: {} - Max diff: {:3.9f} % wrong values: {} ({})'.format(step, np.max(diff_values), wrong_values_size, perc_wrong)
     if not all_ok and wrong_values_size > 0:
         max_diff = np.max(diff_values)
         large_diff = max_diff > 0.02
-
         if perc_wrong >= 0.05:
             print '[ERROR]'
             print 'Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff)
@@ -49,8 +59,8 @@ def check_var_step(domain, var, step):
         elif perc_wrong >= 0.005 and large_diff:
             print '[WARNING]'
             print 'Var: {} - STEP {}: {:3.9f}% of values have large difference. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff)
-            # FIXME we had a few points with null (9999 in pcraster maps) but not in reference files. Could not find the reason.
-            #  It's minor issue but it pollutes tests in a real bad way
+            # FIXME we had a few points with null (-9999 in pcraster maps) but not in reference files. Could not find the reason.
+            #  It could be a minor issue but it pollutes tests in a real bad way
             return True if 9998.0 < max_diff <= 9999.09 else False
         else:
             print '[OK] {} {}'.format(var, step)
@@ -64,11 +74,13 @@ def listest(domain, variable):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwds):
-            output_path = binding['PathOut']
-            results = []
+            settings = LisSettings.instance()
+            output_path = settings.binding['PathOut']
             output_nc = os.path.join(output_path, variable)
-            print ' ------------> Reference: {} - Current Output: {}'.format(reference_files[domain][variable], output_nc)
-            for step in xrange(1, 15):
+            print '>>> Reference: {} - Current Output: {}'.format(reference_files[domain][variable], output_nc)
+            results = []
+            numsteps = netcdf_steps(reference_files[domain][variable])
+            for step in xrange(0, numsteps):
                 results.append(check_var_step(domain, variable, step))
             assert all(results)
             return f(*args, **kwds)

@@ -5,17 +5,17 @@
 # Author:      burekpe
 #
 # Created:     27/02/2014
-# Copyright:   (c) burekpe 2014
-# Licence:     <your licence>
+# Licence:     EPL 2.0
 # -------------------------------------------------------------------------
 
 
 from pcraster.framework.dynamicPCRasterBase import DynamicModel
 from pcraster.operations import scalar
 
+from global_modules import LisSettings
 from global_modules.add1 import loadsetclone, metaNetCDF, mapattrNetCDF
-from global_modules.globals import option, cutmap, binding, ReportSteps
-from global_modules.output import outputTssMap
+from global_modules.globals import cutmap
+from global_modules.output import OutputTssMap
 from hydrological_modules.miscInitial import MiscInitial
 from hydrological_modules.readmeteo import ReadMeteo
 
@@ -38,20 +38,20 @@ class LisvapModelIni(DynamicModel):
 
         # try to make the maskmap more flexible e.g. col, row,x1,y1  or x1,x2,y1,y2
         self.MaskMap = loadsetclone('MaskMap')
-
-        if option['readNetcdfStack']:
+        self.settings = LisSettings.instance()
+        if self.settings.options['readNetcdfStack']:
             # get the extent of the maps from the precipitation input maps
             # and the modelling extent from the MaskMap
             # cutmap[] defines the MaskMap inside the precipitation map
-            cutmap[0], cutmap[1], cutmap[2], cutmap[3] = mapattrNetCDF(binding['TMinMaps'])
-        if option['writeNetcdfStack'] or option['writeNetcdf']:
+            cutmap[0], cutmap[1], cutmap[2], cutmap[3] = mapattrNetCDF(self.settings.binding['TMinMaps'])
+        if self.settings.options['writeNetcdfStack'] or self.settings.options['writeNetcdf']:
             # if NetCDF is written, the pr.nc is read to get the metadata
             # like projection
-            metaNetCDF(binding['TMinMaps'])
+            metaNetCDF(self.settings.binding['TMinMaps'])
 
         # ----------------------------------------
         # include output of tss and maps
-        self.output_module = outputTssMap(self)
+        self.output_module = OutputTssMap(self)
         # include all the hydrological modules
         self.misc_module = MiscInitial(self)
         self.readmeteo_module = ReadMeteo(self)
@@ -64,7 +64,7 @@ class LisvapModelIni(DynamicModel):
         """ Initial part of LISFLOOD
             calls the initial part of the hydrological modules
         """
-        self.ReportSteps = ReportSteps['rep']
+        self.ReportSteps = self.settings.report_steps['rep']
         self.misc_module.initial()
         self.output_module.initial()
         self.sumEW = scalar(0.0)
