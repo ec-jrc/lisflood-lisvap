@@ -14,7 +14,6 @@ import datetime
 from pcraster.operations import scalar, cover
 
 from global_modules.add1 import loadmap
-from global_modules.globals import binding
 from global_modules.zusatz import Calendar
 
 
@@ -26,6 +25,7 @@ class MiscInitial(object):
 
     def __init__(self, misc_variable):
         self.var = misc_variable
+        self.settings = self.var.settings
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
@@ -81,7 +81,7 @@ class MiscInitial(object):
         # ***** Some additional stuff
         # ************************************************************
 
-        self.var.CalendarDayStart = Calendar(binding['CalendarDayStart']) - datetime.timedelta(days=self.var.DtDay)
+        self.var.CalendarDayStart = Calendar(self.settings.binding['CalendarDayStart']) - datetime.timedelta(days=self.var.DtDay)
 
         self.var.TAvg = None
         self.var.TMin = None

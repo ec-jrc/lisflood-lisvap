@@ -15,7 +15,8 @@ import numpy as np
 from pcraster import operations
 from pcraster.framework import DynamicModel, report
 
-from global_modules.globals import Flags, option, timeMes, timeMesSum
+from global_modules import LisSettings
+from global_modules.globals import timeMes, timeMesSum
 from global_modules.zusatz import timemeasure
 
 
@@ -28,6 +29,7 @@ class LisvapModelDyn(DynamicModel):
             calls the dynamic part of the hydrological modules
         """
         del timeMes[:]
+        settings = LisSettings.instance()
         # CM: get time for operation "Start dynamic"
         timemeasure("Start dynamic")
         # CM: date corresponding to the model time step (yyyy-mm-dd hh:mm:ss)
@@ -50,12 +52,12 @@ class LisvapModelDyn(DynamicModel):
         i = self.currentTimeStep()
         self.TimeSinceStart = self.currentTimeStep() - self.firstTimeStep() + 1
 
-        if Flags['loud']:
-            print "%-6i %10s" %(self.currentTimeStep(),self.CalendarDate.strftime("%d/%m/%Y")),
-        elif not Flags['check']:
-            if Flags['quiet'] and not Flags['veryquiet']:
+        if settings.flags['loud']:
+            print "%-6i %10s" % (self.currentTimeStep(), self.CalendarDate.strftime("%d/%m/%Y")),
+        elif not settings.flags['check']:
+            if settings.flags['quiet'] and not settings.flags['veryquiet']:
                 sys.stdout.write(".")
-            elif not Flags['quiet'] and not(Flags['veryquiet']):
+            elif not settings.flags['quiet'] and not(settings.flags['veryquiet']):
                 sys.stdout.write("\r%d" % i)
                 sys.stdout.flush()
 
@@ -65,14 +67,12 @@ class LisvapModelDyn(DynamicModel):
         self.readmeteo_module.dynamic()
         timemeasure("Read meteo")  # 1. timing after read input maps
 
-        if Flags['check']:
+        if settings.flags['check']:
             return  # if check then finish here
 
         """ Here it starts with meteorological modules:
         """
-        # self.PD = -2.65  # correction constant
-
-        if option['EFAS']:
+        if settings.options['EFAS']:
             # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
             # the formula above returns value in pascal, not mbar
             # Goudriaan equation (1977)
@@ -117,7 +117,7 @@ class LisvapModelDyn(DynamicModel):
             cover = operations.cover
 
             # solar declination [degrees]
-            declin = -23.45*cos((360. * (self.CalendarDay + 10)) / 365.)
+            declin = -23.45 * cos((360. * (self.CalendarDay + 10)) / 365.)
 
             # solar constant at top of the atmosphere [J/m2/s]
             solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.CalendarDay/365.)))
@@ -212,7 +212,7 @@ class LisvapModelDyn(DynamicModel):
 
             # slope of saturated vapour pressure curve [mbar/deg C]
 
-        elif option['CORDEX']:
+        elif settings.options['CORDEX']:
 
             # Windspeed2 = self.Wind*0.749
             Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
