@@ -1,16 +1,16 @@
 """
 
-Copyright 2018 European Union
+Copyright 2019 European Union
 
 Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
 
 You may not use this work except in compliance with the Licence.
 You may obtain a copy of the Licence at:
 
-https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt 
+https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt
 
-Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
@@ -20,12 +20,14 @@ import os
 import sys
 import getopt
 import xml.dom.minidom
+from collections import Counter
 from functools import wraps
 
+import numpy as np
 from netCDF4 import Dataset
 from pcraster import pcraster
 
-from global_modules.zusatz import LisfloodError
+from global_modules.zusatz import LisfloodError, iterOpenNetcdf
 
 
 def cached(f):
@@ -92,7 +94,7 @@ class LisSettings(object):
 
     @staticmethod
     def _report_steps(user_settings, bindings):
-        report_steps = {}
+        res = {}
         repsteps = user_settings['ReportSteps'].split(',')
         if repsteps[-1] == 'endtime':
             repsteps[-1] = bindings['StepEnd']
@@ -104,8 +106,8 @@ class LisSettings(object):
                     jjj.append(jj)
             else:
                 jjj.append(i)
-        report_steps['rep'] = map(int, jjj)
-        return report_steps
+        res['rep'] = map(int, jjj)
+        return res
 
     @staticmethod
     def _report_tss(domopt, options):
@@ -376,3 +378,56 @@ class MaskMapMetadata(object):
 
     def __contains__(self, k):
         return k in self._metadata
+
+
+class CutMap(tuple):
+    __metaclass__ = Singleton
+
+    @classmethod
+    def register(cls, in_file):
+        return cls(in_file)
+
+    def __init__(self, in_file):
+        self.path = in_file
+        self.cuts = self.get_cuts(in_file)
+
+    @staticmethod
+    def get_cuts(in_file):
+        settings = LisSettings.instance()
+        filename = '{}.{}'.format(os.path.splitext(in_file)[0], 'nc')
+        nf1 = iterOpenNetcdf(filename, 'Checking netcdf map \n', 'r')
+        # original code
+        # x1, x2, y1, y2 = [round(nf1.variables.values()[var_ix][j], 5) for var_ix in range(2) for j in range(2)]
+        # new safer code that doesn't rely on a specific variable order in netCDF file (R.COUGHLAN & D.DECREMER)
+        if 'lon' in nf1.variables.keys():
+            x1 = nf1.variables['lon'][0]
+            x2 = nf1.variables['lon'][1]
+            y1 = nf1.variables['lat'][0]
+            y2 = nf1.variables['lat'][1]
+        else:
+            x1 = nf1.variables['x'][0]
+            x2 = nf1.variables['x'][1]
+            y1 = nf1.variables['y'][0]
+            y2 = nf1.variables['y'][1]
+        nf1.close()
+
+        maskmap_attrs = MaskMapMetadata.instance()
+        if maskmap_attrs['cell'] != round(np.abs(x2 - x1), 5) or maskmap_attrs['cell'] != round(np.abs(y2 - y1), 5):
+            raise LisfloodError('Cell size different in maskmap {} and {}'.format(settings.binding['MaskMap'], filename))
+
+        half_cell = maskmap_attrs['cell'] / 2
+        x = x1 - half_cell  # |
+        y = y1 + half_cell  # | coordinates of the upper left corner of the input file upper left pixel
+
+        cut0 = int(round(np.abs(maskmap_attrs['x'] - x) / maskmap_attrs['cell']))
+        cut1 = cut0 + maskmap_attrs['col']
+        cut2 = int(round(np.abs(maskmap_attrs['y'] - y) / maskmap_attrs['cell']))
+        cut3 = cut2 + maskmap_attrs['row']
+        return cut0, cut1, cut2, cut3  # input data will be sliced using [cut2:cut3, cut0:cut1]
+
+    @property
+    def slices(self):
+        return slice(self.cuts[2], self.cuts[3]), slice(self.cuts[0], self.cuts[1])
+
+
+cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})

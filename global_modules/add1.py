@@ -1,6 +1,6 @@
 """
 
-Copyright 2018 European Union
+Copyright 2019 European Union
 
 Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
 
@@ -26,8 +26,7 @@ from pcraster import pcraster, numpy_operations, Nominal, Boolean, Scalar, opera
 from netCDF4 import num2date, date2num, Dataset
 
 from .zusatz import LisfloodError, iterOpenNetcdf, iterSetClonePCR, iterReadPCRasterMap, checkmap, Calendar
-from .globals import cutmap
-from global_modules import LisSettings, NetcdfMetadata, MaskMapMetadata
+from global_modules import LisSettings, NetcdfMetadata, MaskMapMetadata, CutMap
 
 
 def valuecell(mask, coordx, coordstr):
@@ -80,9 +79,10 @@ def slice_netcdf(name):
         y1 = nf1.variables['y'][0]
         y2 = nf1.variables['y'][1]
     nf1.close()
+
     maskmap_attrs = MaskMapMetadata.instance()
     if maskmap_attrs['cell'] != round(np.abs(x2 - x1), 5) or maskmap_attrs['cell'] != round(np.abs(y2 - y1), 5):
-        raise LisfloodError("Cell size different in maskmap {} and {}".format(settings.binding['MaskMap'], filename))
+        raise LisfloodError('Cell size different in maskmap {} and {}'.format(settings.binding['MaskMap'], filename))
 
     half_cell = maskmap_attrs['cell'] / 2
     x = x1 - half_cell  # |
@@ -92,7 +92,7 @@ def slice_netcdf(name):
     cut1 = cut0 + maskmap_attrs['col']
     cut2 = int(round(np.abs(maskmap_attrs['y'] - y) / maskmap_attrs['cell']))
     cut3 = cut2 + maskmap_attrs['row']
-    return cut0, cut1, cut2, cut3  # input data will be sliced using [cut0:cut1,cut2:cut3]
+    return cut0, cut1, cut2, cut3  # input data will be sliced using [cut2:cut3, cut0:cut1]
 
 
 def loadsetclone(name):
@@ -117,24 +117,21 @@ def loadsetclone(name):
         try:
             pcraster.setclone(int(coord[1]), int(coord[0]), float(coord[2]), float(coord[3]), float(coord[4]))  # CM: pcraster
         except:
-            rem = "[" + str(coord[0]) + " " + str(coord[1]) + " " + str(coord[2]) + " " + str(coord[3]) + " " + str(coord[4]) + "]"
-            msg = "Maskmap: " + rem + " are not valid coordinates (col row cellsize xupleft yupleft)"
+            msg = 'Maskmap: [{} {} {} {}] are not valid coordinates (col row cellsize xupleft yupleft)'.format(*coord)
             raise LisfloodError(msg)
         mapnp = np.ones((int(coord[1]), int(coord[0])))
-        # mapnp[mapnp == 0] = 1
-        map = numpy_operations.numpy2pcr(Boolean, mapnp, -9999)
+        res = numpy_operations.numpy2pcr(Boolean, mapnp, -9999)
     elif len(coord) == 1:
         # CM: read information on clone map from map (pcraster or netcdf)
         try:
             # try to read a pcraster map
             iterSetClonePCR(filename)
-            map = operations.boolean(iterReadPCRasterMap(filename))
+            res = operations.boolean(iterReadPCRasterMap(filename))
             flagmap = True
-            # mapnp = numpy_operations.pcr2numpy(map, np.nan)
         except:
             # try to read a netcdf file
-            filename = os.path.splitext(settings.binding[name])[0] + '.nc'
-            nf1 = iterOpenNetcdf(filename, "", "r")
+            filename = '{}.{}'.format(os.path.splitext(settings.binding[name])[0], 'nc')
+            nf1 = iterOpenNetcdf(filename, '', 'r')
             value = nf1.variables.items()[-1][0]  # get the last variable name
             # original code
             # x1 = nf1.variables.values()[0][0]
@@ -167,25 +164,19 @@ def loadsetclone(name):
             nf1.close()
             # setclone  row col cellsize xupleft yupleft
             pcraster.setclone(nrRows, nrCols, cellSize, x, y)
-            map = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
+            res = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
             # map = boolean(map)
             flagmap = True
         if settings.flags['check']:
-            checkmap(name, filename, map, flagmap, 0)
+            checkmap(name, filename, res, flagmap, 0)
     else:
-        msg = "Maskmap: {} is not a valid mask map nor valid coordinates".format(name)
+        msg = 'Maskmap: {} is not a valid mask map nor valid coordinates'.format(name)
         raise LisfloodError(msg)
 
     # Definition of cellsize, coordinates of the meteomaps and maskmap
     # Get the current PCRaster clone map and it save metadata
     MaskMapMetadata.register()
-    # maskmapAttr['x'] = pcraster.clone().west()  # CM: mask map West bound
-    # maskmapAttr['y'] = pcraster.clone().north()  # CM: mask map North bound
-    # maskmapAttr['col'] = pcraster.clone().nrCols()  # CM: mask map number of columns
-    # maskmapAttr['row'] = pcraster.clone().nrRows()  # CM: mask map number of rows
-    # maskmapAttr['cell'] = pcraster.clone().cellSize()  # CM: mask map cell size
-
-    return map
+    return res
 
 
 def loadmap(name):
@@ -197,30 +188,30 @@ def loadmap(name):
     value = settings.binding[name]
     filename = value
 
-    map = None
+    res = None
     flagmap = False
 
     # Try first to load the value from settings
     try:
-        map = float(value)
+        res = float(value)
         flagmap = False
         load = True
     except ValueError:
         try:
             # try to read a pcraster map
-            map = pcraster.readmap(value)
+            res = pcraster.readmap(value)
             flagmap = True
             load = True
         except:
             load = False
 
     if not load:
-        # read a netcdf  (single one not a stack)
-        filename = value.split('.')[0] + '.nc'
+        # read a netcdf (single one not a stack)
+        filename = '{}.{}'.format(os.path.splitext(value)[0], 'nc')
 
         # get mapextend of netcdf map
         # and calculate the cutting
-        cut0, cut1, cut2, cut3 = slice_netcdf(filename)
+        cut0, cut1, cut2, cut3 = CutMap.get_cuts(filename)
 
         # load netcdf map but only the rectangle needed
         nf1 = Dataset(filename, 'r')
@@ -232,22 +223,22 @@ def loadmap(name):
         checkint = str(mapnp.dtype)
         if checkint == "int16" or checkint == "int32":
             mapnp[mapnp.mask] = -9999
-            map = numpy_operations.numpy2pcr(Nominal, mapnp, -9999)
+            res = numpy_operations.numpy2pcr(Nominal, mapnp, -9999)
         elif checkint == "int8":
-            map = numpy_operations.numpy2pcr(Nominal, mapnp, 0)
+            res = numpy_operations.numpy2pcr(Nominal, mapnp, 0)
         else:
             mapnp[np.isnan(mapnp)] = -9999
-            map = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
+            res = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
 
         # if the map is a ldd
         if value.split('.')[0][-3:] == 'ldd':
             # FIXME weak...filename must contain 'ldd' string
-            map = operations.ldd(operations.nominal(map))
+            res = operations.ldd(operations.nominal(res))
         flagmap = True
 
     if settings.flags['check']:
-        checkmap(name, filename, map, flagmap, 0)
-    return map
+        checkmap(name, filename, res, flagmap, 0)
+    return res
 
 
 def take_closest(a_list, a_number):
@@ -358,8 +349,10 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
 
     # get index of timestep in netCDF file corresponding to current simulation date
     current_ncdf_index = np.where(t_steps == current_ncdf_step)[0][0]
+
     # mapnp = nf1.variables[variable_name][time - 1, cutmap[2]:cutmap[3], cutmap[0]:cutmap[1]]
-    mapnp = nf1.variables[variable_name][current_ncdf_index, cutmap[2]:cutmap[3], cutmap[0]:cutmap[1]]
+    cutmaps = CutMap.instance().slices
+    mapnp = nf1.variables[variable_name][current_ncdf_index, cutmaps[0], cutmaps[1]]
 
     nf1.close()
     # return mapnp
@@ -394,7 +387,7 @@ def checknetcdf(name, start, end):
     try:
         t_cal = nf1.variables['time'].calendar  # get calendar from netCDF file
     except AttributeError:  # Attribute does not exist
-        t_cal = u"gregorian"  # Use standard calendar
+        t_cal = u'gregorian'  # Use standard calendar
 
     # get date of first available timestep in netcdf file
     date_first_step_in_ncdf = num2date(t_steps[0], units=t_unit, calendar=t_cal)
@@ -439,15 +432,16 @@ def checknetcdf(name, start, end):
 def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flag_time=True):
     """
     write a netcdf stack
-    flag: integer. If 0 it means write a NEW file (!!! FIXME omg)
+    flag: integer. If 0 it means write a NEW file (!) FIXME omg
     inputmap: a PCRaster 2D array
     netfile: output netcdf filename
     timestep:
     """
     prefix = netfile.split('/')[-1].split('\\')[-1].split('.')[0]
     netfile = netfile.split('.')[0] + '.nc'
-    row = np.abs(cutmap[3] - cutmap[2])
-    col = np.abs(cutmap[1] - cutmap[0])
+    cutmap = CutMap.instance()
+    row = np.abs(cutmap.cuts[3] - cutmap.cuts[2])
+    col = np.abs(cutmap.cuts[1] - cutmap.cuts[0])
     if flag == 0:
         nf1 = Dataset(netfile, 'w', format='NETCDF4_CLASSIC')
 
@@ -464,28 +458,25 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             nf1.createDimension('y', row)  # x 950
             latitude = nf1.createVariable('y', 'f8', ('y',))
             for i in metadata_ncdf['y']:
-                exec '%s="%s"' % ("latitude." + i, metadata_ncdf['y'][i])
+                setattr(latitude, i, metadata_ncdf['y'][i])
 
         if 'lat' in metadata_ncdf:
             nf1.createDimension('lat', row)  # x 950
             latitude = nf1.createVariable('lat', 'f8', ('lat',))
             for i in metadata_ncdf['lat']:
-                exec '%s="%s"' % ("latitude." + i, metadata_ncdf['lat'][i])
+                setattr(latitude, i, metadata_ncdf['lat'][i])
+
         if 'x' in metadata_ncdf:
             nf1.createDimension('x', col)  # x 1000
             longitude = nf1.createVariable('x', 'f8', ('x',))
             for i in metadata_ncdf['x']:
-                exec_string = '%s="%s"' % ("longitude." + i, metadata_ncdf['x'][i])
-                print(exec_string)
-                exec '%s="%s"' % ("longitude." + i, metadata_ncdf['x'][i])
+                setattr(longitude, i, metadata_ncdf['x'][i])
 
         if 'lon' in metadata_ncdf:
             nf1.createDimension('lon', col)
             longitude = nf1.createVariable('lon', 'f8', ('lon',))
             for i in metadata_ncdf['lon']:
-                exec_string = '%s="%s"' % ('longitude.' + i, metadata_ncdf['lon'][i])
-                print(exec_string)
-                exec '%s="%s"' % ('longitude.' + i, metadata_ncdf['lon'][i])
+                setattr(longitude, i, metadata_ncdf['lon'][i])
 
         if flag_time:
             nf1.createDimension('time', None)
@@ -518,9 +509,7 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         if 'lambert_azimuthal_equal_area' in metadata_ncdf:
             proj = nf1.createVariable('laea', 'i4')
             for i in metadata_ncdf['lambert_azimuthal_equal_area']:
-                exec_string = '%s="%s"' % ("proj." + i, metadata_ncdf['lambert_azimuthal_equal_area'][i])
-                print(exec_string)
-                exec '%s="%s"' % ("proj." + i, metadata_ncdf['lambert_azimuthal_equal_area'][i])
+                setattr(proj, i, metadata_ncdf['lambert_azimuthal_equal_area'][i])
 
         """
         EUROPE
