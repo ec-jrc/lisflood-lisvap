@@ -1,6 +1,6 @@
 """
 
-Copyright 2018 European Union
+Copyright 2019 European Union
 
 Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
 
@@ -168,13 +168,13 @@ def checkifDate(start, end):
     return
 
 
-def timemeasure(name,loops=0):
+def timemeasure(name, loops=0):
 
     timeMes.append(time.clock())
     if loops == 0:
         s = name
     else:
-        s = name+"_%i" %(loops)
+        s = name + "_%i" % loops
     timeMesString.append(s)
     return
 

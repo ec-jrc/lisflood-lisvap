@@ -1,6 +1,6 @@
 """
 
-Copyright 2018 European Union
+Copyright 2019 European Union
 
 Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
 
@@ -18,9 +18,8 @@ See the Licence for the specific language governing permissions and limitations 
 from pcraster.framework.dynamicPCRasterBase import DynamicModel
 from pcraster.operations import scalar
 
-from global_modules import LisSettings, NetcdfMetadata
-from global_modules.add1 import loadsetclone, slice_netcdf
-from global_modules.globals import cutmap
+from global_modules import LisSettings, NetcdfMetadata, CutMap
+from global_modules.add1 import loadsetclone
 from global_modules.output import OutputTssMap
 from hydrological_modules.miscInitial import MiscInitial
 from hydrological_modules.readmeteo import ReadMeteo
@@ -47,7 +46,8 @@ class LisvapModelIni(DynamicModel):
         self.settings = LisSettings.instance()
         if self.settings.options['readNetcdfStack']:
             # cutmap[] defines the extent to read from input netcdf data (cropping)
-            cutmap[0], cutmap[1], cutmap[2], cutmap[3] = slice_netcdf(self.settings.binding['TMinMaps'])
+            CutMap.register(self.settings.binding['TMinMaps'])
+            # cutmap[0], cutmap[1], cutmap[2], cutmap[3] = slice_netcdf(self.settings.binding['TMinMaps'])
 
         if self.settings.options['writeNetcdfStack'] or self.settings.options['writeNetcdf']:
             # if NetCDF is written, the pr.nc is read to get the metadata

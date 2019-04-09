@@ -1,6 +1,6 @@
 """
 
-Copyright 2018 European Union
+Copyright 2019 European Union
 
 Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
 
@@ -17,7 +17,7 @@ See the Licence for the specific language governing permissions and limitations 
 
 import os
 
-from global_modules import LisSettings
+from global_modules import LisSettings, cdf_flags
 from lisvap1 import lisvapexe
 
 from tests import listest, reference_files
@@ -43,6 +43,9 @@ class TestEFAS(object):
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
+        cdf_flags['all'] = 0
+        cdf_flags['steps'] = 0
+        cdf_flags['end'] = 0
 
     @listest(domain, 'e0')
     def test_e0(self):
@@ -75,6 +78,9 @@ class TestCORDEX(object):
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
+        cdf_flags['all'] = 0
+        cdf_flags['steps'] = 0
+        cdf_flags['end'] = 0
 
     @listest(domain, 'e0')
     def test_e0(self):
