@@ -1,13 +1,19 @@
-# -------------------------------------------------------------------------
-# Name:        addmodule1
-# Purpose:
-#
-# Author:      burekpe
-#
-# Created:     26/02/2014
-# Copyright:   (c) burekpe 2014
-# Licence:     <your licence>
-# -------------------------------------------------------------------------
+"""
+
+Copyright 2018 European Union
+
+Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
+
+You may not use this work except in compliance with the Licence.
+You may obtain a copy of the Licence at:
+
+https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the Licence for the specific language governing permissions and limitations under the Licence.
+
+"""
 
 import warnings
 import datetime
@@ -20,32 +26,8 @@ from pcraster import pcraster, numpy_operations, Nominal, Boolean, Scalar, opera
 from netCDF4 import num2date, date2num, Dataset
 
 from .zusatz import LisfloodError, iterOpenNetcdf, iterSetClonePCR, iterReadPCRasterMap, checkmap, Calendar
-from .globals import metadataNCDF, maskmapAttr, cutmap
-from global_modules import LisSettings
-
-
-def defsoil(name1, name2=None, name3=None):
-    """ loads 3 array in a list
-    """
-    try:
-        in1 = loadmap(name1)
-    except:
-        in1 = name1
-    if name2 is None:
-        in2 = in1
-    else:
-        try:
-            in2 = loadmap(name2)
-        except:
-            in2 = name2
-    if name3 is None:
-        in3 = in1
-    else:
-        try:
-            in3 = loadmap(name3)
-        except:
-            in3 = name3
-    return [in1, in2, in3]
+from .globals import cutmap
+from global_modules import LisSettings, NetcdfMetadata, MaskMapMetadata
 
 
 def valuecell(mask, coordx, coordstr):
@@ -76,28 +58,14 @@ def valuecell(mask, coordx, coordstr):
     return numpy_operations.numpy2pcr(Nominal, null, -9999)
 
 
-def metaNetCDF(name):
-    """
-    get the map metadata from netcdf
-    """
-    filename = name.split('.')[0] + '.nc'
-    if not (os.path.isfile(filename)):
-        msg = "Checking netcdf map extend \n" + filename + " does not exists"
-        raise LisfloodError(msg)
-    nf1 = Dataset(filename, 'r')
-    for var in nf1.variables:
-        metadataNCDF[var] = nf1.variables[var].__dict__
-    nf1.close()
-
-
-def mapattrNetCDF(name):
+def slice_netcdf(name):
     """
     get the map attributes like col, row etc from a ntcdf map
     and define the rectangular of the mask map inside the netcdf map
     """
     settings = LisSettings.instance()
     filename = os.path.splitext(name)[0] + '.nc'
-    nf1 = iterOpenNetcdf(filename, "Checking netcdf map \n", 'r')
+    nf1 = iterOpenNetcdf(filename, 'Checking netcdf map \n', 'r')
     # original code
     # x1, x2, y1, y2 = [round(nf1.variables.values()[var_ix][j], 5) for var_ix in range(2) for j in range(2)]
     # new safer code that doesn't rely on a specific variable order in netCDF file (R.COUGHLAN & D.DECREMER)
@@ -112,15 +80,18 @@ def mapattrNetCDF(name):
         y1 = nf1.variables['y'][0]
         y2 = nf1.variables['y'][1]
     nf1.close()
-    if maskmapAttr['cell'] != round(np.abs(x2 - x1), 5) or maskmapAttr['cell'] != round(np.abs(y2 - y1), 5):
+    maskmap_attrs = MaskMapMetadata.instance()
+    if maskmap_attrs['cell'] != round(np.abs(x2 - x1), 5) or maskmap_attrs['cell'] != round(np.abs(y2 - y1), 5):
         raise LisfloodError("Cell size different in maskmap {} and {}".format(settings.binding['MaskMap'], filename))
-    half_cell = maskmapAttr['cell'] / 2
+
+    half_cell = maskmap_attrs['cell'] / 2
     x = x1 - half_cell  # |
     y = y1 + half_cell  # | coordinates of the upper left corner of the input file upper left pixel
-    cut0 = int(round(np.abs(maskmapAttr['x'] - x) / maskmapAttr['cell']))
-    cut1 = cut0 + maskmapAttr['col']
-    cut2 = int(round(np.abs(maskmapAttr['y'] - y) / maskmapAttr['cell']))
-    cut3 = cut2 + maskmapAttr['row']
+
+    cut0 = int(round(np.abs(maskmap_attrs['x'] - x) / maskmap_attrs['cell']))
+    cut1 = cut0 + maskmap_attrs['col']
+    cut2 = int(round(np.abs(maskmap_attrs['y'] - y) / maskmap_attrs['cell']))
+    cut3 = cut2 + maskmap_attrs['row']
     return cut0, cut1, cut2, cut3  # input data will be sliced using [cut0:cut1,cut2:cut3]
 
 
@@ -206,12 +177,13 @@ def loadsetclone(name):
         raise LisfloodError(msg)
 
     # Definition of cellsize, coordinates of the meteomaps and maskmap
-    # need some love for error handling
-    maskmapAttr['x'] = pcraster.clone().west()  # CM: mask map West bound
-    maskmapAttr['y'] = pcraster.clone().north()  # CM: mask map North bound
-    maskmapAttr['col'] = pcraster.clone().nrCols()  # CM: mask map number of columns
-    maskmapAttr['row'] = pcraster.clone().nrRows()  # CM: mask map number of rows
-    maskmapAttr['cell'] = pcraster.clone().cellSize()  # CM: mask map cell size
+    # Get the current PCRaster clone map and it save metadata
+    MaskMapMetadata.register()
+    # maskmapAttr['x'] = pcraster.clone().west()  # CM: mask map West bound
+    # maskmapAttr['y'] = pcraster.clone().north()  # CM: mask map North bound
+    # maskmapAttr['col'] = pcraster.clone().nrCols()  # CM: mask map number of columns
+    # maskmapAttr['row'] = pcraster.clone().nrRows()  # CM: mask map number of rows
+    # maskmapAttr['cell'] = pcraster.clone().cellSize()  # CM: mask map cell size
 
     return map
 
@@ -248,7 +220,7 @@ def loadmap(name):
 
         # get mapextend of netcdf map
         # and calculate the cutting
-        cut0, cut1, cut2, cut3 = mapattrNetCDF(filename)
+        cut0, cut1, cut2, cut3 = slice_netcdf(filename)
 
         # load netcdf map but only the rectangle needed
         nf1 = Dataset(filename, 'r')
@@ -464,53 +436,62 @@ def checknetcdf(name, start, end):
     return
 
 
-def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flagTime=True):
+def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flag_time=True):
     """
     write a netcdf stack
+    flag: integer. If 0 it means write a NEW file (!!! FIXME omg)
+    inputmap: a PCRaster 2D array
+    netfile: output netcdf filename
+    timestep:
     """
     prefix = netfile.split('/')[-1].split('\\')[-1].split('.')[0]
     netfile = netfile.split('.')[0] + '.nc'
     row = np.abs(cutmap[3] - cutmap[2])
     col = np.abs(cutmap[1] - cutmap[0])
     if flag == 0:
-        # print 'filewrite',netfile
         nf1 = Dataset(netfile, 'w', format='NETCDF4_CLASSIC')
 
         # general Attributes
         nf1.history = 'Created ' + xtime.ctime(xtime.time())
         nf1.Conventions = 'CF-1.4'
-        nf1.Source_Software = 'Python netCDF4'
+        nf1.Source_Software = 'Lisvap'
         nf1.source = 'Lisvap output maps'
 
+        metadata_ncdf = NetcdfMetadata.instance()
+
         # Dimension
-        if 'y' in metadataNCDF.keys():
+        if 'y' in metadata_ncdf:
             nf1.createDimension('y', row)  # x 950
             latitude = nf1.createVariable('y', 'f8', ('y',))
-            for i in metadataNCDF['y']:
-                exec '%s="%s"' % ("latitude." + i, metadataNCDF['y'][i])
+            for i in metadata_ncdf['y']:
+                exec '%s="%s"' % ("latitude." + i, metadata_ncdf['y'][i])
 
-        if 'lat' in metadataNCDF.keys():
+        if 'lat' in metadata_ncdf:
             nf1.createDimension('lat', row)  # x 950
             latitude = nf1.createVariable('lat', 'f8', ('lat',))
-            for i in metadataNCDF['lat']:
-                exec '%s="%s"' % ("latitude." + i, metadataNCDF['lat'][i])
-        if 'x' in metadataNCDF.keys():
+            for i in metadata_ncdf['lat']:
+                exec '%s="%s"' % ("latitude." + i, metadata_ncdf['lat'][i])
+        if 'x' in metadata_ncdf:
             nf1.createDimension('x', col)  # x 1000
             longitude = nf1.createVariable('x', 'f8', ('x',))
-            for i in metadataNCDF['x']:
-                exec '%s="%s"' % ("longitude." + i, metadataNCDF['x'][i])
+            for i in metadata_ncdf['x']:
+                exec_string = '%s="%s"' % ("longitude." + i, metadata_ncdf['x'][i])
+                print(exec_string)
+                exec '%s="%s"' % ("longitude." + i, metadata_ncdf['x'][i])
 
-        if 'lon' in metadataNCDF.keys():
+        if 'lon' in metadata_ncdf:
             nf1.createDimension('lon', col)
             longitude = nf1.createVariable('lon', 'f8', ('lon',))
-            for i in metadataNCDF['lon']:
-                exec '%s="%s"' % ("longitude." + i, metadataNCDF['lon'][i])
+            for i in metadata_ncdf['lon']:
+                exec_string = '%s="%s"' % ('longitude.' + i, metadata_ncdf['lon'][i])
+                print(exec_string)
+                exec '%s="%s"' % ('longitude.' + i, metadata_ncdf['lon'][i])
 
-        if flagTime:
+        if flag_time:
             nf1.createDimension('time', None)
             time = nf1.createVariable('time', 'f8', ('time',))
             time.standard_name = 'time'
-            time.units = 'days since %s' % startdate.strftime("%Y-%m-%d %H:%M:%S.0")
+            time.units = 'days since %s' % startdate.strftime('%Y-%m-%d %H:%M:%S.0')
             time.calendar = 'gregorian'
             value = nf1.createVariable(prefix, fillval, ('time', 'y', 'x'), zlib=True)
         else:
@@ -521,7 +502,7 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         value.units = value_unit
         # value.esri_pe_string='PROJCS["ETRS_1989_LAEA",GEOGCS["GCS_ETRS_1989",DATUM["D_ETRS_1989",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["false_easting",4321000.0],PARAMETER["false_northing",3210000.0],PARAMETER["central_meridian",10.0],PARAMETER["latitude_of_origin",52.0],UNIT["Meter",1.0]]'
         # projection
-        if 'laea' in metadataNCDF.keys():
+        if 'laea' in metadata_ncdf:
             proj = nf1.createVariable('laea', 'i4')
             proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
             # FIXME magic numbers
@@ -534,10 +515,12 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             proj.proj4_params = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
             proj.EPSG_code = "EPSG:3035"
 
-        if 'lambert_azimuthal_equal_area' in metadataNCDF.keys():
+        if 'lambert_azimuthal_equal_area' in metadata_ncdf:
             proj = nf1.createVariable('laea', 'i4')
-            for i in metadataNCDF['lambert_azimuthal_equal_area']:
-                exec '%s="%s"' % ("proj." + i, metadataNCDF['lambert_azimuthal_equal_area'][i])
+            for i in metadata_ncdf['lambert_azimuthal_equal_area']:
+                exec_string = '%s="%s"' % ("proj." + i, metadata_ncdf['lambert_azimuthal_equal_area'][i])
+                print(exec_string)
+                exec '%s="%s"' % ("proj." + i, metadata_ncdf['lambert_azimuthal_equal_area'][i])
 
         """
         EUROPE
@@ -565,18 +548,15 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         latitude[:] = lats
         longitude[:] = lons
 
-        if 'pr' in metadataNCDF.keys():
-            if "esri_pe_string" in metadataNCDF['pr'].keys():
-                value.esri_pe_string = metadataNCDF['pr']['esri_pe_string']
+        if 'pr' in metadata_ncdf and 'esri_pe_string' in metadata_ncdf['pr']:
+            value.esri_pe_string = metadata_ncdf['pr']['esri_pe_string']
 
     else:
         nf1 = Dataset(netfile, 'a')
 
     mapnp = numpy_operations.pcr2numpy(inputmap, np.nan)
-    if flagTime:
+    if flag_time:
         nf1.variables['time'][flag] = timestep - 1
-
-    if flagTime:
         nf1.variables[prefix][flag, :, :] = mapnp
     else:
         # without timeflag
