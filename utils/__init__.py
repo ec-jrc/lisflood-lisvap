@@ -24,28 +24,28 @@ import getopt
 import time
 import xml.dom.minidom
 from collections import Counter, defaultdict
-from functools import wraps
 
 import numpy as np
 from netCDF4 import Dataset
 from pcraster import pcraster
 
-from global_modules.zusatz import LisfloodError, iterOpenNetcdf
+from utils.decorators import cached
 
 project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
 
-def cached(f):
-    _cache = {}
+class LisfloodError(Exception):
+    """
+    the error handling class
+    prints out an error
+    """
 
-    @wraps(f)
-    def _decorator(args):
-        args = tuple(args)
-        if args not in _cache:
-            _cache[args] = f(args)
-        return _cache[args]
+    def __init__(self, msg):
+        header = '\n\n ========================== LISFLOOD ERROR =============================\n'
+        self._msg = header + msg
 
-    return _decorator
+    def __str__(self):
+        return self._msg
 
 
 class Singleton(type):
@@ -411,7 +411,7 @@ class CutMap(tuple):
     def get_cuts(in_file):
         settings = LisSettings.instance()
         filename = '{}.{}'.format(os.path.splitext(in_file)[0], 'nc')
-        nf1 = iterOpenNetcdf(filename, 'Checking netcdf map \n', 'r')
+        nf1 = Dataset(filename, 'r')
         # original code
         # x1, x2, y1, y2 = [round(nf1.variables.values()[var_ix][j], 5) for var_ix in range(2) for j in range(2)]
         # new safer code that doesn't rely on a specific variable order in netCDF file (R.COUGHLAN & D.DECREMER)

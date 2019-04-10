@@ -2,15 +2,16 @@
 
 Copyright 2019 European Union
 
-Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
+Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission subsequent versions of the EUPL (the "Licence");
 
 You may not use this work except in compliance with the Licence.
-You may obtain a copy of the Licence at:
 
+You may obtain a copy of the Licence at:
 https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt
 
 Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 #######################################################
@@ -39,10 +40,10 @@ import sys
 
 from pyexpat import *
 
-from global_modules import LisSettings, TimeProfiler, project_dir
-from global_modules.zusatz import checkifDate, DynamicFrame
-from Lisvap_dynamic import LisvapModelDyn
-from Lisvap_initial import LisvapModelIni
+from utils import LisSettings, TimeProfiler, project_dir
+from utils.tools import checkdate, DynamicFrame
+from lisvapdynamic import LisvapModelDyn
+from lisvapinitial import LisvapModelIni
 
 
 class LisvapModel(LisvapModelIni, LisvapModelDyn):
@@ -59,17 +60,17 @@ def lisvapexe(settings):
     start_date_simulation = datetime.datetime.strptime(settings.binding['CalendarDayStart'], '%d/%m/%Y %H:%M')
     timestep_start = (start_date - start_date_simulation).days + 1
     timestep_end = (end_date - start_date_simulation).days + 1
-    checkifDate('StepStart', 'StepEnd')
+    checkdate('StepStart', 'StepEnd')
     print 'Start date: {} ({}) - End date: {} ({})'.format(step_start, timestep_start, step_end, timestep_end)
 
     if settings.flags['loud']:
         print '%-6s %10s %11s\n' % ('Step', 'Date', 'ET0')
 
-    Lisvap = LisvapModel()
-    stLisvap = DynamicFrame(Lisvap, firstTimestep=timestep_start, lastTimeStep=timestep_end)
-    stLisvap.rquiet = True
-    stLisvap.rtrace = False
-    stLisvap.run()
+    lisvap_model = LisvapModel()
+    dynfmw = DynamicFrame(lisvap_model, firstTimestep=timestep_start, lastTimeStep=timestep_end)
+    dynfmw.rquiet = True
+    dynfmw.rtrace = False
+    dynfmw.run()
     # cProfile.run('stLisflood.run()')
     # python -m cProfile -o  l1.pstats lisf1.py settingsNew3.xml
     # gprof2dot -f pstats l1.pstats | dot -Tpng -o callgraph.png

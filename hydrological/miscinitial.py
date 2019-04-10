@@ -19,8 +19,8 @@ import datetime
 
 from pcraster.operations import scalar, cover
 
-from global_modules.add1 import loadmap
-from global_modules.zusatz import Calendar
+from utils.readers import loadmap
+from utils.tools import calendar
 
 
 class MiscInitial(object):
@@ -87,7 +87,7 @@ class MiscInitial(object):
         # ***** Some additional stuff
         # ************************************************************
 
-        self.var.CalendarDayStart = Calendar(self.settings.binding['CalendarDayStart']) - datetime.timedelta(days=self.var.DtDay)
+        self.var.calendar_day_start = calendar(self.settings.binding['CalendarDayStart']) - datetime.timedelta(days=self.var.DtDay)
 
         self.var.TAvg = None
         self.var.TMin = None
