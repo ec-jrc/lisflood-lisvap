@@ -25,7 +25,7 @@ import numpy as np
 from pcraster import pcraster, numpy_operations, Nominal, Boolean, Scalar, operations
 from netCDF4 import num2date, date2num, Dataset
 
-from .zusatz import LisfloodError, iterOpenNetcdf, iterSetClonePCR, iterReadPCRasterMap, checkmap, Calendar
+from .zusatz import LisfloodError, iterOpenNetcdf, iterSetClonePCR, iterReadPCRasterMap, checkmap, calendar
 from global_modules import LisSettings, NetcdfMetadata, MaskMapMetadata, CutMap
 
 
@@ -269,13 +269,13 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
     except AttributeError:  # Attribute does not exist
         t_cal = u"gregorian"  # Use standard calendar
 
-    begin = Calendar(settings.binding['CalendarDayStart'])
+    begin = calendar(settings.binding['CalendarDayStart'])
     DtSec = float(settings.binding['DtSec'])
     DtDay = float(DtSec / 86400)
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
 
     # get date of current simulation step
-    current_date = Calendar(time)
+    current_date = calendar(time)
 
     if not isinstance(current_date, datetime.datetime):
         current_date = begin + datetime.timedelta(days=(current_date - 1) * DtDay)
@@ -359,12 +359,12 @@ def checknetcdf(name, start, end):
     nf1.close()
     settings = LisSettings.instance()
     # CM: calendar date start (CalendarDayStart)
-    begin = Calendar(settings.binding['CalendarDayStart'])
+    begin = calendar(settings.binding['CalendarDayStart'])
     DtSec = float(settings.binding['DtSec'])
     DtDay = float(DtSec / 86400)
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
 
-    date_first_sim_step = Calendar(start)
+    date_first_sim_step = calendar(start)
     if not isinstance(date_first_sim_step, datetime.datetime):
         date_first_sim_step = begin + datetime.timedelta(days=(date_first_sim_step - 1) * DtDay)
     if date_first_sim_step < date_first_step_in_ncdf:
@@ -376,7 +376,7 @@ def checknetcdf(name, start, end):
         """.format(filename, date_first_step_in_ncdf.strftime('%d/%m/%Y %H:%M'), date_first_sim_step.strftime('%d/%m/%Y %H:%M'))
         raise LisfloodError(msg)
 
-    date_last_sim_step = Calendar(end)
+    date_last_sim_step = calendar(end)
     if not isinstance(date_last_sim_step, datetime.datetime):
         date_last_sim_step = begin + datetime.timedelta(days=(date_last_sim_step - 1) * DtDay)
     if date_last_sim_step > date_last_step_in_ncdf:

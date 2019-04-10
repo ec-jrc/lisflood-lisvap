@@ -44,26 +44,26 @@ class LisfloodError(Exception):
         return self._msg
 
 
-def Calendar(input):
+def calendar(date_or_ts):
     """ Get date or number of steps from input.
 
     Get date from input string using one of the available formats or get time step number from input number or string.
     Used to get the date from CalendarDayStart (input) in the settings xml
 
-    :param input: string containing a date in one of the available formats or time step number as number or string
+    :param date_or_ts: string containing a date in one of the available formats or time step number as number or string
     :rtype: datetime object or float number
     :returns: date as datetime or time step number as float 
     :raises ValueError: stop if input is not a step number AND it is in wrong date format
     """
-    if isinstance(input, (float, int)):
-        return float(input)
+    if isinstance(date_or_ts, (float, int)):
+        return float(date_or_ts)
 
     try:
         # try reading step number from number or string
-        date = parser.parse(input, dayfirst=True)
+        date = parser.parse(date_or_ts, dayfirst=True)
     except (TypeError, ValueError) as e:
         # if cannot read input then stop
-        msg = ' Wrong step or date format: {}, Input {} '.format(e, input)
+        msg = ' Wrong step or date format: {}, Input {} '.format(e, date_or_ts)
         raise LisfloodError(msg)
     else:
         return date
@@ -125,7 +125,44 @@ def checkmap(name, value, map, flagmap, find):
     return
 
 
-def checkifDate(start, end):
+def date_to_int(date_in, both=False):
+    """ Get number of steps between dateIn and CalendarDayStart.
+
+    Get the number of steps between dateIn and CalendarDayStart and return it as integer number.
+    It can now compute the number of sub-daily steps.
+    dateIn can be either a date or a number. If dateIn is a number, it must be the number of steps between
+    dateIn and CalendarDayStart.
+
+    :param date_in: date as string or number
+    :param both: if true it returns both the number of steps as integer and the input date as string. If false only
+    the number of steps as integer is returned
+    :return: number of steps as integer and input date as string
+    """
+    from global_modules import LisSettings
+    settings = LisSettings.instance()
+    binding = settings.binding
+    # CM: get reference date to be used with step numbers from 'CalendarDayStart' in Settings.xml file
+    date1 = calendar(date_in)
+    begin = calendar(binding['CalendarDayStart'])
+    # CM: get model time step as float form 'DtSec' in Settings.xml file
+    DtSec = float(binding['DtSec'])
+    # CM: compute fraction of day corresponding to model time step as float
+    # DtDay = float(DtSec / 86400)
+    # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
+
+    if type(date1) is datetime.datetime:
+        str1 = date1.strftime("%d/%m/%Y %H:%M")
+        # CM: get total number of seconds corresponding to the time interval between dateIn and CalendarDayStart
+        timeinterval_in_sec = int((date1 - begin).total_seconds())
+        # CM: get total number of steps between dateIn and CalendarDayStart
+        int1 = int(timeinterval_in_sec / DtSec + 1)
+    else:
+        int1 = int(date1)
+        str1 = str(date1)
+    return int1, str1 if both else int1
+
+
+def checkdate(start, end):
     """ Check simulation start and end dates or timesteps
     
     Check simulation start and end dates/timesteps to be later than begin date (CalendarStartDay).
@@ -140,23 +177,23 @@ def checkifDate(start, end):
     settings = LisSettings.instance()
     binding = settings.binding
     # CM: calendar date start (CalendarDayStart)
-    begin = Calendar(binding['CalendarDayStart'])
+    begin = calendar(binding['CalendarDayStart'])
 
-    intStart, strStart = datetoInt(binding[start], True)
+    int_start, str_start = date_to_int(binding[start], True)
     # CM mod
     # CM overwrite date with time step
-    binding[start] = intStart
-    intEnd, strEnd = datetoInt(binding[end], True)
+    binding[start] = int_start
+    int_end, str_end = date_to_int(binding[end], True)
     # CM mod
-    binding[end] = intEnd
+    binding[end] = int_end
 
     # test if start and end > begin
-    if intStart < 0 or intEnd < 0 or (intEnd - intStart) < 0:
-        strBegin = begin.strftime("%d/%m/%Y %H:%M")
+    if int_start < 0 or int_end < 0 or (int_end - int_start) < 0:
+        str_begin = begin.strftime("%d/%m/%Y %H:%M")
         msg = "Simulation start date and/or simulation end date are wrong or do not match CalendarStartDate!\n" + \
-            "CalendarStartDay: " + strBegin + "\n" + \
-            "Simulation start: " + strStart + " - " + str(intStart)+"\n" + \
-            "Simulation end: " + strEnd + " - "+str(intEnd)
+            "CalendarStartDay: " + str_begin + "\n" + \
+            "Simulation start: " + str_start + " - " + str(int_start)+"\n" + \
+            "Simulation end: " + str_end + " - "+str(int_end)
         raise LisfloodError(msg)
     return
 
@@ -254,16 +291,16 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
         else:
             self._sampleValues = [[Decimal("NaN")] * 1 for _ in [0] * nrRows]
 
-    def firstout(self,expression):
+    def firstout(self, expression):
         """
         returns the first cell as output value
         """
         try:
-            cellIndex = self._sampleAddresses[0]
+            cell_idx = self._sampleAddresses[0]
             tmp = pcraster.pcraster.areaaverage(pcraster.pcraster.spatial(expression), pcraster.pcraster.spatial(self._spatialId))
-            value, valid = pcraster.pcraster.cellvalue(tmp, cellIndex)
+            value, valid = pcraster.pcraster.cellvalue(tmp, cell_idx)
             if not valid:
-               value = Decimal("NaN")
+                value = Decimal("NaN")
         except:
             value = Decimal("NaN")
         return value
@@ -320,65 +357,27 @@ def remoteInputAccess(function, file_path, error_msg):
     return obj
 
 
-def datetoInt(dateIn, both=False):
-    """ Get number of steps between dateIn and CalendarDayStart.
-    
-    Get the number of steps between dateIn and CalendarDayStart and return it as integer number.
-    It can now compute the number of sub-daily steps.
-    dateIn can be either a date or a number. If dateIn is a number, it must be the number of steps between
-    dateIn and CalendarDayStart.
-    
-    :param dateIn: date as string or number
-    :param both: if true it returns both the number of steps as integer and the input date as string. If false only
-    the number of steps as integer is returned
-    :return: number of steps as integer and input date as string
-    """
-    from global_modules import LisSettings
-    settings = LisSettings.instance()
-    binding = settings.binding
-    # CM: get reference date to be used with step numbers from 'CalendarDayStart' in Settings.xml file
-    date1 = Calendar(dateIn)
-    begin = Calendar(binding['CalendarDayStart'])
-    # CM: get model time step as float form 'DtSec' in Settings.xml file
-    DtSec = float(binding['DtSec'])
-    # CM: compute fraction of day corresponding to model time step as float
-    # DtDay = float(DtSec / 86400)
-    # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
-
-    if type(date1) is datetime.datetime:
-        str1 = date1.strftime("%d/%m/%Y %H:%M")
-        # CM: get total number of seconds corresponding to the time interval between dateIn and CalendarDayStart
-        timeinterval_in_sec = int((date1 - begin).total_seconds())
-        # CM: get total number of steps between dateIn and CalendarDayStart
-        int1 = int(timeinterval_in_sec/DtSec + 1)
-        # int1 = (date1 - begin).days + 1
-    else:
-        int1 = int(date1)
-        str1 = str(date1)
-    return int1, str1 if both else int1
-
-
-def inttoDate(intIn, refDate):
-    """ Get date corresponding to a number of steps from a reference date.
-
-    Get date corresponding to a number of steps from a reference date and return it as datetime.
-    It can now use sub-daily steps.
-    intIn is a number of steps from the reference date refDate.
-
-    :param intIn: number of steps as integer
-    :param refDate: reference date as datetime
-    :return: stepDate: date as datetime corresponding to intIn steps from refDate
-    """
-    from global_modules import LisSettings
-    settings = LisSettings.instance()
-    binding = settings.binding
-    # CM: get model time step as float form 'DtSec' in Settings.xml file
-    DtSec = float(binding['DtSec'])
-    # CM: compute fraction of day corresponding to model time step as float
-    DtDay = float(DtSec / 86400)
-    # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
-
-    # CM: compute date corresponding to intIn steps from reference date refDate
-    stepDate = refDate + datetime.timedelta(days=intIn * DtDay)
-
-    return stepDate
+# def inttoDate(intIn, refDate):
+#     """ Get date corresponding to a number of steps from a reference date.
+#
+#     Get date corresponding to a number of steps from a reference date and return it as datetime.
+#     It can now use sub-daily steps.
+#     intIn is a number of steps from the reference date refDate.
+#
+#     :param intIn: number of steps as integer
+#     :param refDate: reference date as datetime
+#     :return: stepDate: date as datetime corresponding to intIn steps from refDate
+#     """
+#     from global_modules import LisSettings
+#     settings = LisSettings.instance()
+#     binding = settings.binding
+#     # CM: get model time step as float form 'DtSec' in Settings.xml file
+#     DtSec = float(binding['DtSec'])
+#     # CM: compute fraction of day corresponding to model time step as float
+#     DtDay = float(DtSec / 86400)
+#     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
+#
+#     # CM: compute date corresponding to intIn steps from reference date refDate
+#     stepDate = refDate + datetime.timedelta(days=intIn * DtDay)
+#
+#     return stepDate

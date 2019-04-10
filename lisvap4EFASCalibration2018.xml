@@ -17,17 +17,6 @@ author PB, 29 October 2012
 TIP:
 You can use $(ProjectDir) as built-in variable to use in XML settings or in code (binding['ProjectDir'])
 
-Changed 29/10/2012:
--  removed definitions of TabBruntE, TabBruntF
--  put in a StepStart like in Lisflood
--  option useRgdMaps      0 calculates incoming solar radiation 
-                           1 uses maps of incoming solar radiation (default)
--  new option usePenmanET: 0 using Hargreaves equation to calcultate ETp
-                           1 using Penman M.  equation to calcultate ETp (default)
--  new option useBrunt:    0 using Allen equation to calculate net long-wave radiation (default)
-                           1 using Brunt equation to calculate net long-wave radiation
-Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
-
 -->
 
 <lfsettings>
@@ -44,7 +33,7 @@ TIME-RELATED CONSTANTS
 
 <textvar name="CalendarDayStart" value="02/01/1990 06:00">
 <comment>
-Calendar day number of 1st day in model run
+calendar day number of 1st day in model run
 e.g. 1st of January: 1; 1st of June: 151 (or 152 in leap year)
 </comment>
 </textvar>
@@ -229,7 +218,7 @@ TIMESTEP RELATED PARAMETERS
 
 <textvar name="CalendarDayStart" value="$(CalendarDayStart)">
 <comment>
-Calendar day number of 1st day in model run
+calendar day number of 1st day in model run
 e.g. 1st of January: 1; 1st of June 151 (or 152 in leap year)
 </comment>
 </textvar>

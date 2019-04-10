@@ -40,7 +40,7 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
 
             <textvar name="CalendarDayStart" value="01/01/1981 00:00">
                 <comment>
-                    Calendar day number of 1st day in model run
+                    calendar day number of 1st day in model run
                     e.g. 1st of January: 1; 1st of June: 151 (or 152 in leap year)
                 </comment>
             </textvar>
@@ -285,7 +285,7 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
 
             <textvar name="CalendarDayStart" value="$(CalendarDayStart)">
                 <comment>
-                    Calendar day number of 1st day in model run
+                    calendar day number of 1st day in model run
                     e.g. 1st of January: 1; 1st of June 151 (or 152 in leap year)
                 </comment>
             </textvar>
