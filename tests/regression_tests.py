@@ -17,7 +17,7 @@ See the Licence for the specific language governing permissions and limitations 
 
 import os
 
-from global_modules import LisSettings, cdf_flags
+from utils import LisSettings, cdf_flags
 from lisvap1 import lisvapexe
 
 from tests import listest, reference_files

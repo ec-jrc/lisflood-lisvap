@@ -22,7 +22,7 @@ import numpy as np
 from pcraster import operations
 from pcraster.framework import DynamicModel, report
 
-from global_modules import LisSettings, TimeProfiler
+from utils import LisSettings, TimeProfiler
 
 
 class LisvapModelDyn(DynamicModel):

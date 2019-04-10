@@ -18,11 +18,11 @@ See the Licence for the specific language governing permissions and limitations 
 from pcraster.framework.dynamicPCRasterBase import DynamicModel
 from pcraster.operations import scalar
 
-from global_modules import LisSettings, NetcdfMetadata, CutMap
-from global_modules.add1 import loadsetclone
-from global_modules.output import OutputTssMap
-from hydrological_modules.miscinitial import MiscInitial
-from hydrological_modules.readmeteo import ReadMeteo
+from utils import LisSettings, NetcdfMetadata, CutMap
+from utils.readers import loadsetclone
+from utils.output import OutputTssMap
+from hydrological.miscinitial import MiscInitial
+from hydrological.readmeteo import ReadMeteo
 
 
 class LisvapModelIni(DynamicModel):
