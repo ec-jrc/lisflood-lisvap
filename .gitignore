@@ -4,6 +4,7 @@ __pycache__/
 *.tmp
 *.nc
 *.xml
+*.prof
 
 # unignoring xml settings for templates and tests
 !lisvap4EFASCalibration2018.xml
