@@ -22,7 +22,6 @@ from pcraster.framework import report
 
 from global_modules import cdf_flags
 from .add1 import writenet, loadmap, valuecell
-# from .globals import cdfFlag
 from .zusatz import TimeoutputTimeseries, LisfloodError
 
 

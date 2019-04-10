@@ -25,7 +25,7 @@ import numpy as np
 from pcraster import pcraster, numpy_operations, Nominal, Boolean, Scalar, operations
 from netCDF4 import num2date, date2num, Dataset
 
-from .zusatz import LisfloodError, iterOpenNetcdf, iterSetClonePCR, iterReadPCRasterMap, checkmap, calendar
+from .zusatz import LisfloodError, iter_open_netcdf, iter_setclone_pcraster, iter_read_pcraster, checkmap, calendar
 from global_modules import LisSettings, NetcdfMetadata, MaskMapMetadata, CutMap
 
 
@@ -87,13 +87,13 @@ def loadsetclone(name):
         # CM: read information on clone map from map (pcraster or netcdf)
         try:
             # try to read a pcraster map
-            iterSetClonePCR(filename)
-            res = operations.boolean(iterReadPCRasterMap(filename))
+            iter_setclone_pcraster(filename)
+            res = operations.boolean(iter_read_pcraster(filename))
             flagmap = True
         except:
             # try to read a netcdf file
             filename = '{}.{}'.format(os.path.splitext(settings.binding[name])[0], 'nc')
-            nf1 = iterOpenNetcdf(filename, '', 'r')
+            nf1 = iter_open_netcdf(filename, 'r')
             value = nf1.variables.items()[-1][0]  # get the last variable name
             # original code
             # x1 = nf1.variables.values()[0][0]
@@ -244,8 +244,8 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
     :except: if current simulation timestep is not stored in the stack, it stops with error message (if timestampflag='exact')
     """
 
-    filename = name + ".nc" if not name.endswith('nc') else name
-    nf1 = iterOpenNetcdf(filename, "Netcdf map stacks: \n", "r")
+    filename = name + '.nc' if not name.endswith('nc') else name
+    nf1 = iter_open_netcdf(filename, 'r')
     settings = LisSettings.instance()
     # read information from netCDF file
     # original code 
@@ -341,7 +341,7 @@ def checknetcdf(name, start, end):
     """
 
     filename = name + '.nc' if not name.endswith('.nc') else name
-    nf1 = iterOpenNetcdf(filename, "Netcdf map stacks: \n", "r")
+    nf1 = iter_open_netcdf(filename, 'r')
 
     # read information from netCDF file
     t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])

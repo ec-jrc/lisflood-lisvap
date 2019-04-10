@@ -24,7 +24,7 @@ from pcraster.numpy_operations import pcr2numpy
 
 from global_modules import LisSettings
 from global_modules.add1 import readnetcdf
-from global_modules.zusatz import iterOpenNetcdf
+from global_modules.zusatz import iter_open_netcdf
 
 current_dir = os.path.dirname(__file__)
 
@@ -48,7 +48,7 @@ def netcdf_steps(netfile):
     :return: int , num of steps
     """
     netfile = '{}.{}'.format(netfile, 'nc') if not netfile.endswith('.nc') else netfile
-    nf1 = iterOpenNetcdf(netfile, "Netcdf map stacks: \n", "r")
+    nf1 = iter_open_netcdf(netfile, 'r')
     t_steps = nf1.variables['time'][:]
     return len(t_steps)
 

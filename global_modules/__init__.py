@@ -30,7 +30,7 @@ import numpy as np
 from netCDF4 import Dataset
 from pcraster import pcraster
 
-from global_modules.zusatz import LisfloodError, iterOpenNetcdf
+from global_modules.zusatz import LisfloodError, iter_open_netcdf
 
 project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
@@ -411,7 +411,7 @@ class CutMap(tuple):
     def get_cuts(in_file):
         settings = LisSettings.instance()
         filename = '{}.{}'.format(os.path.splitext(in_file)[0], 'nc')
-        nf1 = iterOpenNetcdf(filename, 'Checking netcdf map \n', 'r')
+        nf1 = iter_open_netcdf(filename, 'r')
         # original code
         # x1, x2, y1, y2 = [round(nf1.variables.values()[var_ix][j], 5) for var_ix in range(2) for j in range(2)]
         # new safer code that doesn't rely on a specific variable order in netCDF file (R.COUGHLAN & D.DECREMER)

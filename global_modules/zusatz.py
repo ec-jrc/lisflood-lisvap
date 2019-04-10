@@ -30,7 +30,6 @@ from netCDF4 import Dataset
 
 
 class LisfloodError(Exception):
-
     """
     the error handling class
     prints out an error
@@ -73,6 +72,7 @@ def counted(fn):
     def wrapper(*args, **kwargs):
         wrapper.called += 1
         return fn(*args, **kwargs)
+
     wrapper.called = 0
     wrapper.__name__ = fn.__name__
     return wrapper
@@ -191,15 +191,14 @@ def checkdate(start, end):
     if int_start < 0 or int_end < 0 or (int_end - int_start) < 0:
         str_begin = begin.strftime("%d/%m/%Y %H:%M")
         msg = "Simulation start date and/or simulation end date are wrong or do not match CalendarStartDate!\n" + \
-            "CalendarStartDay: " + str_begin + "\n" + \
-            "Simulation start: " + str_start + " - " + str(int_start)+"\n" + \
-            "Simulation end: " + str_end + " - "+str(int_end)
+              "CalendarStartDay: " + str_begin + "\n" + \
+              "Simulation start: " + str_start + " - " + str(int_start) + "\n" + \
+              "Simulation end: " + str_end + " - " + str(int_end)
         raise LisfloodError(msg)
     return
 
 
 class DynamicFrame(DynamicFramework):
-
     """Adjusting the def _atStartOfTimeStep defined in DynamicFramework
        for a real quiet output
     """
@@ -223,7 +222,6 @@ class DynamicFrame(DynamicFramework):
 # lower left corner
 
 class TimeoutputTimeseries(TimeoutputTimeseries):
-
     """
     Class to create pcrcalc timeoutput style timeseries
     """
@@ -260,7 +258,7 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
 
             _allowdDataTypes = [pcraster.Nominal, pcraster.pcraster.Ordinal, pcraster.Boolean]
             if self._spatialId.dataType() not in _allowdDataTypes:
-                #raise Exception(
+                # raise Exception(
                 #    "idMap must be of type Nominal, Ordinal or Boolean")
                 # changed into creating a nominal map instead of bailing out
                 self._spatialId = nominal(self._spatialId)
@@ -304,30 +302,31 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
         except:
             value = Decimal("NaN")
         return value
-        
+
 
 #####################################################################################################################
 # TOOLS TO OPEN/READ INPUT FILES ITERATIVELY, IN CASE OF NETWORK TEMPORARILY DOWN
 #####################################################################################################################
 
 
-def iterOpenNetcdf(file_path, error_msg, mode, **kwargs):
+def iter_open_netcdf(file_path, mode, **kwargs):
     """Wrapper around netCDF4.Dataset function exploiting the iterAccess class to access file_path according to the specified mode"""
-    access_function = lambda path: Dataset(path, mode, **kwargs)
-    return remoteInputAccess(access_function, file_path, error_msg)
+    def access_function(path):
+        return Dataset(path, mode, **kwargs)
+    return remote_input_access(access_function, file_path)
 
 
-def iterReadPCRasterMap(file_path, error_msg=""):
+def iter_read_pcraster(file_path):
     """Wrapper around pcraster.readmap function exploiting the iterAccess class to open file_path."""
-    return remoteInputAccess(pcraster.readmap, file_path, error_msg)
+    return remote_input_access(pcraster.readmap, file_path)
 
 
-def iterSetClonePCR(file_path, error_msg=""):
+def iter_setclone_pcraster(file_path):
     """Wrapper around pcraster.setclone function exploiting the iterAccess class to access file_path."""
-    return remoteInputAccess(pcraster.pcraster.setclone, file_path, error_msg)
+    return remote_input_access(pcraster.pcraster.setclone, file_path)
 
 
-def remoteInputAccess(function, file_path, error_msg):
+def remote_input_access(function, file_path):
     """
     Wrapper around the provided file access function.
     It allows re-trying the open/read operation if network is temporarily down.
@@ -344,40 +343,14 @@ def remoteInputAccess(function, file_path, error_msg):
             obj = function(file_path)
             if num_trials > 1:
                 print("File {0} succesfully accessed after {1} attempts".format(file_path, num_trials))
-            num_trials = 10 + 1
         except IOError:
             if os.path.exists(root) and not os.path.exists(file_path):
                 raise LisfloodError(file_path)
-            elif num_trials == 10:
+            elif num_trials >= 10:
                 raise Exception("Cannot access file {0}!\nNetwork down for too long OR bad root directory {1}!".format(file_path, root))
             else:
                 num_trials += 1
                 print("Trying to access file {0}: attempt n. {1}".format(file_path, num_trials))
                 time.sleep(5)
-    return obj
-
-
-# def inttoDate(intIn, refDate):
-#     """ Get date corresponding to a number of steps from a reference date.
-#
-#     Get date corresponding to a number of steps from a reference date and return it as datetime.
-#     It can now use sub-daily steps.
-#     intIn is a number of steps from the reference date refDate.
-#
-#     :param intIn: number of steps as integer
-#     :param refDate: reference date as datetime
-#     :return: stepDate: date as datetime corresponding to intIn steps from refDate
-#     """
-#     from global_modules import LisSettings
-#     settings = LisSettings.instance()
-#     binding = settings.binding
-#     # CM: get model time step as float form 'DtSec' in Settings.xml file
-#     DtSec = float(binding['DtSec'])
-#     # CM: compute fraction of day corresponding to model time step as float
-#     DtDay = float(DtSec / 86400)
-#     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
-#
-#     # CM: compute date corresponding to intIn steps from reference date refDate
-#     stepDate = refDate + datetime.timedelta(days=intIn * DtDay)
-#
-#     return stepDate
+        else:
+            return obj
