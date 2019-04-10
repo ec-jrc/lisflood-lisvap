@@ -22,9 +22,7 @@ import numpy as np
 from pcraster import operations
 from pcraster.framework import DynamicModel, report
 
-from global_modules import LisSettings
-from global_modules.globals import timeMes, timeMesSum
-from global_modules.zusatz import timemeasure
+from global_modules import LisSettings, TimeProfiler
 
 
 class LisvapModelDyn(DynamicModel):
@@ -35,10 +33,10 @@ class LisvapModelDyn(DynamicModel):
         """ Dynamic part of LISFLOOD
             calls the dynamic part of the hydrological modules
         """
-        del timeMes[:]
+        tp = TimeProfiler.instance()
         settings = LisSettings.instance()
         # CM: get time for operation "Start dynamic"
-        timemeasure("Start dynamic")
+        tp.timemeasure('Start dynamic')
         # CM: date corresponding to the model time step (yyyy-mm-dd hh:mm:ss)
         self.CalendarDate = self.CalendarDayStart + datetime.timedelta(days=(self.currentTimeStep()) * self.DtDay)
         # CM: day of the year corresponding to the model time step
@@ -72,7 +70,7 @@ class LisvapModelDyn(DynamicModel):
         """ up to here it was fun, now the real stuff starts
         """
         self.readmeteo_module.dynamic()
-        timemeasure("Read meteo")  # 1. timing after read input maps
+        tp.timemeasure('Read meteo')  # 1. timing after read input maps
 
         if settings.flags['check']:
             return  # if check then finish here
@@ -355,9 +353,4 @@ class LisvapModelDyn(DynamicModel):
         # self.sumEW += self.EWRef
         self.output_module.dynamic()
 
-        timemeasure("All")  # 10 timing after all
-        for i in xrange(len(timeMes)):
-            if self.currentTimeStep() == self.firstTimeStep():
-                timeMesSum.append(timeMes[i] - timeMes[0])
-            else:
-                timeMesSum[i] += timeMes[i] - timeMes[0]
+        tp.timemeasure('All')  # 10 timing after all

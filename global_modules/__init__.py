@@ -19,8 +19,9 @@ import inspect
 import os
 import sys
 import getopt
+import time
 import xml.dom.minidom
-from collections import Counter
+from collections import Counter, defaultdict
 from functools import wraps
 
 import numpy as np
@@ -279,9 +280,9 @@ class LisSettings(object):
             binding[userset.attributes['name'].value] = str(userset.attributes['value'].value)
 
         # get all the binding in the last part of the settingsfile  = lfbinding
-        bind = dom.getElementsByTagName("lfbinding")[0]
-        for bindset in bind.getElementsByTagName("textvar"):
-            binding[bindset.attributes['name'].value] = str(bindset.attributes['value'].value)
+        bind_elem = dom.getElementsByTagName("lfbinding")[0]
+        for textvar_elem in bind_elem.getElementsByTagName("textvar"):
+            binding[textvar_elem.attributes['name'].value] = str(textvar_elem.attributes['value'].value)
 
         # replace/add the information from lfuser to lfbinding
         for i in binding:
@@ -428,6 +429,34 @@ class CutMap(tuple):
     @property
     def slices(self):
         return slice(self.cuts[2], self.cuts[3]), slice(self.cuts[0], self.cuts[1])
+
+
+class TimeProfiler(object):
+    __metaclass__ = Singleton
+
+    def __init__(self):
+        self.start = time.clock()
+        self.times = defaultdict(list)
+        self.times_sum = {}
+
+    def reset(self):
+        self.__init__()
+
+    def timemeasure(self, name):
+        if self.times[name]:
+            t = time.clock() - self.times[name][-1]
+        else:
+            t = time.clock() - self.start
+        self.times[name].append(t)
+
+    def report(self):
+        for name in self.times:
+            self.times_sum[name] = sum(self.times[name])
+        tot = sum(v for v in self.times_sum.values())
+        print "\n\nTime profiling"
+        print "%-17s %10s %8s" % ("Name", "time[s]", "%")
+        for name in self.times_sum:
+            print "%-17s %10.2f %8.1f" % (name, self.times_sum[name], 100 * self.times_sum[name] / tot)
 
 
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})

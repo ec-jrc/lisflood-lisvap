@@ -29,11 +29,6 @@ from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimu
 from netCDF4 import Dataset
 
 
-from .globals import (
-    timeMes, timeMesString
-)
-
-
 class LisfloodError(Exception):
 
     """
@@ -165,17 +160,6 @@ def checkifDate(start, end):
         raise LisfloodError(msg)
     # modelSteps.append(intStart)
     # modelSteps.append(intEnd)
-    return
-
-
-def timemeasure(name, loops=0):
-
-    timeMes.append(time.clock())
-    if loops == 0:
-        s = name
-    else:
-        s = name + "_%i" % loops
-    timeMesString.append(s)
     return
 
 

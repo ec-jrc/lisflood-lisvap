@@ -33,6 +33,7 @@ class TestEFAS(object):
     @classmethod
     def setup_class(cls):
         settings = LisSettings(cls.settings_path, cls.optionxml)
+        # settings.flags['printtime'] = True
         lisvapexe(settings)
 
     @classmethod
@@ -68,6 +69,7 @@ class TestCORDEX(object):
     @classmethod
     def setup_class(cls):
         settings = LisSettings(cls.settings_path, cls.optionxml)
+        # settings.flags['printtime'] = True
         lisvapexe(settings)
 
     @classmethod
