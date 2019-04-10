@@ -57,44 +57,6 @@ def valuecell(mask, coordx, coordstr):
     return numpy_operations.numpy2pcr(Nominal, null, -9999)
 
 
-def slice_netcdf(name):
-    """
-    get the map attributes like col, row etc from a ntcdf map
-    and define the rectangular of the mask map inside the netcdf map
-    """
-    settings = LisSettings.instance()
-    filename = os.path.splitext(name)[0] + '.nc'
-    nf1 = iterOpenNetcdf(filename, 'Checking netcdf map \n', 'r')
-    # original code
-    # x1, x2, y1, y2 = [round(nf1.variables.values()[var_ix][j], 5) for var_ix in range(2) for j in range(2)]
-    # new safer code that doesn't rely on a specific variable order in netCDF file (R.COUGHLAN & D.DECREMER)
-    if 'lon' in nf1.variables.keys():
-        x1 = nf1.variables['lon'][0]
-        x2 = nf1.variables['lon'][1]
-        y1 = nf1.variables['lat'][0]
-        y2 = nf1.variables['lat'][1]
-    else:
-        x1 = nf1.variables['x'][0]
-        x2 = nf1.variables['x'][1]
-        y1 = nf1.variables['y'][0]
-        y2 = nf1.variables['y'][1]
-    nf1.close()
-
-    maskmap_attrs = MaskMapMetadata.instance()
-    if maskmap_attrs['cell'] != round(np.abs(x2 - x1), 5) or maskmap_attrs['cell'] != round(np.abs(y2 - y1), 5):
-        raise LisfloodError('Cell size different in maskmap {} and {}'.format(settings.binding['MaskMap'], filename))
-
-    half_cell = maskmap_attrs['cell'] / 2
-    x = x1 - half_cell  # |
-    y = y1 + half_cell  # | coordinates of the upper left corner of the input file upper left pixel
-
-    cut0 = int(round(np.abs(maskmap_attrs['x'] - x) / maskmap_attrs['cell']))
-    cut1 = cut0 + maskmap_attrs['col']
-    cut2 = int(round(np.abs(maskmap_attrs['y'] - y) / maskmap_attrs['cell']))
-    cut3 = cut2 + maskmap_attrs['row']
-    return cut0, cut1, cut2, cut3  # input data will be sliced using [cut2:cut3, cut0:cut1]
-
-
 def loadsetclone(name):
     """ Load 'MaskMap' and set as clone
         
