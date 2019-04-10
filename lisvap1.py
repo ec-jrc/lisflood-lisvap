@@ -30,7 +30,7 @@ __authors__ = "Peter Burek, Johan van der Knijff, Ad de Roo"
 __version__ = "Version: 0.2"
 __date__ = "12/04/2019"
 __copyright__ = "Copyright 2019, Lisflood Open Source"
-__maintainer__ = "Domenico Nappo, Valerio Lorini"
+__maintainer__ = "Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi"
 __status__ = "Development"
 
 import datetime
@@ -111,12 +111,14 @@ def usage():
 
 
 def headerinfo():
-    print "Lisvap ", __version__, " ", __date__,
+    print 'Lisvap ', __version__, ' ', __date__,
     print """
 Water balance and flood simulation model for large catchments\n
 (C) Disaster Risk Management Knowledge Centre
     Joint Research Centre of the European Commission
-    TP122, I-21020 Ispra (Va), Italy\n"""
+    TP122, I-21020 Ispra (Va), Italy
+\n
+"""
 
 
 # ==================================================

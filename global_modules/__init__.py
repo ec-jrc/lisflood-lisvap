@@ -46,9 +46,7 @@ def cached(f):
 
 class Singleton(type):
     """
-    Singleton that keep single instance for single set of arguments. E.g.:
-    assert Singleton('spam') is not Singleton('eggs')
-    assert Singleton('spam') is Singleton('spam')
+    Singleton metaclass to keep single instances by init arguments
     """
     _instances = {}
     _init = {}
