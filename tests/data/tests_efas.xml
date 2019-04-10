@@ -94,19 +94,19 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 **************************************************************
             </comment>
 
-            <textvar name="PathOut" value="$(ProjectDir)/tests/data/output/efas/">
+            <textvar name="PathOut" value="$(ProjectDir)/tests/data/output/efas">
                 <comment>
                     Output path
                 </comment>
             </textvar>
 
-            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/mapsLisvap/">
+            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/mapsLisvap">
                 <comment>
                     Path to input base maps
                 </comment>
             </textvar>
 
-            <textvar name="PathMeteoIn" value="$(ProjectDir)/tests/data/input/efas/">
+            <textvar name="PathMeteoIn" value="$(ProjectDir)/tests/data/input/efas">
                 <comment>
                     Path to input raw meteo maps
                     E:/lisflood_test/LisvapWorld/meteo/raster

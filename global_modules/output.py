@@ -133,15 +133,11 @@ class OutputTssMap(object):
                 # checks if saved at same place, if no: add to list
                 if self.var.currentTimeStep() in self.var.ReportSteps:
                     if self.settings.options['writeNetcdfStack']:
-                        writenet(cdf_flags['steps'],
-                                 eval(what),
-                                 where,
-                                 self.var.currentTimeStep(),
-                                 maps,
+                        writenet(cdf_flags['steps'], eval(what), where,
+                                 self.var.currentTimeStep(), maps,
                                  self.settings.report_maps_steps[maps]['outputVar'][0],
                                  self.settings.report_maps_steps[maps]['unit'][0],
-                                 'f4',
-                                 self.var.CalendarDate)
+                                 'f4', self.var.CalendarDate)
                     else:
                         self.var.report(eval(what), where)
 
@@ -155,8 +151,9 @@ class OutputTssMap(object):
                 # checks if saved at same place, if no: add to list
 
                 if self.settings.options['writeNetcdfStack']:
-                    writenet(cdf_flags['end'], eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_all[
-                             maps]['outputVar'][0], self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                    writenet(cdf_flags['end'], eval(what), where,
+                             self.var.currentTimeStep(), maps, self.settings.report_maps_all[maps]['outputVar'][0],
+                             self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.CalendarDate)
                 else:
                     self.var.report(eval(what), where)
 

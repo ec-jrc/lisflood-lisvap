@@ -44,6 +44,7 @@ class LisvapModelIni(DynamicModel):
         # try to make the maskmap more flexible e.g. col, row,x1,y1  or x1,x2,y1,y2
         self.MaskMap = loadsetclone('MaskMap')
         self.settings = LisSettings.instance()
+
         if self.settings.options['readNetcdfStack']:
             # cutmap[] defines the extent to read from input netcdf data (cropping)
             CutMap.register(self.settings.binding['TMinMaps'])
