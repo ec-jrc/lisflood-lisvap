@@ -42,8 +42,8 @@ from pyexpat import *
 
 from global_modules import LisSettings, TimeProfiler, project_dir
 from global_modules.zusatz import checkdate, DynamicFrame
-from Lisvap_dynamic import LisvapModelDyn
-from Lisvap_initial import LisvapModelIni
+from lisvapdynamic import LisvapModelDyn
+from lisvapinitial import LisvapModelIni
 
 
 class LisvapModel(LisvapModelIni, LisvapModelDyn):
@@ -66,11 +66,11 @@ def lisvapexe(settings):
     if settings.flags['loud']:
         print '%-6s %10s %11s\n' % ('Step', 'Date', 'ET0')
 
-    Lisvap = LisvapModel()
-    stLisvap = DynamicFrame(Lisvap, firstTimestep=timestep_start, lastTimeStep=timestep_end)
-    stLisvap.rquiet = True
-    stLisvap.rtrace = False
-    stLisvap.run()
+    lisvap_model = LisvapModel()
+    dynfmw = DynamicFrame(lisvap_model, firstTimestep=timestep_start, lastTimeStep=timestep_end)
+    dynfmw.rquiet = True
+    dynfmw.rtrace = False
+    dynfmw.run()
     # cProfile.run('stLisflood.run()')
     # python -m cProfile -o  l1.pstats lisf1.py settingsNew3.xml
     # gprof2dot -f pstats l1.pstats | dot -Tpng -o callgraph.png
