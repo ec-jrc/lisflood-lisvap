@@ -1,13 +1,19 @@
-# -------------------------------------------------------------------------
-# Name:        additional subroutines
-# Purpose:
-#
-# Author:      burekpe
-#
-# Created:     26/02/2014
-# Copyright:   (c) burekpe 2014
-# Licence:     <your licence>
-# -------------------------------------------------------------------------
+"""
+
+Copyright 2019 European Union
+
+Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
+
+You may not use this work except in compliance with the Licence.
+You may obtain a copy of the Licence at:
+
+https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the Licence for the specific language governing permissions and limitations under the Licence.
+
+"""
 
 import os
 import sys
@@ -23,11 +29,6 @@ from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimu
 from netCDF4 import Dataset
 
 
-from .globals import (
-    MMaskMap, modelSteps, timeMes, timeMesString
-)
-
-
 class LisfloodError(Exception):
 
     """
@@ -36,7 +37,7 @@ class LisfloodError(Exception):
     """
 
     def __init__(self, msg):
-        header = "\n\n ========================== LISFLOOD ERROR =============================\n"
+        header = '\n\n ========================== LISFLOOD ERROR =============================\n'
         self._msg = header + msg
 
     def __str__(self):
@@ -62,226 +63,10 @@ def Calendar(input):
         date = parser.parse(input, dayfirst=True)
     except (TypeError, ValueError) as e:
         # if cannot read input then stop
-        msg = """
-        Wrong step or date format: {},
-        Input {}
-        """.format(e, input)
+        msg = ' Wrong step or date format: {}, Input {} '.format(e, input)
         raise LisfloodError(msg)
     else:
         return date
-
-
-# def option_binding(settingsfile, optionxml):
-#     """
-#     Read settings and options XML files and set values for global dicts (bindongs and options)
-#     It also adds the following built-in variables to be used in settings:
-#
-#     1. ProjectDir (root folder of lisvap)
-#     2. ProjectPath (same as ProjectDir)
-#
-#     bindings = key and value (filename or value)
-#     options  = control of Lisflood to use certain subroutines
-#     """
-#     option_setting = {}
-#     user = {}
-#     repTimeserie = {}
-#     repMaps = {}
-#
-#     #  built-in variables
-#     user['ProjectDir'] = os.path.normpath(os.path.join(os.path.dirname(__file__), '../'))
-#     user['ProjectPath'] = user['ProjectDir']
-#
-#     domopt = xml.dom.minidom.parse(optionxml)
-#     dom = xml.dom.minidom.parse(settingsfile)
-#
-#     # getting all posssible option from the general optionxml
-#     # and setting them tpo their default value
-#     optDef = domopt.getElementsByTagName("lfoptions")[0]
-#     for optset in optDef.getElementsByTagName("setoption"):
-#         option[optset.attributes['name'].value] = bool(int(optset.attributes['default'].value))
-#
-#     # getting option set in the specific settings file
-#     # and resetting them to their choice value
-#     optSet = dom.getElementsByTagName("lfoptions")[0]
-#     for optset in optSet.getElementsByTagName("setoption"):
-#         option_setting[optset.attributes['name'].value] = bool(int(optset.attributes['choice'].value))
-#     for key in option_setting.keys():
-#         option[key] = option_setting[key]
-#
-#     # reverse the initLisflood option to use it as a restriction for output
-#     # eg. produce output if not(initLisflood)
-#     option['nonInit'] = not(option['InitLisflood'])
-# # -----------------------------------------
-#
-#     # get all the bindings in the first part of the settingsfile = lfuser
-#     lfuse = dom.getElementsByTagName("lfuser")[0]
-#     for userset in lfuse.getElementsByTagName("textvar"):
-#         user[userset.attributes['name'].value] = str(userset.attributes['value'].value)
-#         binding[userset.attributes['name'].value] = str(userset.attributes['value'].value)
-#
-#     # get all the binding in the last part of the settingsfile  = lfbinding
-#     bind = dom.getElementsByTagName("lfbinding")[0]
-#     for bindset in bind.getElementsByTagName("textvar"):
-#         binding[bindset.attributes['name'].value] = str(bindset.attributes['value'].value)
-#
-#     # replace/add the information from lfuser to lfbinding
-#     for i in binding:
-#         expr = binding[i]
-#         while expr.find('$(') > -1:
-#             a1 = expr.find('$(')
-#             a2 = expr.find(')')
-#             try:
-#                 s2 = user[expr[a1 + 2:a2]]
-#             except KeyError:
-#                 print 'no ', expr[a1 + 2:a2], ' in lfuser defined'
-#             else:
-#                 expr = expr.replace(expr[a1:a2 + 1], s2)
-#         binding[i] = expr
-#
-#     # Split the string ReportSteps into an int array
-#     # replace endtime with number
-#     # replace .. with sequence
-#
-#     repsteps = user['ReportSteps'].split(',')
-#     if repsteps[-1] == 'endtime':
-#         repsteps[-1] = binding['StepEnd']
-#     jjj = []
-#     for i in repsteps:
-#         if '..' in i:
-#             j = map(int, i.split('..'))
-#             for jj in xrange(j[0], j[1] + 1):
-#                 jjj.append(jj)
-#         else:
-#             jjj.append(i)
-#     ReportSteps['rep'] = map(int, jjj)
-#     # maps are reported at these time steps
-#
-#     # running through all times series
-#     reportTimeSerie = domopt.getElementsByTagName("lftime")[0]
-#     for repTime in reportTimeSerie.getElementsByTagName("setserie"):
-#         d = {}
-#         for key in repTime.attributes.keys():
-#             if key != 'name':
-#                 value = repTime.attributes[key].value
-#                 d[key] = value.split(',')
-#         key = repTime.attributes['name'].value
-#         repTimeserie[key] = d
-#         repOpt = repTimeserie[key]['repoption']
-#
-#         try:
-#             restOpt = repTimeserie[key]['restrictoption']
-#         except:
-#             # add restricted option if not in already
-#             repTimeserie[key]['restrictoption'] = ['']
-#             restOpt = repTimeserie[key]['restrictoption']
-#
-#         try:
-#             test = repTimeserie[key]['operation']
-#         except:
-#             # add operation if not in already
-#             repTimeserie[key]['operation'] = ['']
-#
-#         # sort out if this option is not active
-#         # put in if one of this option is active
-#         for i in repOpt:
-#             for o1key in option.keys():
-#                 if option[o1key]:  # if option is active = 1
-#                     # print o1key, option[o1key],i
-#                     if o1key == i:
-#                         # option is active and time series has this option to select it
-#                         # now test if there is any restrictions
-#                         allow = True
-#                         for j in restOpt:
-#                             for o2key in option.keys():
-#                                 if o2key == j:
-#                                     # print o2key, option[o2key],j
-#                                     if not(option[o2key]):
-#                                         allow = False
-#                         if allow:
-#                             reportTimeSerieAct[key] = repTimeserie[key]
-#
-#     # running through all maps
-#
-#     reportMap = domopt.getElementsByTagName("lfmaps")[0]
-#     for repMap in reportMap.getElementsByTagName("setmap"):
-#         d = {}
-#         for key in repMap.attributes.keys():
-#             if key != 'name':
-#                 value = repMap.attributes[key].value
-#                 d[key] = value.split(',')
-#         key = repMap.attributes['name'].value
-#         repMaps[key] = d
-#         try:
-#             repAll = repMaps[key]['all']
-#         except:
-#             repMaps[key]['all'] = ['']
-#             repAll = ['']
-#         try:
-#             repSteps = repMaps[key]['steps']
-#         except:
-#             repMaps[key]['steps'] = ['']
-#             repSteps = ['']
-#         try:
-#             repEnd = repMaps[key]['end']
-#         except:
-#             repMaps[key]['end'] = ['']
-#             repEnd = ['']
-#         try:
-#             restOpt = repMaps[key]['restrictoption']
-#         except:
-#             # add restricted option if not in already
-#             repMaps[key]['restrictoption'] = ['']
-#             restOpt = repMaps[key]['restrictoption']
-#         try:
-#             repUnit = repMaps[key]['unit']
-#         except:
-#             repMaps[key]['unit'] = ['-']
-#         #  -------- All -----------------
-#         # sort out if this option is not active
-#         # put in if one of this option is active
-#         for i in repAll:
-#             # run through all the output option
-#             for o1key in option.keys():
-#                 # run through all the options
-#                 if option[o1key]:  # if option is active = 1
-#                     # print o1key, option[o1key],i
-#                     if o1key == i:
-#                         # option is active and time series has this option to select it
-#                         # now test if there is any restrictions
-#                         allow = True
-#                         for j in restOpt:
-#                             # running through all the restrictions
-#                             for o2key in option.keys():
-#                                 if (o2key == j) and (not(option[o2key])):
-#                                     allow = False
-#                         if allow:
-#                             reportMapsAll[key] = repMaps[key]
-#
-#         #  -------- Steps -----------------
-#         for i in repSteps:
-#             for o1key in option.keys():
-#                 if option[o1key]:  # if option is active = 1
-#                     if o1key == i:
-#                         allow = True
-#                         for j in restOpt:
-#                             for o2key in option.keys():
-#                                 if (o2key == j) and (not(option[o2key])):
-#                                     allow = False
-#                         if allow:
-#                             reportMapsSteps[key] = repMaps[key]
-#
-#         #  -------- End -----------------
-#         for i in repEnd:
-#             for o1key in option.keys():
-#                 if option[o1key]:  # if option is active = 1
-#                     if o1key == i:
-#                         allow = True
-#                         for j in restOpt:
-#                             for o2key in option.keys():
-#                                 if (o2key == j) and (not(option[o2key])):
-#                                     allow = False
-#                         if allow:
-#                             reportMapsEnd[key] = repMaps[key]
 
 
 def counted(fn):
@@ -298,6 +83,7 @@ def checkmap(name, value, map, flagmap, find):
     """ check maps if the fit to the mask map
     """
     s = [name, value]
+    MMaskMap = 0
     if flagmap:
         amap = scalar(defined(MMaskMap))
         try:
@@ -333,9 +119,9 @@ def checkmap(name, value, map, flagmap, find):
         s.append(float(map))
         s.append(float(map))
 
-    if checkmap.called == 1:
-        print "%-25s%-40s%11s%11s%11s%11s%11s" %("Name","File/Value","nonMV","MV","min","mean","max")
-    print "%-25s%-40s%11i%11i%11.2f%11.2f%11.2f" %(s[0],s[1][-39:],s[2],s[3],s[4],s[5],s[6])
+    if checkmap.called == 1:  # FIXME omg
+        print "%-25s%-40s%11s%11s%11s%11s%11s" % ("Name", "File/Value", "nonMV", "MV", "min", "mean", "max")
+    print "%-25s%-40s%11i%11i%11.2f%11.2f%11.2f" % (s[0], s[1][-39:], s[2], s[3], s[4], s[5], s[6])
     return
 
 
@@ -356,7 +142,7 @@ def checkifDate(start, end):
     # CM: calendar date start (CalendarDayStart)
     begin = Calendar(binding['CalendarDayStart'])
 
-    intStart,strStart = datetoInt(binding[start], True)
+    intStart, strStart = datetoInt(binding[start], True)
     # CM mod
     # CM overwrite date with time step
     binding[start] = intStart
@@ -372,19 +158,8 @@ def checkifDate(start, end):
             "Simulation start: " + strStart + " - " + str(intStart)+"\n" + \
             "Simulation end: " + strEnd + " - "+str(intEnd)
         raise LisfloodError(msg)
-    modelSteps.append(intStart)
-    modelSteps.append(intEnd)
-    return
-
-
-def timemeasure(name,loops=0):
-
-    timeMes.append(time.clock())
-    if loops == 0:
-        s = name
-    else:
-        s = name+"_%i" %(loops)
-    timeMesString.append(s)
+    # modelSteps.append(intStart)
+    # modelSteps.append(intEnd)
     return
 
 

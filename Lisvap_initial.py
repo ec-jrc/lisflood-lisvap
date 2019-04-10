@@ -1,20 +1,25 @@
-# -------------------------------------------------------------------------
-# Name:       Lisvap Model Initial
-# Purpose:
-#
-# Author:      burekpe
-#
-# Created:     27/02/2014
-# Licence:     EPL 2.0
-# -------------------------------------------------------------------------
+"""
 
+Copyright 2019 European Union
+
+Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
+
+You may not use this work except in compliance with the Licence.
+You may obtain a copy of the Licence at:
+
+https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the Licence for the specific language governing permissions and limitations under the Licence.
+
+"""
 
 from pcraster.framework.dynamicPCRasterBase import DynamicModel
 from pcraster.operations import scalar
 
-from global_modules import LisSettings
-from global_modules.add1 import loadsetclone, metaNetCDF, mapattrNetCDF
-from global_modules.globals import cutmap
+from global_modules import LisSettings, NetcdfMetadata, CutMap
+from global_modules.add1 import loadsetclone
 from global_modules.output import OutputTssMap
 from hydrological_modules.miscInitial import MiscInitial
 from hydrological_modules.readmeteo import ReadMeteo
@@ -40,14 +45,14 @@ class LisvapModelIni(DynamicModel):
         self.MaskMap = loadsetclone('MaskMap')
         self.settings = LisSettings.instance()
         if self.settings.options['readNetcdfStack']:
-            # get the extent of the maps from the precipitation input maps
-            # and the modelling extent from the MaskMap
-            # cutmap[] defines the MaskMap inside the precipitation map
-            cutmap[0], cutmap[1], cutmap[2], cutmap[3] = mapattrNetCDF(self.settings.binding['TMinMaps'])
+            # cutmap[] defines the extent to read from input netcdf data (cropping)
+            CutMap.register(self.settings.binding['TMinMaps'])
+            # cutmap[0], cutmap[1], cutmap[2], cutmap[3] = slice_netcdf(self.settings.binding['TMinMaps'])
+
         if self.settings.options['writeNetcdfStack'] or self.settings.options['writeNetcdf']:
             # if NetCDF is written, the pr.nc is read to get the metadata
             # like projection
-            metaNetCDF(self.settings.binding['TMinMaps'])
+            NetcdfMetadata.register(self.settings.binding['TMinMaps'])
 
         # ----------------------------------------
         # include output of tss and maps
