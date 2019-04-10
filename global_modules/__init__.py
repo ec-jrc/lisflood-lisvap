@@ -11,12 +11,14 @@ https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1)
 
 Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
 
 import inspect
 import os
+import pprint
 import sys
 import getopt
 import time
@@ -29,6 +31,8 @@ from netCDF4 import Dataset
 from pcraster import pcraster
 
 from global_modules.zusatz import LisfloodError, iterOpenNetcdf
+
+project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 
 
 def cached(f):
@@ -74,6 +78,7 @@ class Singleton(type):
 
 class LisSettings(object):
     __metaclass__ = Singleton
+    printer = pprint.PrettyPrinter(indent=4, width=120)
 
     def __init__(self, settings_file, options_xml):
         dom = xml.dom.minidom.parse(settings_file)
@@ -86,10 +91,22 @@ class LisSettings(object):
         self.options = self.get_options(dom, domopt)
         self.report_steps = self._report_steps(user_settings, bindings)
         self.report_timeseries = self._report_tss(domopt, self.options)
-        report_maps_steps, report_maps_all, report_maps_end = self._reported_maps(self.options, domopt)
-        self.report_maps_steps = report_maps_steps
-        self.report_maps_all = report_maps_all
-        self.report_maps_end = report_maps_end
+        self.report_maps_steps, self.report_maps_all, self.report_maps_end = self._reported_maps(self.options, domopt)
+
+    def __str__(self):
+        res = """
+Binding: {binding}
+Options: {options}
+report_steps: {report_steps}
+report_timeseries: {report_timeseries}
+report_maps_steps: {report_maps_steps}
+report_maps_all: {report_maps_all}
+report_maps_end: {report_maps_end}
+""".format(binding=self.printer.pformat(self.binding), options=self.printer.pformat(self.options),
+           report_steps=self.printer.pformat(self.report_steps), report_timeseries=self.printer.pformat(self.report_timeseries),
+           report_maps_steps=self.printer.pformat(self.report_maps_steps), report_maps_all=self.printer.pformat(self.report_maps_all),
+           report_maps_end=self.printer.pformat(self.report_maps_end))
+        return res
 
     @staticmethod
     def _report_steps(user_settings, bindings):
@@ -169,7 +186,7 @@ class LisSettings(object):
             rep_maps[key] = d
 
             # init rep_maps keys
-            for k in ('all', 'steps', 'end', 'restrictoption', 'unit', ):
+            for k in ('all', 'steps', 'end', 'restrictoption', 'unit',):
                 if k not in rep_maps[key]:
                     rep_maps[key][k] = ['']
 
@@ -177,6 +194,7 @@ class LisSettings(object):
             rep_steps = rep_maps[key]['steps']
             rep_end = rep_maps[key]['end']
             rest_opt = rep_maps[key]['restrictoption']
+
             # repUnit = repMaps[key]['unit']
 
             def _set_active_options(report_temp, report_maps):
@@ -248,8 +266,8 @@ class LisSettings(object):
         # and setting them to their default value
         options = {}
         option_setting = {}
-        optDef = domopt.getElementsByTagName("lfoptions")[0]
-        for optset in optDef.getElementsByTagName("setoption"):
+        lfoptions_elem = domopt.getElementsByTagName("lfoptions")[0]
+        for optset in lfoptions_elem.getElementsByTagName("setoption"):
             options[optset.attributes['name'].value] = bool(int(optset.attributes['default'].value))
 
         # getting option set in the specific settings file
@@ -268,10 +286,9 @@ class LisSettings(object):
     @staticmethod
     def get_binding(dom):
         binding = {}
-        user = {'ProjectDir': os.path.normpath(os.path.join(os.path.dirname(__file__), '../'))}
-        #  built-in variables
-        user['ProjectPath'] = user['ProjectDir']
 
+        #  built-in user variables
+        user = {'ProjectDir': project_dir, 'ProjectPath': project_dir}
         lfuse = dom.getElementsByTagName("lfuser")[0]
         for userset in lfuse.getElementsByTagName("textvar"):
             user[userset.attributes['name'].value] = str(userset.attributes['value'].value)

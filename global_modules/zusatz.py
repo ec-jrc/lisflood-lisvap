@@ -158,8 +158,6 @@ def checkifDate(start, end):
             "Simulation start: " + strStart + " - " + str(intStart)+"\n" + \
             "Simulation end: " + strEnd + " - "+str(intEnd)
         raise LisfloodError(msg)
-    # modelSteps.append(intStart)
-    # modelSteps.append(intEnd)
     return
 
 

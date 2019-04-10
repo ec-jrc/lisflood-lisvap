@@ -548,6 +548,5 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         nf1.variables['time'][flag] = timestep - 1
         nf1.variables[prefix][flag, :, :] = mapnp
     else:
-        # without timeflag
         nf1.variables[prefix][:, :] = mapnp
     nf1.close()

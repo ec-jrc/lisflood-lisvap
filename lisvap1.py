@@ -28,7 +28,7 @@ See the Licence for the specific language governing permissions and limitations 
 
 __authors__ = "Peter Burek, Johan van der Knijff, Ad de Roo"
 __version__ = "Version: 0.2"
-__date__ = "12/04/2019"
+__date__ = "10/04/2019"
 __copyright__ = "Copyright 2019, Lisflood Open Source"
 __maintainer__ = "Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi"
 __status__ = "Development"
@@ -39,7 +39,7 @@ import sys
 
 from pyexpat import *
 
-from global_modules import LisSettings, TimeProfiler
+from global_modules import LisSettings, TimeProfiler, project_dir
 from global_modules.zusatz import checkifDate, DynamicFrame
 from Lisvap_dynamic import LisvapModelDyn
 from Lisvap_initial import LisvapModelIni
@@ -49,10 +49,6 @@ class LisvapModel(LisvapModelIni, LisvapModelDyn):
     """ Joining the initial and the dynamic part
         of the Lisflood model
     """
-
-# ==================================================
-# ============== LISFLOOD execute ==================
-# ==================================================
 
 
 def lisvapexe(settings):
@@ -81,10 +77,6 @@ def lisvapexe(settings):
 
     if settings.flags['printtime']:
         tp.report()
-
-# ==================================================
-# ============== USAGE =============================
-# ==================================================
 
 
 def usage():
@@ -121,21 +113,17 @@ Water balance and flood simulation model for large catchments\n
 """
 
 
-# ==================================================
-# ============== MAIN ==============================
-# ==================================================
-
-if __name__ == "__main__":
-
-    if len(sys.argv) < 2:
-        usage()
-
-    LF_Path = os.path.dirname(sys.argv[0])
-    LF_Path = os.path.abspath(LF_Path)
-    optionxml = os.path.normpath(LF_Path + '/OptionTserieMapsLisvap.xml')
+def main():
+    optionxml = os.path.normpath(os.path.join(project_dir, 'OptionTserieMapsLisvap.xml'))
     settingsxml = sys.argv[1]  # setting.xml file
     lissettings = LisSettings(settingsxml, optionxml)
     # setting of global flag e.g checking input maps, producing more output information
     if not lissettings.flags['veryquiet'] and not lissettings.flags['quiet']:
         headerinfo()
     lisvapexe(lissettings)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        usage()
+    sys.exit(main())
