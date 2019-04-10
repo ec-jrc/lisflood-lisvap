@@ -40,7 +40,6 @@ class ReadMeteo(object):
         """ dynamic part of the readmeteo module
             read meteo input maps
         """
-
         # ************************************************************
         # ***** READ METEOROLOGICAL DATA *****************************
         # ************************************************************

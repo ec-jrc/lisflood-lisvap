@@ -114,13 +114,13 @@ class OutputTssMap(object):
                     if '.' in tail:
                         if self.settings.options['writeNetcdf']:
                             writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps][
-                                     'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.CalendarDate, flag_time=False)
+                                     'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.calendar_date, flag_time=False)
                         else:
                             report(eval(what), where)
                     else:
                         if self.settings.options['writeNetcdfStack']:
                             writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
-                                     maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                                     maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.calendar_date)
                         else:
                             self.var.report(eval(what), where)
 
@@ -137,7 +137,7 @@ class OutputTssMap(object):
                                  self.var.currentTimeStep(), maps,
                                  self.settings.report_maps_steps[maps]['outputVar'][0],
                                  self.settings.report_maps_steps[maps]['unit'][0],
-                                 'f4', self.var.CalendarDate)
+                                 'f4', self.var.calendar_date)
                     else:
                         self.var.report(eval(what), where)
 
@@ -153,7 +153,7 @@ class OutputTssMap(object):
                 if self.settings.options['writeNetcdfStack']:
                     writenet(cdf_flags['end'], eval(what), where,
                              self.var.currentTimeStep(), maps, self.settings.report_maps_all[maps]['outputVar'][0],
-                             self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                             self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.calendar_date)
                 else:
                     self.var.report(eval(what), where)
 
