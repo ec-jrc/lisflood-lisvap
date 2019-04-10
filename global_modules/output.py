@@ -1,21 +1,28 @@
-# -------------------------------------------------------------------------
-# Name:        Output module
-# Purpose:
-#
-# Author:      burekpe
-#
-# Created:     29.03.2014
-# Copyright:   (c) burekpe 2014
-# Licence:     <your licence>
-# -------------------------------------------------------------------------
+"""
+
+Copyright 2019 European Union
+
+Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
+
+You may not use this work except in compliance with the Licence.
+You may obtain a copy of the Licence at:
+
+https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the Licence for the specific language governing permissions and limitations under the Licence.
+
+"""
 
 import os
 
 from pcraster.operations import mapmaximum, catchmenttotal
 from pcraster.framework import report
 
+from global_modules import cdf_flags
 from .add1 import writenet, loadmap, valuecell
-from .globals import cdfFlag
+# from .globals import cdfFlag
 from .zusatz import TimeoutputTimeseries, LisfloodError
 
 
@@ -41,9 +48,7 @@ class OutputTssMap(object):
         for tss in self.settings.report_timeseries:
             where = self.settings.report_timeseries[tss]['where'][0]
             outpoints = self.settings.binding[where]
-            if where == "1":
-                pass
-            elif where == "Catchments":
+            if where in ('1', 'Catchments'):
                 pass
             else:
                 coord = self.settings.binding[where].split()  # could be gauges, sites, lakeSites etc.
@@ -53,7 +58,7 @@ class OutputTssMap(object):
                     try:
                         outpoints = loadmap(where)
                     except:
-                        msg = outpoints + " is not an existing file"
+                        msg = outpoints + ' is not an existing file'
                         raise LisfloodError(msg)
 
             self.var.Tss[tss] = TimeoutputTimeseries(self.settings.binding[tss], self.var, outpoints, noHeader=self.settings.flags['noheader'])
@@ -109,7 +114,7 @@ class OutputTssMap(object):
                     if '.' in tail:
                         if self.settings.options['writeNetcdf']:
                             writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps][
-                                     'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.CalendarDate, flagTime=False)
+                                     'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.CalendarDate, flag_time=False)
                         else:
                             report(eval(what), where)
                     else:
@@ -123,13 +128,20 @@ class OutputTssMap(object):
             # report reportsteps maps
             what = 'self.var.' + self.settings.report_maps_steps[maps]['outputVar'][0]
             where = self.settings.binding[maps]
-            if not(where in checkifdouble):
+            if where not in checkifdouble:
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
                 if self.var.currentTimeStep() in self.var.ReportSteps:
                     if self.settings.options['writeNetcdfStack']:
-                        writenet(cdfFlag[1], eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
-                                 maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                        writenet(cdf_flags['steps'],
+                                 eval(what),
+                                 where,
+                                 self.var.currentTimeStep(),
+                                 maps,
+                                 self.settings.report_maps_steps[maps]['outputVar'][0],
+                                 self.settings.report_maps_steps[maps]['unit'][0],
+                                 'f4',
+                                 self.var.CalendarDate)
                     else:
                         self.var.report(eval(what), where)
 
@@ -143,13 +155,13 @@ class OutputTssMap(object):
                 # checks if saved at same place, if no: add to list
 
                 if self.settings.options['writeNetcdfStack']:
-                    writenet(cdfFlag[2], eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_all[
+                    writenet(cdf_flags['end'], eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_all[
                              maps]['outputVar'][0], self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.CalendarDate)
                 else:
                     self.var.report(eval(what), where)
 
         # if reportstep than increase the counter
         if self.var.currentTimeStep() in self.var.ReportSteps:
-            cdfFlag[1] += 1
+            cdf_flags['steps'] += 1
         # increase the counter for report all maps
-        cdfFlag[2] += 1
+        cdf_flags['end'] += 1
