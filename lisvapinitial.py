@@ -21,7 +21,7 @@ from pcraster.operations import scalar
 from global_modules import LisSettings, NetcdfMetadata, CutMap
 from global_modules.add1 import loadsetclone
 from global_modules.output import OutputTssMap
-from hydrological_modules.miscInitial import MiscInitial
+from hydrological_modules.miscinitial import MiscInitial
 from hydrological_modules.readmeteo import ReadMeteo
 
 
