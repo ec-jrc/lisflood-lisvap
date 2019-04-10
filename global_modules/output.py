@@ -82,15 +82,16 @@ class OutputTssMap(object):
                 print " %10.2f" % self.var.Tss["DisTS"].firstout(self.var.ChanQ)
 
             for tss in self.settings.report_timeseries:
-                what = 'self.var.' + self.settings.report_timeseries[tss]['outputVar'][0]
+                # what = 'self.var.' + self.settings.report_timeseries[tss]['outputVar'][0]
+                what = getattr(self.var, self.settings.report_timeseries[tss]['outputVar'][0])
                 how = self.settings.report_timeseries[tss]['operation'][0]
                 if how == 'mapmaximum':
-                    changed = mapmaximum(eval(what))
+                    changed = mapmaximum(what)
                     what = 'changed'
                 if how == 'total':
-                    changed = catchmenttotal(eval(what) * self.var.PixelArea, self.var.Ldd) * self.var.InvUpArea
+                    changed = catchmenttotal(what * self.var.PixelArea, self.var.Ldd) * self.var.InvUpArea
                     what = 'changed'
-                self.var.Tss[tss].sample(eval(what))
+                self.var.Tss[tss].sample(what)
 
         # ************************************************************
         # ***** WRITING RESULTS: MAPS   ******************************
@@ -100,7 +101,8 @@ class OutputTssMap(object):
 
         for maps in self.settings.report_maps_end:
             # report end maps
-            what = 'self.var.' + self.settings.report_maps_end[maps]['outputVar'][0]
+            # what = 'self.var.' + self.settings.report_maps_end[maps]['outputVar'][0]
+            what = getattr(self.var, self.settings.report_maps_end[maps]['outputVar'][0])
             where = self.settings.binding[maps]
             if where not in checkifdouble:
                 checkifdouble.append(where)
@@ -112,37 +114,39 @@ class OutputTssMap(object):
                     head, tail = os.path.split(where)
                     if '.' in tail:
                         if self.settings.options['writeNetcdf']:
-                            writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps][
+                            writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps][
                                      'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.calendar_date, flag_time=False)
                         else:
-                            report(eval(what), where)
+                            report(what, where)
                     else:
                         if self.settings.options['writeNetcdfStack']:
-                            writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
+                            writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
                                      maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.calendar_date)
                         else:
-                            self.var.report(eval(what), where)
+                            self.var.report(what, where)
 
         for maps in self.settings.report_maps_steps.keys():
             # report reportsteps maps
-            what = 'self.var.' + self.settings.report_maps_steps[maps]['outputVar'][0]
+            # what = 'self.var.' + self.settings.report_maps_steps[maps]['outputVar'][0]
+            what = getattr(self.var, self.settings.report_maps_steps[maps]['outputVar'][0])
             where = self.settings.binding[maps]
             if where not in checkifdouble:
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
                 if self.var.currentTimeStep() in self.var.ReportSteps:
                     if self.settings.options['writeNetcdfStack']:
-                        writenet(cdf_flags['steps'], eval(what), where,
+                        writenet(cdf_flags['steps'], what, where,
                                  self.var.currentTimeStep(), maps,
                                  self.settings.report_maps_steps[maps]['outputVar'][0],
                                  self.settings.report_maps_steps[maps]['unit'][0],
                                  'f4', self.var.calendar_date)
                     else:
-                        self.var.report(eval(what), where)
+                        self.var.report(what, where)
 
         for maps in self.settings.report_maps_all:
             # report maps for all timesteps
-            what = 'self.var.' + self.settings.report_maps_all[maps]['outputVar'][0]
+            # what = 'self.var.' + self.settings.report_maps_all[maps]['outputVar'][0]
+            what = getattr(self.var, self.settings.report_maps_all[maps]['outputVar'][0])
             where = self.settings.binding[maps]
 
             if where not in checkifdouble:
@@ -150,11 +154,11 @@ class OutputTssMap(object):
                 # checks if saved at same place, if no: add to list
 
                 if self.settings.options['writeNetcdfStack']:
-                    writenet(cdf_flags['end'], eval(what), where,
+                    writenet(cdf_flags['end'], what, where,
                              self.var.currentTimeStep(), maps, self.settings.report_maps_all[maps]['outputVar'][0],
                              self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.calendar_date)
                 else:
-                    self.var.report(eval(what), where)
+                    self.var.report(what, where)
 
         # if reportstep than increase the counter
         if self.var.currentTimeStep() in self.var.ReportSteps:
