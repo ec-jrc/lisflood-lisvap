@@ -18,11 +18,11 @@ See the Licence for the specific language governing permissions and limitations 
 from pcraster.framework.dynamicPCRasterBase import DynamicModel
 from pcraster.operations import scalar
 
-from global_modules import LisSettings, NetcdfMetadata, CutMap
-from global_modules.add1 import loadsetclone
-from global_modules.output import OutputTssMap
-from hydrological_modules.miscInitial import MiscInitial
-from hydrological_modules.readmeteo import ReadMeteo
+from utils import LisSettings, NetcdfMetadata, CutMap
+from utils.readers import loadsetclone
+from utils.output import OutputTssMap
+from hydrological.miscinitial import MiscInitial
+from hydrological.readmeteo import ReadMeteo
 
 
 class LisvapModelIni(DynamicModel):
@@ -39,16 +39,15 @@ class LisvapModelIni(DynamicModel):
             initialization of the hydrological modules
         """
         # DynamicModel.__init__(self)
-        super(DynamicModel, self).__init__()
+        super(LisvapModelIni, self).__init__()
 
         # try to make the maskmap more flexible e.g. col, row,x1,y1  or x1,x2,y1,y2
         self.MaskMap = loadsetclone('MaskMap')
         self.settings = LisSettings.instance()
 
         if self.settings.options['readNetcdfStack']:
-            # cutmap[] defines the extent to read from input netcdf data (cropping)
+            # CutMap defines the extent to read from input netcdf data (cropping)
             CutMap.register(self.settings.binding['TMinMaps'])
-            # cutmap[0], cutmap[1], cutmap[2], cutmap[3] = slice_netcdf(self.settings.binding['TMinMaps'])
 
         if self.settings.options['writeNetcdfStack'] or self.settings.options['writeNetcdf']:
             # if NetCDF is written, the pr.nc is read to get the metadata
@@ -56,9 +55,7 @@ class LisvapModelIni(DynamicModel):
             NetcdfMetadata.register(self.settings.binding['TMinMaps'])
 
         # ----------------------------------------
-        # include output of tss and maps
         self.output_module = OutputTssMap(self)
-        # include all the hydrological modules
         self.misc_module = MiscInitial(self)
         self.readmeteo_module = ReadMeteo(self)
         self.ReportSteps = None

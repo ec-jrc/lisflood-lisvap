@@ -22,11 +22,10 @@ from pyexpat import *
 import numpy as np
 from pcraster.numpy_operations import pcr2numpy
 
-from global_modules import LisSettings
-from global_modules.add1 import readnetcdf
-from global_modules.zusatz import iterOpenNetcdf
+from utils import LisSettings
+from utils.readers import readnetcdf, iter_open_netcdf
 
-current_dir = os.path.dirname(__file__)
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 reference_files = {
     'efas': {
@@ -48,7 +47,7 @@ def netcdf_steps(netfile):
     :return: int , num of steps
     """
     netfile = '{}.{}'.format(netfile, 'nc') if not netfile.endswith('.nc') else netfile
-    nf1 = iterOpenNetcdf(netfile, "Netcdf map stacks: \n", "r")
+    nf1 = iter_open_netcdf(netfile, 'r')
     t_steps = nf1.variables['time'][:]
     return len(t_steps)
 

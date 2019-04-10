@@ -16,14 +16,18 @@ See the Licence for the specific language governing permissions and limitations 
 """
 
 import os
+from decimal import Decimal
 
-from pcraster.operations import mapmaximum, catchmenttotal
+import pcraster
+from pcraster.framework.Timeoutput import TimeoutputTimeseries
+
+from pcraster.operations import mapmaximum, catchmenttotal, nominal
 from pcraster.framework import report
 
-from global_modules import cdf_flags
-from .add1 import writenet, loadmap, valuecell
-# from .globals import cdfFlag
-from .zusatz import TimeoutputTimeseries, LisfloodError
+from utils import cdf_flags, LisfloodError
+from utils.tools import valuecell
+from utils.writers import writenet
+from utils.readers import loadmap
 
 
 class OutputTssMap(object):
@@ -53,12 +57,12 @@ class OutputTssMap(object):
             else:
                 coord = self.settings.binding[where].split()  # could be gauges, sites, lakeSites etc.
                 if len(coord) % 2 == 0:
-                    outpoints = valuecell(self.var.MaskMap, coord, outpoints)
+                    outpoints = valuecell(coord, outpoints)
                 else:
                     try:
                         outpoints = loadmap(where)
                     except:
-                        msg = outpoints + ' is not an existing file'
+                        msg = '{} is not an existing file'.format(outpoints)
                         raise LisfloodError(msg)
 
             self.var.Tss[tss] = TimeoutputTimeseries(self.settings.binding[tss], self.var, outpoints, noHeader=self.settings.flags['noheader'])
@@ -71,10 +75,6 @@ class OutputTssMap(object):
         # ***** WRITING RESULTS: TIME SERIES *************************
         # ************************************************************
 
-        # xxx=catchmenttotal(self.var.SurfaceRunForest * self.var.PixelArea, self.var.Ldd) * self.var.InvUpArea
-        # self.var.Tss['DisTS'].sample(xxx)
-        # self.report(self.Precipitation,binding['TaMaps'])
-
         # if fast init than without time series
         if not self.settings.options['InitLisfloodwithoutSplit']:
 
@@ -83,15 +83,15 @@ class OutputTssMap(object):
                 print " %10.2f" % self.var.Tss["DisTS"].firstout(self.var.ChanQ)
 
             for tss in self.settings.report_timeseries:
-                what = 'self.var.' + self.settings.report_timeseries[tss]['outputVar'][0]
+                what = getattr(self.var, self.settings.report_timeseries[tss]['outputVar'][0])
                 how = self.settings.report_timeseries[tss]['operation'][0]
                 if how == 'mapmaximum':
-                    changed = mapmaximum(eval(what))
+                    changed = mapmaximum(what)
                     what = 'changed'
                 if how == 'total':
-                    changed = catchmenttotal(eval(what) * self.var.PixelArea, self.var.Ldd) * self.var.InvUpArea
+                    changed = catchmenttotal(what * self.var.PixelArea, self.var.Ldd) * self.var.InvUpArea
                     what = 'changed'
-                self.var.Tss[tss].sample(eval(what))
+                self.var.Tss[tss].sample(what)
 
         # ************************************************************
         # ***** WRITING RESULTS: MAPS   ******************************
@@ -101,7 +101,7 @@ class OutputTssMap(object):
 
         for maps in self.settings.report_maps_end:
             # report end maps
-            what = 'self.var.' + self.settings.report_maps_end[maps]['outputVar'][0]
+            what = getattr(self.var, self.settings.report_maps_end[maps]['outputVar'][0])
             where = self.settings.binding[maps]
             if where not in checkifdouble:
                 checkifdouble.append(where)
@@ -113,37 +113,37 @@ class OutputTssMap(object):
                     head, tail = os.path.split(where)
                     if '.' in tail:
                         if self.settings.options['writeNetcdf']:
-                            writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps][
-                                     'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.CalendarDate, flag_time=False)
+                            writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps][
+                                     'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.calendar_date, flag_time=False)
                         else:
-                            report(eval(what), where)
+                            report(what, where)
                     else:
                         if self.settings.options['writeNetcdfStack']:
-                            writenet(0, eval(what), where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
-                                     maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                            writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
+                                     maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.calendar_date)
                         else:
-                            self.var.report(eval(what), where)
+                            self.var.report(what, where)
 
         for maps in self.settings.report_maps_steps.keys():
             # report reportsteps maps
-            what = 'self.var.' + self.settings.report_maps_steps[maps]['outputVar'][0]
+            what = getattr(self.var, self.settings.report_maps_steps[maps]['outputVar'][0])
             where = self.settings.binding[maps]
             if where not in checkifdouble:
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
                 if self.var.currentTimeStep() in self.var.ReportSteps:
                     if self.settings.options['writeNetcdfStack']:
-                        writenet(cdf_flags['steps'], eval(what), where,
+                        writenet(cdf_flags['steps'], what, where,
                                  self.var.currentTimeStep(), maps,
                                  self.settings.report_maps_steps[maps]['outputVar'][0],
                                  self.settings.report_maps_steps[maps]['unit'][0],
-                                 'f4', self.var.CalendarDate)
+                                 'f4', self.var.calendar_date)
                     else:
-                        self.var.report(eval(what), where)
+                        self.var.report(what, where)
 
         for maps in self.settings.report_maps_all:
             # report maps for all timesteps
-            what = 'self.var.' + self.settings.report_maps_all[maps]['outputVar'][0]
+            what = getattr(self.var, self.settings.report_maps_all[maps]['outputVar'][0])
             where = self.settings.binding[maps]
 
             if where not in checkifdouble:
@@ -151,14 +151,101 @@ class OutputTssMap(object):
                 # checks if saved at same place, if no: add to list
 
                 if self.settings.options['writeNetcdfStack']:
-                    writenet(cdf_flags['end'], eval(what), where,
+                    writenet(cdf_flags['end'], what, where,
                              self.var.currentTimeStep(), maps, self.settings.report_maps_all[maps]['outputVar'][0],
-                             self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.CalendarDate)
+                             self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.calendar_date)
                 else:
-                    self.var.report(eval(what), where)
+                    self.var.report(what, where)
 
         # if reportstep than increase the counter
         if self.var.currentTimeStep() in self.var.ReportSteps:
             cdf_flags['steps'] += 1
         # increase the counter for report all maps
         cdf_flags['end'] += 1
+
+
+# replacement of the __init__
+# because it takes very long and it produce an error if pixel is at the
+# lower left corner
+
+class TimeoutputTimeseries(TimeoutputTimeseries):
+    """
+    Class to create pcrcalc timeoutput style timeseries
+    """
+
+    def __init__(self, tssFilename, model, idMap=None, noHeader=False):
+        """
+
+        """
+
+        if not isinstance(tssFilename, str):
+            raise Exception(
+                "timeseries output filename must be of type string")
+
+        self._outputFilename = tssFilename
+        self._maxId = 1
+        self._spatialId = None
+        self._spatialDatatype = None
+        self._spatialIdGiven = False
+        self._userModel = model
+        self._writeHeader = not noHeader
+        # array to store the timestep values
+        self._sampleValues = None
+
+        _idMap = False
+        if isinstance(idMap, (str, pcraster.pcraster.Field)):
+            _idMap = True
+
+        nrRows = self._userModel.nrTimeSteps() - self._userModel.firstTimeStep() + 1
+
+        if _idMap:
+            self._spatialId = idMap
+            if isinstance(idMap, str):
+                self._spatialId = pcraster.readmap(idMap)
+
+            _allowdDataTypes = [pcraster.Nominal, pcraster.pcraster.Ordinal, pcraster.Boolean]
+            if self._spatialId.dataType() not in _allowdDataTypes:
+                # raise Exception(
+                #    "idMap must be of type Nominal, Ordinal or Boolean")
+                # changed into creating a nominal map instead of bailing out
+                self._spatialId = nominal(self._spatialId)
+
+            if self._spatialId.isSpatial():
+                self._maxId, valid = pcraster.pcraster.cellvalue(pcraster.operations.mapmaximum(pcraster.operations.ordinal(self._spatialId)), 1)
+            else:
+                self._maxId = 1
+
+            # cell indices of the sample locations
+
+            # #self._sampleAddresses = []
+            # for cellId in range(1, self._maxId + 1):
+            # self._sampleAddresses.append(self._getIndex(cellId))
+
+            self._sampleAddresses = [1 for _ in xrange(self._maxId)]
+            # init with the left/top cell - could also be 0 but then you have to catch it in
+            # the sample routine and put an exeption in
+            nrCells = pcraster.pcraster.clone().nrRows() * pcraster.pcraster.clone().nrCols()
+            for cell in xrange(1, nrCells + 1):
+                if pcraster.pcraster.cellvalue(self._spatialId, cell)[1]:
+                    self._sampleAddresses[pcraster.pcraster.cellvalue(self._spatialId, cell)[0] - 1] = cell
+
+            self._spatialIdGiven = True
+
+            nrCols = self._maxId
+            self._sampleValues = [[Decimal("NaN")] * nrCols for _ in [0] * nrRows]
+        else:
+            self._sampleValues = [[Decimal("NaN")] * 1 for _ in [0] * nrRows]
+
+    def firstout(self, expression):
+        """
+        returns the first cell as output value
+        """
+        try:
+            cell_idx = self._sampleAddresses[0]
+            tmp = pcraster.pcraster.areaaverage(pcraster.pcraster.spatial(expression), pcraster.pcraster.spatial(self._spatialId))
+            value, valid = pcraster.pcraster.cellvalue(tmp, cell_idx)
+            if not valid:
+                value = Decimal("NaN")
+        except:
+            value = Decimal("NaN")
+        return value

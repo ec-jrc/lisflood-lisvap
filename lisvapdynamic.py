@@ -22,10 +22,24 @@ import numpy as np
 from pcraster import operations
 from pcraster.framework import DynamicModel, report
 
-from global_modules import LisSettings, TimeProfiler
+from utils import LisSettings, TimeProfiler
 
 
 class LisvapModelDyn(DynamicModel):
+
+    def __init__(self):
+        """ init part of the initial part
+            defines the mask map and the outlet points
+            initialization of the hydrological modules
+        """
+        # DynamicModel.__init__(self)
+        super(LisvapModelDyn, self).__init__()
+        self.calendar_date = None
+        self.calendar_day = None
+        self.time_since_start = None
+        self.ETRef = None
+        self.ESRef = None
+        self.EWRef = None
 
     # =========== DYNAMIC ====================================================
 
@@ -38,9 +52,9 @@ class LisvapModelDyn(DynamicModel):
         # CM: get time for operation "Start dynamic"
         tp.timemeasure('Start dynamic')
         # CM: date corresponding to the model time step (yyyy-mm-dd hh:mm:ss)
-        self.CalendarDate = self.CalendarDayStart + datetime.timedelta(days=(self.currentTimeStep()) * self.DtDay)
+        self.calendar_date = self.calendar_day_start + datetime.timedelta(days=(self.currentTimeStep()) * self.DtDay)
         # CM: day of the year corresponding to the model time step
-        self.CalendarDay = int(self.CalendarDate.strftime("%j"))
+        self.calendar_day = int(self.calendar_date.strftime("%j"))
 
         # correct method to calculate the day of the year
         # CM: model time step
@@ -55,10 +69,10 @@ class LisvapModelDyn(DynamicModel):
         # Produces non-integer values but this is no problem here...
 
         i = self.currentTimeStep()
-        self.TimeSinceStart = self.currentTimeStep() - self.firstTimeStep() + 1
+        self.time_since_start = self.currentTimeStep() - self.firstTimeStep() + 1
 
         if settings.flags['loud']:
-            print "%-6i %10s" % (self.currentTimeStep(), self.CalendarDate.strftime("%d/%m/%Y")),
+            print "%-6i %10s" % (self.currentTimeStep(), self.calendar_date.strftime("%d/%m/%Y")),
         elif not settings.flags['check']:
             if settings.flags['quiet'] and not settings.flags['veryquiet']:
                 sys.stdout.write(".")
@@ -122,10 +136,10 @@ class LisvapModelDyn(DynamicModel):
             cover = operations.cover
 
             # solar declination [degrees]
-            declin = -23.45 * cos((360. * (self.CalendarDay + 10)) / 365.)
+            declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
 
             # solar constant at top of the atmosphere [J/m2/s]
-            solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.CalendarDay/365.)))
+            solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.calendar_day / 365.)))
 
             tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat))/(cos(declin) * cos(self.Lat))
             tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
@@ -143,7 +157,7 @@ class LisvapModelDyn(DynamicModel):
             # so truncate at 0
             int_solar_height = cover(int_solar_height, 0.0)
 
-            RadiationAngot=int_solar_height * solar_constant
+            RadiationAngot = int_solar_height * solar_constant
             # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
 
             # ************************************************************
@@ -279,10 +293,10 @@ class LisvapModelDyn(DynamicModel):
             sqr = operations.sqr
             sqrt = operations.sqrt
 
-            Declin = -23.45 * cos((360. * (self.CalendarDay + 10)) / 365.)
+            Declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
             # solar declination [degrees]
 
-            SolarConstant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.CalendarDay/365.)))
+            SolarConstant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.calendar_day / 365.)))
             # solar constant at top of the atmosphere [J/m2/s]
 
             tmp1 = ((-sin(self.PD / self.Pi)) + sin(Declin) * sin(self.Lat)) / (cos(Declin) * cos(self.Lat))
