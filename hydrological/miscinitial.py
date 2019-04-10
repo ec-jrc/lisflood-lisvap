@@ -19,8 +19,8 @@ import datetime
 
 from pcraster.operations import scalar, cover
 
-from global_modules.add1 import loadmap
-from global_modules.zusatz import calendar
+from utils.readers import loadmap
+from utils.tools import calendar
 
 
 class MiscInitial(object):

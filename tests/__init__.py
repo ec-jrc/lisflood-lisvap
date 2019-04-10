@@ -22,11 +22,10 @@ from pyexpat import *
 import numpy as np
 from pcraster.numpy_operations import pcr2numpy
 
-from global_modules import LisSettings
-from global_modules.add1 import readnetcdf
-from global_modules.zusatz import iter_open_netcdf
+from utils import LisSettings
+from utils.readers import readnetcdf, iter_open_netcdf
 
-current_dir = os.path.dirname(__file__)
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 reference_files = {
     'efas': {

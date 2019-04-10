@@ -1,65 +1,20 @@
-"""
-
-Copyright 2019 European Union
-
-Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
-
-You may not use this work except in compliance with the Licence.
-You may obtain a copy of the Licence at:
-
-https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt
-
-Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the Licence for the specific language governing permissions and limitations under the Licence.
-
-"""
-
-import warnings
 import datetime
-import time as xtime
 import os
-from bisect import bisect_left
+import time
+import warnings
 
 import numpy as np
-from pcraster import pcraster, numpy_operations, Nominal, Boolean, Scalar, operations
-from netCDF4 import num2date, date2num, Dataset
+import pcraster
+from netCDF4 import Dataset, num2date, date2num
+from pcraster import numpy_operations, operations, Boolean, Nominal, Scalar
 
-from .zusatz import LisfloodError, iter_open_netcdf, iter_setclone_pcraster, iter_read_pcraster, checkmap, calendar
-from global_modules import LisSettings, NetcdfMetadata, MaskMapMetadata, CutMap
-
-
-def valuecell(mask, coordx, coordstr):
-    """
-    to put a value into a pcraster map -> invert of cellvalue
-    pcraster map is converted into a numpy array first
-    """
-    coord = []
-    for xy in coordx:
-        try:
-            coord.append(float(xy))
-        except ValueError:
-            msg = 'Gauges: {} in {} is not a coordinate'.format(xy, coordstr)
-            raise LisfloodError(msg)
-
-    null = np.zeros((pcraster.clone().nrRows(), pcraster.clone().nrCols()))
-    null[null == 0] = -9999
-
-    for i in xrange(int(len(coord) / 2)):
-        col = int((coord[i * 2] - pcraster.clone().west()) / pcraster.clone().cellSize())
-        row = int((pcraster.clone().north() - coord[i * 2 + 1]) / pcraster.clone().cellSize())
-        if 0 <= col < pcraster.clone().nrCols() and 0 <= row < pcraster.clone().nrRows():
-            null[row, col] = i + 1
-        else:
-            msg = 'Coordinates: {}, {} to put value in is outside mask map - col,row: {}, {}'.format(coord[i * 2], coord[i * 2 + 1], col, row)
-            raise LisfloodError(msg)
-
-    return numpy_operations.numpy2pcr(Nominal, null, -9999)
+from utils import LisSettings, LisfloodError, MaskMapMetadata, CutMap
+from utils.tools import take_closest, calendar, checkmap
 
 
 def loadsetclone(name):
     """ Load 'MaskMap' and set as clone
-        
+
     :param name: name of the key in Settings.xml containing path and name of mask map as string
     :return: map: mask map (False=include in modelling; True=exclude from modelling) as pcraster
     """
@@ -203,26 +158,6 @@ def loadmap(name):
     return res
 
 
-def take_closest(a_list, a_number):
-    """ Returns the closest left value to myNumber in myList
-    
-    Assumes myList is sorted. Returns closest left value to myNumber.
-    If myList is sorted in raising order, it returns the closest smallest value.
-    https://stackoverflow.com/questions/12141150/from-list-of-integers-get-number-closest-to-a-given-value
-    
-    :param a_list: list of ordered values
-    :param a_number: number to be searche in a_list
-    :return: closest left number to a_number in a_list
-    """
-    pos = bisect_left(a_list, a_number)
-    if pos == 0:
-        return a_list[0]
-    if pos == len(a_list):
-        return a_list[-1]
-    before = a_list[pos - 1]
-    return before
-
-
 def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, variable_name=None):
     """ Read maps from netCDF stacks (forcings, fractions, water demand)
 
@@ -248,7 +183,7 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
     nf1 = iter_open_netcdf(filename, 'r')
     settings = LisSettings.instance()
     # read information from netCDF file
-    # original code 
+    # original code
     # Attempt at checking if input files are not in the format we expect
     if not variable_name:
         varNames = [nf1.variables.items()[it][0] for it in xrange(len(nf1.variables.items()))]
@@ -328,14 +263,14 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
 
 def checknetcdf(name, start, end):
     """ Check available time steps in netCDF input file
-    
+
     Check available timesteps in netCDF file. Get first and last available timestep in netCDF file and compare with
     first and last computation timestep of the model.
     It can use sub-daily steps.
-    
+
     :param name: string containing path and name of netCDF file
     :param start: initial date or step number of model simulation
-    :param end: final date or step of model simulation  
+    :param end: final date or step of model simulation
     :return: none
     :raises Exception: stop if netCDF maps do not cover simulation time period
     """
@@ -391,124 +326,48 @@ def checknetcdf(name, start, end):
     return
 
 
-def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flag_time=True):
+def iter_open_netcdf(file_path, mode, **kwargs):
+    """Wrapper around netCDF4.Dataset function exploiting the iterAccess class to access file_path according to the specified mode"""
+    def access_function(path):
+        return Dataset(path, mode, **kwargs)
+    return remote_input_access(access_function, file_path)
+
+
+def iter_read_pcraster(file_path):
+    """Wrapper around pcraster.readmap function exploiting the iterAccess class to open file_path."""
+    return remote_input_access(pcraster.readmap, file_path)
+
+
+def iter_setclone_pcraster(file_path):
+    """Wrapper around pcraster.setclone function exploiting the iterAccess class to access file_path."""
+    return remote_input_access(pcraster.pcraster.setclone, file_path)
+
+
+def remote_input_access(function, file_path):
     """
-    write a netcdf stack
-    flag: integer. If 0 it means write a NEW file (!) FIXME omg
-    inputmap: a PCRaster 2D array
-    netfile: output netcdf filename
-    timestep:
+    Wrapper around the provided file access function.
+    It allows re-trying the open/read operation if network is temporarily down.
+    Arguments:
+        function: function to be called to read/open the file.
+        file_path: path of the file to be read/open.
     """
-    prefix = netfile.split('/')[-1].split('\\')[-1].split('.')[0]
-    netfile = netfile.split('.')[0] + '.nc'
-    cutmap = CutMap.instance()
-    row = np.abs(cutmap.cuts[3] - cutmap.cuts[2])
-    col = np.abs(cutmap.cuts[1] - cutmap.cuts[0])
-    if flag == 0:
-        nf1 = Dataset(netfile, 'w', format='NETCDF4_CLASSIC')
-
-        # general Attributes
-        nf1.history = 'Created ' + xtime.ctime(xtime.time())
-        nf1.Conventions = 'CF-1.4'
-        nf1.Source_Software = 'Lisvap'
-        nf1.source = 'Lisvap output maps'
-
-        metadata_ncdf = NetcdfMetadata.instance()
-
-        # Dimension
-        if 'y' in metadata_ncdf:
-            nf1.createDimension('y', row)  # x 950
-            latitude = nf1.createVariable('y', 'f8', ('y',))
-            for i in metadata_ncdf['y']:
-                setattr(latitude, i, metadata_ncdf['y'][i])
-
-        if 'lat' in metadata_ncdf:
-            nf1.createDimension('lat', row)  # x 950
-            latitude = nf1.createVariable('lat', 'f8', ('lat',))
-            for i in metadata_ncdf['lat']:
-                setattr(latitude, i, metadata_ncdf['lat'][i])
-
-        if 'x' in metadata_ncdf:
-            nf1.createDimension('x', col)  # x 1000
-            longitude = nf1.createVariable('x', 'f8', ('x',))
-            for i in metadata_ncdf['x']:
-                setattr(longitude, i, metadata_ncdf['x'][i])
-
-        if 'lon' in metadata_ncdf:
-            nf1.createDimension('lon', col)
-            longitude = nf1.createVariable('lon', 'f8', ('lon',))
-            for i in metadata_ncdf['lon']:
-                setattr(longitude, i, metadata_ncdf['lon'][i])
-
-        if flag_time:
-            nf1.createDimension('time', None)
-            time = nf1.createVariable('time', 'f8', ('time',))
-            time.standard_name = 'time'
-            time.units = 'days since %s' % startdate.strftime('%Y-%m-%d %H:%M:%S.0')
-            time.calendar = 'gregorian'
-            value = nf1.createVariable(prefix, fillval, ('time', 'y', 'x'), zlib=True)
+    num_trials = 1
+    bad_sep = "\\"
+    file_path = file_path.replace(bad_sep, os.path.sep)
+    root = os.path.sep.join(file_path.split(os.path.sep)[:4])
+    while num_trials <= 10:
+        try:
+            obj = function(file_path)
+            if num_trials > 1:
+                print("File {0} succesfully accessed after {1} attempts".format(file_path, num_trials))
+        except IOError:
+            if os.path.exists(root) and not os.path.exists(file_path):
+                raise LisfloodError(file_path)
+            elif num_trials >= 10:
+                raise Exception("Cannot access file {0}!\nNetwork down for too long OR bad root directory {1}!".format(file_path, root))
+            else:
+                num_trials += 1
+                print("Trying to access file {0}: attempt n. {1}".format(file_path, num_trials))
+                time.sleep(5)
         else:
-            value = nf1.createVariable(prefix, fillval, ('y', 'x'), zlib=True)
-
-        value.standard_name = value_standard_name
-        value.long_name = value_long_name
-        value.units = value_unit
-        # value.esri_pe_string='PROJCS["ETRS_1989_LAEA",GEOGCS["GCS_ETRS_1989",DATUM["D_ETRS_1989",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["false_easting",4321000.0],PARAMETER["false_northing",3210000.0],PARAMETER["central_meridian",10.0],PARAMETER["latitude_of_origin",52.0],UNIT["Meter",1.0]]'
-        # projection
-        if 'laea' in metadata_ncdf:
-            proj = nf1.createVariable('laea', 'i4')
-            proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
-            # FIXME magic numbers
-            proj.false_easting = 4321000.0
-            proj.false_northing = 3210000.0
-            proj.longitude_of_projection_origin = 10.0
-            proj.latitude_of_projection_origin = 52.0
-            proj.semi_major_axis = 6378137.0
-            proj.inverse_flattening = 298.257223563
-            proj.proj4_params = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
-            proj.EPSG_code = "EPSG:3035"
-
-        if 'lambert_azimuthal_equal_area' in metadata_ncdf:
-            proj = nf1.createVariable('laea', 'i4')
-            for i in metadata_ncdf['lambert_azimuthal_equal_area']:
-                setattr(proj, i, metadata_ncdf['lambert_azimuthal_equal_area'][i])
-
-        """
-        EUROPE
-        proj.grid_mapping_name='lambert_azimuthal_equal_area'
-        proj.false_easting=4321000.0
-        proj.false_northing=3210000.0
-        proj.longitude_of_projection_origin = 10.0
-        proj.latitude_of_projection_origin = 52.0
-        proj.semi_major_axis = 6378137.0
-        proj.inverse_flattening = 298.257223563
-        proj.proj4_params = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
-        proj.EPSG_code = "EPSG:3035"
-        """
-
-        # Fill variables
-
-        cell = pcraster.clone().cellSize()
-        xl = pcraster.clone().west() + cell / 2
-        xr = xl + col * cell
-        yu = pcraster.clone().north() - cell / 2
-        yd = yu - row * cell
-        lats = np.arange(yu, yd, -cell)
-        lons = np.arange(xl, xr, cell)
-
-        latitude[:] = lats
-        longitude[:] = lons
-
-        if 'pr' in metadata_ncdf and 'esri_pe_string' in metadata_ncdf['pr']:
-            value.esri_pe_string = metadata_ncdf['pr']['esri_pe_string']
-
-    else:
-        nf1 = Dataset(netfile, 'a')
-
-    mapnp = numpy_operations.pcr2numpy(inputmap, np.nan)
-    if flag_time:
-        nf1.variables['time'][flag] = timestep - 1
-        nf1.variables[prefix][flag, :, :] = mapnp
-    else:
-        nf1.variables[prefix][:, :] = mapnp
-    nf1.close()
+            return obj

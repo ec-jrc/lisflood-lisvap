@@ -40,8 +40,8 @@ import sys
 
 from pyexpat import *
 
-from global_modules import LisSettings, TimeProfiler, project_dir
-from global_modules.zusatz import checkdate, DynamicFrame
+from utils import LisSettings, TimeProfiler, project_dir
+from utils.tools import checkdate, DynamicFrame
 from lisvapdynamic import LisvapModelDyn
 from lisvapinitial import LisvapModelIni
 
