@@ -84,7 +84,7 @@ def loadsetclone(name):
             res = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
             # map = boolean(map)
             flagmap = True
-        if settings.flags['check']:
+        if settings.flags['checkfiles']:
             checkmap(name, filename, res, flagmap, 0)
     else:
         msg = 'Maskmap: {} is not a valid mask map nor valid coordinates'.format(name)
@@ -153,7 +153,7 @@ def loadmap(name):
             res = operations.ldd(operations.nominal(res))
         flagmap = True
 
-    if settings.flags['check']:
+    if settings.flags['checkfiles']:
         checkmap(name, filename, res, flagmap, 0)
     return res
 
@@ -256,7 +256,7 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
     mapnp[np.isnan(mapnp)] = -9999
     map = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
     timename = os.path.basename(name) + str(time)
-    if settings.flags['check']:
+    if settings.flags['checkfiles']:
         checkmap(timename, filename, map, True, 1)
     return map
 

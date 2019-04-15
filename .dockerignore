@@ -1,0 +1,13 @@
+tests/**
+_site/**
+.mypy_cache/
+.pytest_cache/
+**/.mypy_cache/
+.git/
+**/__pycache__/
+LatHeatVap
+Gemfile.lock
+dt
+.jekyll-metadata
+psy
+psy0

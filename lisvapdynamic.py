@@ -73,7 +73,7 @@ class LisvapModelDyn(DynamicModel):
 
         if settings.flags['loud']:
             print "%-6i %10s" % (self.currentTimeStep(), self.calendar_date.strftime("%d/%m/%Y")),
-        elif not settings.flags['check']:
+        elif not settings.flags['checkfiles']:
             if settings.flags['quiet'] and not settings.flags['veryquiet']:
                 sys.stdout.write(".")
             elif not settings.flags['quiet'] and not(settings.flags['veryquiet']):
@@ -86,7 +86,7 @@ class LisvapModelDyn(DynamicModel):
         self.readmeteo_module.dynamic()
         tp.timemeasure('Read meteo')  # 1. timing after read input maps
 
-        if settings.flags['check']:
+        if settings.flags['checkfiles']:
             return  # if check then finish here
 
         """ Here it starts with meteorological modules:

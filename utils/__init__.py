@@ -18,12 +18,13 @@ See the Licence for the specific language governing permissions and limitations 
 
 import inspect
 import os
+import copy
 import pprint
 import sys
 import getopt
 import time
 import xml.dom.minidom
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, namedtuple
 
 import numpy as np
 from netCDF4 import Dataset
@@ -41,11 +42,11 @@ class LisfloodError(Exception):
     """
 
     def __init__(self, msg):
-        header = '\n\n ========================== LISFLOOD ERROR =============================\n'
-        self._msg = header + msg
+
+        self._msg = msg
 
     def __str__(self):
-        return self._msg
+        return '\n\n ========================== LISFLOOD ERROR ============================= \n{}'.format(self._msg)
 
 
 class Singleton(type):
@@ -80,18 +81,18 @@ class LisSettings(object):
     __metaclass__ = Singleton
     printer = pprint.PrettyPrinter(indent=4, width=120)
 
-    def __init__(self, settings_file, options_xml):
+    def __init__(self, settings_file):
         dom = xml.dom.minidom.parse(settings_file)
-        domopt = xml.dom.minidom.parse(options_xml)
+        # domopt = xml.dom.minidom.parse(options_xml)
 
         self.flags = self.config_flags()
 
         user_settings, bindings = self.get_binding(dom)
         self.binding = bindings
-        self.options = self.get_options(dom, domopt)
+        self.options = self.get_options(dom)
         self.report_steps = self._report_steps(user_settings, bindings)
-        self.report_timeseries = self._report_tss(domopt, self.options)
-        self.report_maps_steps, self.report_maps_all, self.report_maps_end = self._reported_maps(self.options, domopt)
+        self.report_timeseries = self._report_tss()
+        self.report_maps_steps, self.report_maps_all, self.report_maps_end = self._reported_maps()
 
     def __str__(self):
         res = """
@@ -107,6 +108,17 @@ report_maps_end: {report_maps_end}
            report_maps_steps=self.printer.pformat(self.report_maps_steps), report_maps_all=self.printer.pformat(self.report_maps_all),
            report_maps_end=self.printer.pformat(self.report_maps_end))
         return res
+
+    def _set_active_options(self, key, rep_maps, reported, report_temp, restricted_options):
+        for rep in report_temp:
+            if self.options.get(rep):
+                allow = True
+                for j in restricted_options:
+                    if j in self.options and not self.options[j]:
+                        allow = False
+                        break
+                if allow:
+                    reported[key] = rep_maps[key]
 
     @staticmethod
     def _report_steps(user_settings, bindings):
@@ -125,48 +137,33 @@ report_maps_end: {report_maps_end}
         res['rep'] = map(int, jjj)
         return res
 
-    @staticmethod
-    def _report_tss(domopt, options):
+    def _report_tss(self):
         rep_timeseries = {}
         report_time_series_act = {}
         # running through all times series
-        report_time_serie = domopt.getElementsByTagName("lftime")[0]
-        for setserie_elem in report_time_serie.getElementsByTagName("setserie"):
-            d = {}
-            for key in setserie_elem.attributes.keys():
-                if key != 'name':
-                    value = setserie_elem.attributes[key].value
-                    d[key] = value.split(',')
-            key = setserie_elem.attributes['name'].value
-            rep_timeseries[key] = d
-            rep_opt = rep_timeseries[key]['repoption']
-
-            if 'restrictoption' not in rep_timeseries[key]:
-                rep_timeseries[key]['restrictoption'] = ['']
-            if 'operation' not in rep_timeseries[key]:
-                rep_timeseries[key]['operation'] = ['']
-            rest_opt = rep_timeseries[key]['restrictoption']
-
-            # FIXME this loop seems suboptimal...
-            for i in rep_opt:
-                for o1key in options:
-                    if options[o1key]:  # if option is active = 1
-                        if o1key == i:
-                            # option is active and time series has this option to select it
-                            # now test if there is any restrictions
-                            allow = True
-                            for j in rest_opt:
-                                for o2key in options:
-                                    if o2key == j:
-                                        if not options[o2key]:
-                                            allow = False
-                            if allow:
-                                report_time_series_act[key] = rep_timeseries[key]
+        report_time_serie = self.options['timeseries']
+        for ts in report_time_serie:
+            key = ts.name
+            rep_timeseries[key] = ts
+            rep_opt = ts.repoption
+            rest_opt = ts.restrictoption
+            self._set_active_options(key, rep_timeseries, report_time_series_act, rep_opt, rest_opt)
+        # for setserie_elem in report_time_serie.getElementsByTagName("setserie"):
+        #     d = {}
+        #     for key in setserie_elem.attributes.keys():
+        #         if key != 'name':
+        #             value = setserie_elem.attributes[key].value
+        #             d[key] = value.split(',')
+        #     key = setserie_elem.attributes['name'].value
+        #     rep_timeseries[key] = d
+        #     rep_opt = rep_timeseries[key]['repoption']
+        #     rest_opt = rep_timeseries[key]['restrictoption']
+        #
+        #     self._set_active_options(key, rep_timeseries, report_time_series_act, rep_opt, rest_opt)
 
         return report_time_series_act
 
-    @staticmethod
-    def _reported_maps(options, domopt):
+    def _reported_maps(self):
 
         rep_maps = {}
         report_maps_steps = {}
@@ -175,49 +172,18 @@ report_maps_end: {report_maps_end}
 
         # running through all maps
 
-        lfmaps_elem = domopt.getElementsByTagName("lfmaps")[0]
-        for setmap_elem in lfmaps_elem.getElementsByTagName("setmap"):
-            d = {}
-            for key in setmap_elem.attributes.keys():
-                if key != 'name':
-                    value = setmap_elem.attributes[key].value
-                    d[key] = value.split(',')
-            key = setmap_elem.attributes['name'].value
-            rep_maps[key] = d
+        for rm in self.options['reportedmaps']:
+            key = rm.name
+            rep_maps[key] = rm
 
-            # init rep_maps keys
-            for k in ('all', 'steps', 'end', 'restrictoption', 'unit',):
-                if k not in rep_maps[key]:
-                    rep_maps[key][k] = ['']
+            rep_all = rm.all
+            rep_steps = rm.steps
+            rep_end = rm.end
+            rest_opt = rm.restrictoption
 
-            rep_all = rep_maps[key]['all']
-            rep_steps = rep_maps[key]['steps']
-            rep_end = rep_maps[key]['end']
-            rest_opt = rep_maps[key]['restrictoption']
-
-            # repUnit = repMaps[key]['unit']
-
-            def _set_active_options(report_temp, report_maps):
-                # FIXME this loop seems suboptimal...see above
-                for i in report_temp:
-                    for o1key in options:
-                        # run through all the options
-                        if options[o1key]:  # if option is active = 1
-                            if o1key == i:
-                                # option is active and time series has this option to select it
-                                # now test if there is any restrictions
-                                allow = True
-                                for j in rest_opt:
-                                    # running through all the restrictions
-                                    for o2key in options:
-                                        if (o2key == j) and (not (options[o2key])):
-                                            allow = False
-                                if allow:
-                                    report_maps[key] = rep_maps[key]
-
-            _set_active_options(rep_all, report_maps_all)
-            _set_active_options(rep_steps, report_maps_steps)
-            _set_active_options(rep_end, report_maps_end)
+            self._set_active_options(key, rep_maps, report_maps_all, rep_all, rest_opt)
+            self._set_active_options(key, rep_maps, report_maps_steps, rep_steps, rest_opt)
+            self._set_active_options(key, rep_maps, report_maps_end, rep_end, rest_opt)
 
         return report_maps_steps, report_maps_all, report_maps_end
 
@@ -229,7 +195,7 @@ report_maps_end: {report_maps_end}
         flag_names = ['quiet', 'veryquiet', 'loud',
                       'checkfiles', 'noheader', 'printtime']
         flags = {'quiet': False, 'veryquiet': False, 'loud': False,
-                 'check': False, 'noheader': False, 'printtime': False}
+                 'checkfiles': False, 'noheader': False, 'printtime': False}
 
         @cached
         def _flags(argz):
@@ -241,18 +207,10 @@ report_maps_end: {report_maps_end}
                 usage()
             else:
                 for o, a in opts:
-                    if o in ('-q', '--quiet'):
-                        flags['quiet'] = True
-                    elif o in ('-v', '--veryquiet'):
-                        flags['veryquiet'] = True
-                    elif o in ('-l', '--loud'):
-                        flags['loud'] = True
-                    elif o in ('-c', '--checkfiles'):
-                        flags['check'] = True
-                    elif o in ('-h', '--noheader'):
-                        flags['noheader'] = True
-                    elif o in ('-t', '--printtime'):
-                        flags['printtime'] = True
+                    for opt in (('-q', '--quiet'), ('-v', '--veryquiet'), ('-l', '--loud'), ('-c', '--checkfiles'), ('-h', '--noheader'), ('-t', '--printtime')):
+                        if o in opt:
+                            flags[opt[1].lstrip('--')] = True
+                            break
             return flags
 
         if 'test' in sys.argv[0] or 'test' in sys.argv[1]:
@@ -261,21 +219,17 @@ report_maps_end: {report_maps_end}
         return _flags(args)
 
     @staticmethod
-    def get_options(dom, domopt):
-        # getting all possible option from the general optionxml
-        # and setting them to their default value
-        options = {}
-        option_setting = {}
-        lfoptions_elem = domopt.getElementsByTagName("lfoptions")[0]
-        for optset in lfoptions_elem.getElementsByTagName("setoption"):
-            options[optset.attributes['name'].value] = bool(int(optset.attributes['default'].value))
-
+    def get_options(dom):
+        options = copy.deepcopy(default_options)
         # getting option set in the specific settings file
         # and resetting them to their choice value
-        optSet = dom.getElementsByTagName("lfoptions")[0]
-        for optset in optSet.getElementsByTagName("setoption"):
+        lfoptions_elem = dom.getElementsByTagName("lfoptions")[0]
+        option_setting = {}
+        for optset in lfoptions_elem.getElementsByTagName("setoption"):
             option_setting[optset.attributes['name'].value] = bool(int(optset.attributes['choice'].value))
-        for key in option_setting.keys():
+
+        for key in option_setting:
+            # overwriting default values from setting.xml
             options[key] = option_setting[key]
 
         # reverse the initLisflood option to use it as a restriction for output
@@ -446,6 +400,10 @@ class CutMap(tuple):
         return slice(self.cuts[2], self.cuts[3]), slice(self.cuts[0], self.cuts[1])
 
 
+TimeSeries = namedtuple('TimeSeries', 'name, output_var, where, repoption, restrictoption, operation')
+ReportedMap = namedtuple('ReportedMap','name, output_var, unit, end, steps, all, restrictoption')
+
+
 class TimeProfiler(object):
     __metaclass__ = Singleton
 
@@ -475,3 +433,23 @@ class TimeProfiler(object):
 
 
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})
+default_options = {
+    'useTavg': False,
+    'InitLisflood': False, 'InitLisfloodwithoutSplit': False,
+    'readNetcdfStack': False, 'writeNetcdfStack': False, 'writeNetcdf': False,
+    'repAvTimeseries': False,
+    'repET0Maps': True, 'repES0Maps': True, 'repE0Maps': True, 'repTAvgMaps': True,
+    'EFAS': True, 'CORDEX': False,
+    'timeseries': [
+        TimeSeries(name='TAvgTS', output_var='TAvg', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
+        TimeSeries(name='ET0TS', output_var='ETRef', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
+        TimeSeries(name='E0TS', output_var='EWRef', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
+        TimeSeries(name='ES0TS', output_var='ESRef', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
+    ],
+    'reportedmaps': [
+        ReportedMap(name='ET0Maps', output_var='ETRef', unit='mm day-1', end='', steps='', all='repET0Maps', restrictoption=''),
+        ReportedMap(name='E0Maps', output_var='EWRef', unit='mm day-1', end='', steps='', all='repE0Maps', restrictoption=''),
+        ReportedMap(name='ES0Maps', output_var='ESRef', unit='mm day-1', end='', steps='', all='repES0Maps', restrictoption=''),
+        ReportedMap(name='TAvgMaps', output_var='TAvg', unit='degree C', end='', steps='', all='repTAvgMaps', restrictoption=''),
+    ],
+}

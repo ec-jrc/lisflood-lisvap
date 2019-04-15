@@ -115,9 +115,9 @@ Water balance and flood simulation model for large catchments\n
 
 
 def main():
-    optionxml = os.path.normpath(os.path.join(project_dir, 'OptionTserieMapsLisvap.xml'))
+    # optionxml = os.path.normpath(os.path.join(project_dir, 'options.xml'))
     settingsxml = sys.argv[1]  # setting.xml file
-    lissettings = LisSettings(settingsxml, optionxml)
+    lissettings = LisSettings(settingsxml)
     # setting of global flag e.g checking input maps, producing more output information
     if not lissettings.flags['veryquiet'] and not lissettings.flags['quiet']:
         headerinfo()

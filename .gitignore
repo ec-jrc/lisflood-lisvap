@@ -7,8 +7,8 @@ __pycache__/
 *.prof
 
 # unignoring xml settings for templates and tests
-!lisvap4EFASCalibration2018.xml
-!OptionTserieMapsLisvap*.xml
+!settings_tpl.xml
+!options*.xml
 !tests/data/tests_efas.xml
 !tests/data/tests_cordex.xml
 
