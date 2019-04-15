@@ -138,24 +138,15 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 </comment>
             </textvar>
 
-            <textvar name="PrefixTAvg" value="tair">
-                <comment>
-                    prefix average temperature maps [K]
-                </comment>
-            </textvar>
-
-
             <textvar name="PrefixTDew" value="td">
                 <comment>
                     prefix dew point temperature maps
-                    --- MISSING ---
                 </comment>
             </textvar>
 
             <textvar name="PrefixEAct" value="eact">
                 <comment>
                     prefix vapour pressure maps
-                    --- MISSING ---
                 </comment>
             </textvar>
 
@@ -181,28 +172,24 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
             <textvar name="PrefixWindU" value="wu">
                 <comment>
                     prefix wind speed U-component maps
-                    --- MISSING ---
                 </comment>
             </textvar>
 
             <textvar name="PrefixWindV" value="wv">
                 <comment>
                     prefix wind speed V-component maps
-                    --- MISSING ---
                 </comment>
             </textvar>
 
             <textvar name="PrefixSun" value="s">
                 <comment>
                     prefix sunshine duration maps
-                    --- MISSING ---
                 </comment>
             </textvar>
 
             <textvar name="PrefixCloud" value="c">
                 <comment>
                     prefix cloud cover maps
-                    --- MISSING ---
                 </comment>
             </textvar>
 
@@ -245,6 +232,11 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                     prefix ET0 maps
                 </comment>
             </textvar>
+            <textvar name="PrefixTAvg" value="tair">
+                <comment>
+                    prefix TAvg maps
+                </comment>
+            </textvar>
 
         </group>
 
@@ -260,6 +252,7 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
 
         <setoption name="repE0Maps" choice="1"/>
         <setoption name="repESMaps" choice="1"/>
+        <setoption name="repTavgMaps" choice="1"/>
         <setoption name="EFAS" choice="0"/>
         <setoption name="CORDEX" choice="1"/>
         <setoption name="useTavg" choice="0" />
@@ -416,12 +409,6 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 </comment>
             </textvar>
 
-<!--            <textvar name="TAvgMaps" value="$(PathMeteoIn)/tavg_1_15">-->
-<!--                <comment>-->
-<!--                    average daily temperature [K]-->
-<!--                </comment>-->
-<!--            </textvar>-->
-
             <textvar name="TDewMaps" value="$(PathMeteoIn)/$(PrefixTDew)">
                 <comment>
                     Dewpoint temperature [C or K]
@@ -530,6 +517,11 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
             <textvar name="ET0Maps" value="$(PathOut)/$(PrefixET0)">
                 <comment>
                     daily reference evapotranspiration (crop) [mm/day]
+                </comment>
+            </textvar>
+            <textvar name="TAvgMaps" value="$(PathOut)/$(PrefixTAvg)">
+                <comment>
+                    daily average temperature [deg C]
                 </comment>
             </textvar>
 

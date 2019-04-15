@@ -100,7 +100,6 @@ class OutputTssMap(object):
         checkifdouble = []  # list to check if map is reported more than once
 
         for maps in self.settings.report_maps_end:
-            # report end maps
             what = getattr(self.var, self.settings.report_maps_end[maps]['outputVar'][0])
             where = self.settings.binding[maps]
             if where not in checkifdouble:
@@ -113,19 +112,20 @@ class OutputTssMap(object):
                     head, tail = os.path.split(where)
                     if '.' in tail:
                         if self.settings.options['writeNetcdf']:
-                            writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps][
-                                     'outputVar'][0], self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.calendar_date, flag_time=False)
+                            writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps]['outputVar'][0],
+                                     self.settings.report_maps_end[maps]['unit'][0], 'f4', self.var.calendar_date, flag_time=False)
                         else:
                             report(what, where)
                     else:
                         if self.settings.options['writeNetcdfStack']:
-                            writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_steps[
-                                     maps]['outputVar'][0], self.settings.report_maps_steps[maps]['unit'][0], 'f4', self.var.calendar_date)
+                            writenet(0, what, where, self.var.currentTimeStep(),
+                                     maps, self.settings.report_maps_steps[maps]['outputVar'][0],
+                                     self.settings.report_maps_steps[maps]['unit'][0],
+                                     'f4', self.var.calendar_date)
                         else:
                             self.var.report(what, where)
 
-        for maps in self.settings.report_maps_steps.keys():
-            # report reportsteps maps
+        for maps in self.settings.report_maps_steps:
             what = getattr(self.var, self.settings.report_maps_steps[maps]['outputVar'][0])
             where = self.settings.binding[maps]
             if where not in checkifdouble:
@@ -151,7 +151,7 @@ class OutputTssMap(object):
                 # checks if saved at same place, if no: add to list
 
                 if self.settings.options['writeNetcdfStack']:
-                    writenet(cdf_flags['end'], what, where,
+                    writenet(cdf_flags['all'], what, where,
                              self.var.currentTimeStep(), maps, self.settings.report_maps_all[maps]['outputVar'][0],
                              self.settings.report_maps_all[maps]['unit'][0], 'f4', self.var.calendar_date)
                 else:
@@ -162,6 +162,7 @@ class OutputTssMap(object):
             cdf_flags['steps'] += 1
         # increase the counter for report all maps
         cdf_flags['end'] += 1
+        cdf_flags['all'] += 1
 
 
 # replacement of the __init__

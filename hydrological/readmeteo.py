@@ -47,7 +47,7 @@ class ReadMeteo(object):
             if self.settings.options['CORDEX']:
                 self.var.TMin = readnetcdf(self.settings.binding['TMinMaps'], self.var.currentTimeStep())
                 self.var.TMax = readnetcdf(self.settings.binding['TMaxMaps'], self.var.currentTimeStep())
-                if  self.settings.options['useTavg']:
+                if self.settings.options['useTavg']:
                     self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep())
                 else:
                     self.var.TAvg = .5 * (self.var.TMin + self.var.TMax)

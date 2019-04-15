@@ -182,6 +182,11 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                     prefix ET0 maps
                 </comment>
             </textvar>
+             <textvar name="PrefixTAvg" value="tair">
+                <comment>
+                    prefix average temperature maps [C]
+                </comment>
+            </textvar>
 
         </group>
 
@@ -190,15 +195,17 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
 
     <lfoptions>
 
-        <setoption name="useRgdMaps" choice="1"></setoption>
-        <setoption name="useRNMaps" choice="0"></setoption>
+        <setoption name="useRgdMaps" choice="1" />
+        <setoption name="useRNMaps" choice="0" />
 
-        <setoption name="readNetcdfStack" choice="1"></setoption>
-        <setoption name="writeNetcdfStack" choice="1"></setoption>
+        <setoption name="readNetcdfStack" choice="1" />
+        <setoption name="writeNetcdfStack" choice="1" />
 
-        <setoption name="repE0Maps" choice="1"></setoption>
-        <setoption name="EFAS" choice="1"></setoption>
-        <setoption name="CORDEX" choice="0"></setoption>
+        <setoption name="repE0Maps" choice="1" />
+        <setoption name="repTavgMaps" choice="1"/>
+
+        <setoption name="EFAS" choice="1" />
+        <setoption name="CORDEX" choice="0" />
 
     </lfoptions>
 
@@ -372,11 +379,6 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                     rgd - calculated solar radiation [W/m2]
                 </comment>
             </textvar>
-<!--            <textvar name="TAvgMaps" value="$(PathMeteoIn)/ta_1_15">-->
-<!--                <comment>-->
-<!--                    average daily temperature [C or K]-->
-<!--                </comment>-->
-<!--            </textvar>-->
             <textvar name="PSurfMaps" value="0">
                 <comment>
                     Instantaneous sea level pressure [Pa]
@@ -408,6 +410,11 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
             <textvar name="ET0Maps" value="$(PathOut)/$(PrefixET0)">
                 <comment>
                     daily reference evapotranspiration (crop) [mm/day]
+                </comment>
+            </textvar>
+            <textvar name="TAvgMaps" value="$(PathOut)/$(PrefixTAvg)">
+                <comment>
+                    Daily Average Temperature [deg C]
                 </comment>
             </textvar>
 

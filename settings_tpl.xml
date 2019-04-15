@@ -11,11 +11,8 @@
   
 #######################################################
 
-TEMPLATE SETTINGS FILE LISVAP EVAPORATION PRE-PROCESSOR
-author PB, 29 October 2012
-
 TIP:
-You can use $(ProjectDir) as built-in variable to use in XML settings or in code (binding['ProjectDir'])
+You can use $(ProjectDir) as built-in variable to use in this XML settings
 -->
 
 <lfsettings>

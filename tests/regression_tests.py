@@ -28,11 +28,10 @@ current_dir = os.path.dirname(__file__)
 class TestEFAS(object):
     domain = 'efas'
     settings_path = os.path.join(current_dir, 'data/tests_efas.xml')
-    optionxml = os.path.join(current_dir, 'data/OptionTserieMapsLisvap_efas.xml')
 
     @classmethod
     def setup_class(cls):
-        settings = LisSettings(cls.settings_path, cls.optionxml)
+        settings = LisSettings(cls.settings_path)
         # settings.flags['printtime'] = True
         lisvapexe(settings)
 
@@ -64,11 +63,10 @@ class TestEFAS(object):
 class TestCORDEX(object):
     domain = 'cordex'
     settings_path = os.path.join(current_dir, 'data/tests_cordex.xml')
-    optionxml = os.path.join(current_dir, 'data/OptionTserieMapsLisvap_cordex.xml')
 
     @classmethod
     def setup_class(cls):
-        settings = LisSettings(cls.settings_path, cls.optionxml)
+        settings = LisSettings(cls.settings_path)
         # settings.flags['printtime'] = True
         lisvapexe(settings)
 
