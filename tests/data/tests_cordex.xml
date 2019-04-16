@@ -11,19 +11,6 @@
 
 #######################################################
 
-TEMPLATE SETTINGS FILE LISVAP EVAPORATION PRE-PROCESSOR
-author PB, 29 October 2012
-Changed 29/10/2012:
--  removed definitions of TabBruntE, TabBruntF
--  put in a StepStart like in Lisflood
--  option useRgdMaps:      0 calculates incoming solar radiation
-                           1 uses maps of incoming solar radiation (default)
--  new option usePenmanET: 0 using Hargreaves equation to calcultate ETp
-                           1 using Penman M.  equation to calcultate ETp (default)
--  new option useBrunt:    0 using Allen equation to calculate net long-wave radiation (default)
-                           1 using Brunt equation to calculate net long-wave radiation
-Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
-
 -->
 
 <lfsettings>
@@ -102,7 +89,7 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 </comment>
             </textvar>
 
-            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/mapsLisvap">
+            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/basemaps">
                 <comment>
                     Path to input base maps
                 </comment>
