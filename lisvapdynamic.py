@@ -59,15 +59,6 @@ class LisvapModelDyn(DynamicModel):
         # correct method to calculate the day of the year
         # CM: model time step
 
-        # Current calendar day (days [1...366], 1st of January = 1 , and so on)
-        #  self.CalendarDay2 = self.currentTimeStep() * self.DtDay
-        # Current calendar day (days [1...366], 1st of January = 1 , and so on)
-        #  self.CalendarDay2 -= math.floor(self.CalendarDay2 / 365.25) * 365.25
-        # self.CalendarDay=int(round(self.CalendarDay-math.floor(self.CalendarDay/365.25)*365.25))
-        # correction such that daynumber 366 is regarded as day 1 again etc.
-        # Takes into account leap years by setting year length to 365.25 days
-        # Produces non-integer values but this is no problem here...
-
         i = self.currentTimeStep()
         self.time_since_start = self.currentTimeStep() - self.firstTimeStep() + 1
 

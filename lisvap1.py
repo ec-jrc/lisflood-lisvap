@@ -31,16 +31,15 @@ __authors__ = "Peter Burek, Johan van der Knijff, Ad de Roo"
 __version__ = "Version: 0.2"
 __date__ = "10/04/2019"
 __copyright__ = "Copyright 2019, Lisflood Open Source"
-__maintainer__ = "Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi"
+__maintainers__ = "Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi"
 __status__ = "Development"
 
 import datetime
-import os
 import sys
 
 from pyexpat import *
 
-from utils import LisSettings, TimeProfiler, project_dir
+from utils import LisSettings, TimeProfiler
 from utils.tools import checkdate, DynamicFrame
 from lisvapdynamic import LisvapModelDyn
 from lisvapinitial import LisvapModelIni
@@ -68,13 +67,7 @@ def lisvapexe(settings):
 
     lisvap_model = LisvapModel()
     dynfmw = DynamicFrame(lisvap_model, firstTimestep=timestep_start, lastTimeStep=timestep_end)
-    dynfmw.rquiet = True
-    dynfmw.rtrace = False
     dynfmw.run()
-    # cProfile.run('stLisflood.run()')
-    # python -m cProfile -o  l1.pstats lisf1.py settingsNew3.xml
-    # gprof2dot -f pstats l1.pstats | dot -Tpng -o callgraph.png
-    # TODO check profile results with snakeviz
 
     if settings.flags['printtime']:
         tp.report()
@@ -84,29 +77,29 @@ def usage():
     """ prints some lines describing how to use this program
         which arguments and parameters it accepts, etc
     """
-    print 'LisvapPy - Lisvap (Global) using pcraster Python framework'
-    print 'Authors: ', __authors__
-    print 'Version: ', __version__
-    print 'Date: ', __date__
-    print 'Status: ', __status__
-    print """
+    print '\n\nLisvapPy - Lisvap (Global) using pcraster Python framework'
+    print 'Authors:      ', __authors__
+    print 'Mantainers:   ', __maintainers__
+    print 'Version:      ', __version__
+    print 'Last updated: ', __date__
+    print 'Status:       ', __status__
+    print """\n
     Arguments list:
     settings.xml     settings file
 
     -q --quiet       output progression given as .
     -v --veryquiet   no output progression is given
     -l --loud        output progression given as time step, date and discharge
-    -c --check       input maps and stack maps are checked, output for each input map BUT no model run
+    -c --checkfiles  input maps and stack maps are checked, output for each input map BUT no model run
     -h --noheader    .tss file have no header and start immediately with the time series
-    -t --printtime   the computation time for hydrological modules are printed
+    -t --printtime   the computation time for hydrological modules are printed\n
     """
     sys.exit(1)
 
 
 def headerinfo():
     print 'Lisvap ', __version__, ' ', __date__,
-    print """
-Water balance and flood simulation model for large catchments\n
+    print """\n
 (C) Disaster Risk Management Knowledge Centre
     Joint Research Centre of the European Commission
     TP122, I-21020 Ispra (Va), Italy
@@ -115,7 +108,6 @@ Water balance and flood simulation model for large catchments\n
 
 
 def main():
-    # optionxml = os.path.normpath(os.path.join(project_dir, 'options.xml'))
     settingsxml = sys.argv[1]  # setting.xml file
     lissettings = LisSettings(settingsxml)
     # setting of global flag e.g checking input maps, producing more output information
