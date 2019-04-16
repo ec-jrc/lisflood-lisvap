@@ -16,14 +16,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends software-proper
 RUN apt-file update
 
 RUN apt install -y --no-install-recommends gcc g++ git libboost-all-dev libpython-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev qtbase5-dev \
-    libqwt-dev gfortran gdal-bin libgdal-dev python-gdal libqt5opengl5 libqt5opengl5-dev qtbase5-dev
-RUN pip install docopt numpy==1.15
+    libqwt-dev gfortran gdal-bin libgdal-dev python-gdal libqt5opengl5 libqt5opengl5-dev qtbase5-dev \
+    && pip install docopt numpy==1.15
 
 WORKDIR /opt
 RUN wget https://cmake.org/files/LatestRelease/cmake-3.14.1-Linux-x86_64.tar.gz && tar -xzvf cmake-3.14.1-Linux-x86_64.tar.gz \
-    && wget http://pcraster.geo.uu.nl/pcraster/4.2.1/pcraster-4.2.1.tar.bz2 && tar xf pcraster-4.2.1.tar.bz2 && mkdir /lisvap
-RUN cd pcraster-4.2.1 && ls -alht && mkdir build && cd build
-RUN cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=/opt/pcraster /opt/pcraster-4.2.1/ && cmake --build ./ && make install
+    && wget http://pcraster.geo.uu.nl/pcraster/4.2.1/pcraster-4.2.1.tar.bz2 && tar xf pcraster-4.2.1.tar.bz2 \
+    && mkdir /lisvap && mkdir /input && mkdir /output \
+    && cd pcraster-4.2.1 && mkdir build && cd build \
+    && cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=/opt/pcraster /opt/pcraster-4.2.1/ && cmake --build ./ && make install
 
 WORKDIR /lisvap
 COPY . /lisvap/
