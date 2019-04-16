@@ -12,7 +12,7 @@
 #######################################################
 
 TIP:
-You can use $(ProjectDir) as built-in variable to use in this XML settings
+You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this XML settings, for refering Lisvap project folder
 -->
 
 <lfsettings>
@@ -52,8 +52,7 @@ You can use $(ProjectDir) as built-in variable to use in this XML settings
             </textvar>
 
             <textvar name="ReportSteps" value="1..10227">
-                <comment>
-                </comment>
+                <comment/>
             </textvar>
 
 
@@ -84,19 +83,19 @@ You can use $(ProjectDir) as built-in variable to use in this XML settings
                 **************************************************************
             </comment>
 
-            <textvar name="PathOut" value="/H07_floods/LisvapTest/out2019">
+            <textvar name="PathOut" value="/DATA/lisvap/output">
                 <comment>
                     Output path
                 </comment>
             </textvar>
 
-            <textvar name="PathBaseMapsIn" value="/home/efas/Lisvap4EFAS/mapsLisvap/">
+            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/basemaps">
                 <comment>
                     Path to input base maps
                 </comment>
             </textvar>
 
-            <textvar name="PathMeteoIn" value="/H07_floods/Europe_Gridded_Meteo_Data/Europe_grids_2017/">
+            <textvar name="PathMeteoIn" value="/DATA/lisvap/input">
                 <comment>
                     Path to input raw meteo maps
                     E:/lisflood_test/LisvapWorld/meteo/raster
@@ -180,15 +179,13 @@ You can use $(ProjectDir) as built-in variable to use in this XML settings
 
     <lfoptions>
 
-        <setoption name="useRgdMaps" choice="1"></setoption>
-        <setoption name="useRNMaps" choice="0"></setoption>
-
-        <setoption name="readNetcdfStack" choice="1"></setoption>
-        <setoption name="writeNetcdfStack" choice="1"></setoption>
-
-        <setoption name="repE0Maps" choice="1"></setoption>
-        <setoption name="EFAS" choice="1"></setoption>
-        <setoption name="CORDEX" choice="0"></setoption>
+        <setoption name="useRgdMaps" choice="1"/>
+        <setoption name="useRNMaps" choice="0" />
+        <setoption name="readNetcdfStack" choice="1" />
+        <setoption name="writeNetcdfStack" choice="1" />
+        <setoption name="repE0Maps" choice="1" />
+        <setoption name="EFAS" choice="1" />
+        <setoption name="CORDEX" choice="0" />
 
     </lfoptions>
 
