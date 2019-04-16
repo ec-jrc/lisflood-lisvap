@@ -163,7 +163,7 @@ class DynamicFrame(DynamicFramework):
     """Adjusting the def _atStartOfTimeStep defined in DynamicFramework
        for a real quiet output
     """
-    rquiet = False
+    rquiet = True
     rtrace = False
 
     def _atStartOfTimeStep(self, step):
