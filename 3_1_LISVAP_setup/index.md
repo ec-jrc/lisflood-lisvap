@@ -39,21 +39,19 @@ The following Table lists all types of input **base maps**.
 
 [^1]: Constants can be set as a single value in settings file instead of using a map.
 
-On repository, you can find [base maps](https://github.com/ec-jrc/lisflood-lisvap/tree/master/basemaps) for Europe (EFAS domain).
 
 
 #### Generating input base maps
 
-At the time of writing this document, complete sets of LISVAP base maps covering the whole of Europe have been compiled at 1- and 5-km pixel resolution. 
-A number of automated procedures have been written that allow you to generate sub-sets of these for pre-defined areas (using either existing mask maps or co-ordinates of catchment outlets). 
-These procedures (which are specific to the data server setup at the Floods Action, IES, JRC, Ispra) are documented in a separate document on ‘LISFLOOD and LISVAP map extraction’. 
-If you are an external user of LISFLOOD, please contact the Floods Action to extract the data for you.
+On the repository, you can find some [base maps](https://github.com/ec-jrc/lisflood-lisvap/tree/master/basemaps) for the test case.
+
+It is recommended to generate the input base maps depending on the specific use case, takeing into account the spatial resolution required and the coordinate system. In the future, a more detailed documentation assisting in the generation of inpout base maps will be made available.  
 
 
 ### Input dataset
 
 LISVAP model inputs are meteo variables, provided as netCDF mapstacks (timeseries of 2D georeferenced variables).
-Depending on available meteo variables, you can setup LISVAP to run on two different datasets, EFAS or CORDEX [^2].  
+Depending on available meteo variables, you can setup LISVAP to run using two different datasets of meteorological input variables. To facilitate the use of LISVAP two specific use cases, derived from the EFAS and CORDEX set up are available for demonstration purposes.  [^2].  
 
 [^2]: [CORDEX](https://www.cordex.org/)
 
