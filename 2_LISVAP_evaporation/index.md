@@ -18,11 +18,13 @@ where<br/>
 The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). 
 
 **potential evaporation rate from a bare soil surface [mm/day]** 
+
 $$
 ES = \frac{\Delta R_{na-soil} + \gamma EA_{soil}{\Delta + \gamma}
 $$
 
 **potential evaporation rate from water surface [mm/day]**
+
 $$
 EW = \frac{\Delta R_{na-water} + \gamma EA_{water}{\Delta + \gamma}
 $$
