@@ -11,19 +11,6 @@
   
 #######################################################
 
-TEMPLATE SETTINGS FILE LISVAP EVAPORATION PRE-PROCESSOR
-author PB, 29 October 2012
-Changed 29/10/2012:
--  removed definitions of TabBruntE, TabBruntF
--  put in a StepStart like in Lisflood
--  option useRgdMaps      0 calculates incoming solar radiation 
-                           1 uses maps of incoming solar radiation (default)
--  new option usePenmanET: 0 using Hargreaves equation to calcultate ETp
-                           1 using Penman M.  equation to calcultate ETp (default)
--  new option useBrunt:    0 using Allen equation to calculate net long-wave radiation (default)
-                           1 using Brunt equation to calculate net long-wave radiation
-Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
-
 -->
 
 <lfsettings>
@@ -195,9 +182,6 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
 
     <lfoptions>
 
-        <setoption name="useRgdMaps" choice="1" />
-        <setoption name="useRNMaps" choice="0" />
-
         <setoption name="readNetcdfStack" choice="1" />
         <setoption name="writeNetcdfStack" choice="1" />
 
@@ -350,13 +334,13 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
 
             <textvar name="TMaxMaps" value="$(PathMeteoIn)/tx_1_15">
                 <comment>
-                    Maximum daily temperature [K]
+                    Maximum daily temperature [deg C]
                 </comment>
             </textvar>
 
             <textvar name="TMinMaps" value="$(PathMeteoIn)/tn_1_15">
                 <comment>
-                    Minimum daily temperature [K]
+                    Minimum daily temperature [deg C]
                 </comment>
             </textvar>
 
@@ -478,14 +462,7 @@ Changed 2/4/2008:   added definitions of TabBruntE, TabBruntF
                 </comment>
             </textvar>
 
-
         </group>
 
-
     </lfbinding>
-
-    <prolog>
-        areamap MaskMap;
-        timer StepStart StepEnd 1;
-    </prolog>
 </lfsettings>
