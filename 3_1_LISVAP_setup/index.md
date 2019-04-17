@@ -45,7 +45,7 @@ The following Table lists all types of input **base maps**.
 
 On the repository, you can find some [base maps](https://github.com/ec-jrc/lisflood-lisvap/tree/master/basemaps) for the test case.
 
-It is recommended to generate the input base maps depending on the specific use case, takeing into account the spatial resolution required and the coordinate system. In the future, a more detailed documentation assisting in the generation of inpout base maps will be made available.  
+It is recommended to generate the input base maps depending on the specific use case, takeing into account the spatial resolution required and the coordinate system. In the future, a more detailed documentation assisting in the generation of input base maps will be made available.  
 
 
 ### Input dataset
