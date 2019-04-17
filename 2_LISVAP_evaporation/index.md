@@ -20,13 +20,13 @@ The same equation is also used to estimate potential evaporation from a water su
 **potential evaporation rate from a bare soil surface [mm/day]** 
 
 $$
-ES = \frac{\Delta R_{na-soil} + \gamma EA_{soil}{\Delta + \gamma}
+ES = \frac{\Delta R_{nasoil} + \gamma EA_{soil}}{\Delta + \gamma}
 $$
 
 **potential evaporation rate from water surface [mm/day]**
 
 $$
-EW = \frac{\Delta R_{na-water} + \gamma EA_{water}{\Delta + \gamma}
+EW = \frac{\Delta R_{nawater} + \gamma EA_{water}}{\Delta + \gamma}
 $$
 
 
