@@ -231,8 +231,6 @@
     </lfuser>
 
     <lfoptions>
-        <setoption name="useRgdMaps" choice="1"/>
-        <setoption name="useRNMaps" choice="1"/>
 
         <setoption name="readNetcdfStack" choice="1"/>
         <setoption name="writeNetcdfStack" choice="1"/>
@@ -396,20 +394,6 @@
                 </comment>
             </textvar>
 
-            <textvar name="TDewMaps" value="$(PathMeteoIn)/$(PrefixTDew)">
-                <comment>
-                    Dewpoint temperature [C or K]
-                    --- MISSING ---
-                </comment>
-            </textvar>
-
-            <textvar name="EActMaps" value="$(PathMeteoIn)/$(PrefixEAct)">
-                <comment>
-                    Actual vapour pressure [mbar]
-                    --- MISSING ---
-                </comment>
-            </textvar>
-
             <textvar name="PSurfMaps" value="$(PathMeteoIn)/ps_1_15">
                 <comment>
                     Instantaneous sea level pressure [Pa]
@@ -425,34 +409,6 @@
             <textvar name="WindMaps" value="$(PathMeteoIn)/sfcWind_1_15">
                 <comment>
                     Wind speed at 10 m from surface [m/s]
-                </comment>
-            </textvar>
-
-            <textvar name="WindUMaps" value="$(PathMeteoIn)/$(PrefixWindU)">
-                <comment>
-                    Windspeed U component at 10 m altitude [m/s]
-                    --- MISSING ---
-                </comment>
-            </textvar>
-
-            <textvar name="WindVMaps" value="$(PathMeteoIn)/$(PrefixWindV)">
-                <comment>
-                    Windspeed V component at 10 m altitude [m/s]
-                    --- MISSING ---
-                </comment>
-            </textvar>
-
-            <textvar name="SunMaps" value="$(PathMeteoIn)/$(PrefixSun)">
-                <comment>
-                    Sunshine duration [hours]
-                    --- MISSING ---
-                </comment>
-            </textvar>
-
-            <textvar name="CloudMaps" value="$(PathMeteoIn)/$(PrefixCloud)">
-                <comment>
-                    Cloud cover [octas]
-                    --- MISSING ---
                 </comment>
             </textvar>
 
@@ -572,14 +528,7 @@
                 </comment>
             </textvar>
 
-
         </group>
 
-
     </lfbinding>
-
-    <prolog>
-        areamap MaskMap;
-        timer StepStart StepEnd 1;
-    </prolog>
 </lfsettings>

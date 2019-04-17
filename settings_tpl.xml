@@ -28,8 +28,7 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
 
             <textvar name="CalendarDayStart" value="02/01/1990 06:00">
                 <comment>
-                    calendar day number of 1st day in model run
-                    e.g. 1st of January: 1; 1st of June: 151 (or 152 in leap year)
+                    calendar day of 1st day in model run
                 </comment>
             </textvar>
 
@@ -179,8 +178,6 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
 
     <lfoptions>
 
-        <setoption name="useRgdMaps" choice="1"/>
-        <setoption name="useRNMaps" choice="0" />
         <setoption name="readNetcdfStack" choice="1" />
         <setoption name="writeNetcdfStack" choice="1" />
         <setoption name="repE0Maps" choice="1" />
@@ -344,7 +341,6 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
             <textvar name="EActMaps" value="$(PathMeteoIn)/EMO-5-pd_1990_2017">
                 <comment>
                     Actual vapour pressure [mbar]
-
                 </comment>
             </textvar>
 
@@ -458,14 +454,8 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
                 </comment>
             </textvar>
 
-
         </group>
-
 
     </lfbinding>
 
-    <prolog>
-        areamap MaskMap;
-        timer StepStart StepEnd 1;
-    </prolog>
 </lfsettings>
