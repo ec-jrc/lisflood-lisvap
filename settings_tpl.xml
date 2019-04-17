@@ -28,7 +28,7 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
 
             <textvar name="CalendarDayStart" value="02/01/1990 06:00">
                 <comment>
-                    calendar day of 1st day in model run
+                    Calendar day of 1st day in model run
                 </comment>
             </textvar>
 
@@ -40,13 +40,13 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
 
             <textvar name="StepStart" value="02/01/1990 06:00">
                 <comment>
-                    Number of first time step in simulation
+                    Date of first time step in simulation
                 </comment>
             </textvar>
 
             <textvar name="StepEnd" value="01/03/1990 06:00">
                 <comment>
-                    Number of last time step
+                    Date of last time step
                 </comment>
             </textvar>
 
@@ -57,22 +57,19 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
 
         </group>
 
-        <group>
-
-            <comment>
-                **************************************************************
-                SPECIAL FLAGS AND SWITCHES
-                **************************************************************
-            </comment>
-
-            <textvar name="TemperatureInKelvinFlag" value="0">
-                <comment>
-                    Flag that is 1 if input temperatures (TMax, TMin, TDew) are in Kelvin,
-                    and 0 if they are in deg C
-                </comment>
-            </textvar>
-
-        </group>
+<!--        <group>-->
+<!--            <comment>-->
+<!--                **************************************************************-->
+<!--                SPECIAL FLAGS AND SWITCHES-->
+<!--                **************************************************************-->
+<!--            </comment>-->
+<!--            <textvar name="TemperatureInKelvinFlag" value="0">-->
+<!--                <comment>-->
+<!--                    Flag that is 1 if input temperatures (TMax, TMin, TDew) are in Kelvin,-->
+<!--                    and 0 if they are in deg C-->
+<!--                </comment>-->
+<!--            </textvar>-->
+<!--        </group>-->
 
         <group>
 
@@ -88,7 +85,7 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
                 </comment>
             </textvar>
 
-            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/basemaps">
+            <textvar name="PathBaseMapsIn" value="$(ProjectPath)/basemaps">
                 <comment>
                     Path to input base maps
                 </comment>
@@ -177,13 +174,12 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
     </lfuser>
 
     <lfoptions>
-
+        <setoption name="TemperatureInKelvinFlag" choice="0" />
         <setoption name="readNetcdfStack" choice="1" />
         <setoption name="writeNetcdfStack" choice="1" />
         <setoption name="repE0Maps" choice="1" />
         <setoption name="EFAS" choice="1" />
         <setoption name="CORDEX" choice="0" />
-
     </lfoptions>
 
 
@@ -226,23 +222,6 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
             <textvar name="StepEnd" value="$(StepEnd)">
                 <comment>
                     Number of last time step
-                </comment>
-            </textvar>
-
-        </group>
-
-        <group>
-
-            <comment>
-                **************************************************************
-                SPECIAL FLAGS AND SWITCHES
-                **************************************************************
-            </comment>
-
-            <textvar name="TemperatureInKelvinFlag" value="$(TemperatureInKelvinFlag)">
-                <comment>
-                    Flag that is 1 if input temperatures (TMax, TMin, TDew) are in Kelvin,
-                    and 0 if they are in deg C
                 </comment>
             </textvar>
 

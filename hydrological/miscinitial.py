@@ -81,7 +81,7 @@ class MiscInitial(object):
         # **************************************************************
         # SPECIAL FLAGS AND SWITCHES
         # **************************************************************
-        self.var.TemperatureInKelvinFlag = loadmap('TemperatureInKelvinFlag')
+        # self.var.TemperatureInKelvinFlag = loadmap('TemperatureInKelvinFlag')
 
         # ************************************************************
         # ***** Some additional stuff
@@ -100,4 +100,3 @@ class MiscInitial(object):
         self.var.Rdl = None
         self.var.Rus = None
         self.var.Rul = None
-        # setting meteo data to none - is this necessary?

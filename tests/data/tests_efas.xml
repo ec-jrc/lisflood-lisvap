@@ -56,22 +56,22 @@
             </textvar>
         </group>
 
-        <group>
+<!--        <group>-->
 
-            <comment>
-                **************************************************************
-                SPECIAL FLAGS AND SWITCHES
-                **************************************************************
-            </comment>
+<!--            <comment>-->
+<!--                **************************************************************-->
+<!--                SPECIAL FLAGS AND SWITCHES-->
+<!--                **************************************************************-->
+<!--            </comment>-->
 
-            <textvar name="TemperatureInKelvinFlag" value="0">
-                <comment>
-                    Flag that is 1 if input temperatures (TMax, TMin, TDew) are in Kelvin,
-                    and 0 if they are in deg C
-                </comment>
-            </textvar>
+<!--            <textvar name="TemperatureInKelvinFlag" value="0">-->
+<!--                <comment>-->
+<!--                    Flag that is 1 if input temperatures (TMax, TMin, TDew) are in Kelvin,-->
+<!--                    and 0 if they are in deg C-->
+<!--                </comment>-->
+<!--            </textvar>-->
 
-        </group>
+<!--        </group>-->
 
         <group>
 
@@ -184,7 +184,7 @@
 
         <setoption name="readNetcdfStack" choice="1" />
         <setoption name="writeNetcdfStack" choice="1" />
-
+        <setoption name="TemperatureInKelvinFlag" choice="0" />
         <setoption name="repE0Maps" choice="1" />
         <setoption name="repTavgMaps" choice="1"/>
 
@@ -233,23 +233,6 @@
             <textvar name="StepEnd" value="$(StepEnd)">
                 <comment>
                     Number of last time step
-                </comment>
-            </textvar>
-
-        </group>
-
-        <group>
-
-            <comment>
-                **************************************************************
-                SPECIAL FLAGS AND SWITCHES
-                **************************************************************
-            </comment>
-
-            <textvar name="TemperatureInKelvinFlag" value="$(TemperatureInKelvinFlag)">
-                <comment>
-                    Flag that is 1 if input temperatures (TMax, TMin, TDew) are in Kelvin,
-                    and 0 if they are in deg C
                 </comment>
             </textvar>
 
