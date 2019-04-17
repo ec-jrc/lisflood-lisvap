@@ -148,18 +148,6 @@ report_maps_end: {report_maps_end}
             rep_opt = ts.repoption
             rest_opt = ts.restrictoption
             self._set_active_options(key, rep_timeseries, report_time_series_act, rep_opt, rest_opt)
-        # for setserie_elem in report_time_serie.getElementsByTagName("setserie"):
-        #     d = {}
-        #     for key in setserie_elem.attributes.keys():
-        #         if key != 'name':
-        #             value = setserie_elem.attributes[key].value
-        #             d[key] = value.split(',')
-        #     key = setserie_elem.attributes['name'].value
-        #     rep_timeseries[key] = d
-        #     rep_opt = rep_timeseries[key]['repoption']
-        #     rest_opt = rep_timeseries[key]['restrictoption']
-        #
-        #     self._set_active_options(key, rep_timeseries, report_time_series_act, rep_opt, rest_opt)
 
         return report_time_series_act
 
