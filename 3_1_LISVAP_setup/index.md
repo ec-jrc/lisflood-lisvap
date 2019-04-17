@@ -4,7 +4,7 @@ Before to run LISVAP, you need to:
 
 1. Prepare base maps
 2. Prepare input dataset
-3. [Prepare the XML settings file](/3_2_LISVAP_settingsfile)
+3. [Prepare the XML settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile)
 
 All input to LISVAP is provided as maps (grid files in PCRaster format or maps in netCDF format). 
 

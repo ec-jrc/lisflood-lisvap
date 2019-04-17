@@ -13,7 +13,7 @@ For Docker, first thing is to map folders using volumes as in the table below. T
 | Volume                            |  Example of folder on your system |  Correspondant folder in Docker | Mapping                        |
 | --------------------------------- | --------------------------------- | ------------------------------- | ------------------------------ |
 | Folder with the XML settings file | ./                                | /tmp                            | -v `pwd`/:/tmp                 |
-| Path containing input dataset     | /DATA/Meteo/2017/EMA              | /input                          | -v /DATA/Meteo/2017/EMA:/input |
+| Path containing input dataset     | /DATA/Meteo/EMA                   | /input                          | -v /DATA/Meteo/EMA:/input      |
 | Path for output                   | /DATA/Lisvap/out                  | /output                         | -v /DATA/Lisvap/out:/output    |
 
 Then, the correspondant Docker command (in Linux) to run the LISVAP container, given mysettings.xml is in current folder, will be:
@@ -52,5 +52,5 @@ Status:  Development
  ```
 In Docker, you would just type `docker run efas/lisvap:latest`, which is the equivalent of running lisvap1.py without arguments.
 
-The layout of the settings file is detailed in [LISVAP Settings file](/5_LISVAP_settingsfile).
+The layout of the settings file is detailed in [LISVAP Settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile).
 Along with source code, you will have a settings_tpl.xml file to use as a template to start writing your own settings.

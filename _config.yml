@@ -21,7 +21,7 @@ title_separator          : "-"
 name                     : "JRC E1 Disaster Risk Management"
 description              : "LISVAP User Guide"
 url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
-baseurl                  : # the subpath of your site, e.g. "/blog"
+baseurl                  : "/lisflood-lisvap"
 repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
@@ -239,8 +239,6 @@ defaults:
           url: 3_1_LISVAP_setup
         - title: "- XML Settings reference"
           url: 3_2_LISVAP_settingsfile
-        - title: "- Input Data"
-          url: 3_3_LISVAP_input
         - title: "- Run LISVAP"
           url: 4_LISVAP_run
         - title: "- LISVAP output files"
