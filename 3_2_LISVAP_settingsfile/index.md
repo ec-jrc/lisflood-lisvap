@@ -6,8 +6,6 @@ In LISVAP, all file and parameter specifications are defined in a XML settings f
 The purpose of the settings file is to link variables and parameters in the model to in- and output files (maps, time series) and numerical values. 
 In addition, the settings file can be used to specify several *options*. 
 Since the XML structure is identical to the one used for LISFLOOD settings files, please have a look at Chapter 5 of the LISFLOOD User Manual (van der Knijff & de Roo, 2008) for a detailed description of the format.
-The settings file can be prepared in any text editor (e.g. Notepad, Editpad, Emacs, vi), or alternatively in a dedicated XML editor (e.g. XMLSpy, XXE).
-
  
 
 Instead of writing the settings file completely from scratch, we suggest to use the example settings file that is provided with LISVAP as a starting point.  In order to use the example, you should make sure the following requirements are met:
@@ -270,21 +268,21 @@ Table 5.1 below lists all currently implemented input options and their respecti
 
  **Table:** *LISVAP input options.*	
 
-| Option                    | Description                                                                  | Default |
-| ------------------------- | ---------------------------------------------------------------------------- | ------- |
-| TemperatureInKelvinFlag   | Temperature in Kelvin                                                        | False   |
-| readNetcdfStack           | Input variables as netCDF mapstacks                                          | False   |
-| writeNetcdfStack          | Output variables as netCDF mapstacks                                         | False   |
-| writeNetcdf               | Output variables as netCDF maps                                              | False   |
-| repAvTimeseries           | Write output TSS                                                             | False   |
-| repE0Maps                 | Write output variable $E_0$ map                                              | True    |
-| repET0Maps                | Write output variable $ET_0$ map                                             | True    |
-| repES0Maps                | Write output variable $ES_0$ map                                             | True    |
-| repTAvgMaps               | Write output variable $T_avg$ map                                            | True    |
-| useTavg                   | Use $T_avg$ input map. If false, will be computed out of $T_max$ and $T_min$ | False   |
-| InitLisflood              |                                                                              | False   |
-| InitLisfloodwithoutSplit  |                                                                              | False   |
-| EFAS                      | Use *EFAS* setup                                                             | True    |
-| CORDEX[^1]                | Use *CORDEX* setup                                                           | False   |
+| Option                    | Description                                                                        | Default |
+| ------------------------- | ---------------------------------------------------------------------------------- | ------- |
+| TemperatureInKelvinFlag   | Temperature in Kelvin                                                              | False   |
+| readNetcdfStack           | Input variables as netCDF mapstacks                                                | False   |
+| writeNetcdfStack          | Output variables as netCDF mapstacks                                               | False   |
+| writeNetcdf               | Output variables as netCDF maps                                                    | False   |
+| repAvTimeseries           | Write output TSS                                                                   | False   |
+| repE0Maps                 | Write output variable $E_0$ map                                                    | True    |
+| repET0Maps                | Write output variable $ET_0$ map                                                   | True    |
+| repES0Maps                | Write output variable $ES_0$ map                                                   | True    |
+| repTAvgMaps               | Write output variable $T_{avg}$ map                                                | True    |
+| useTavg                   | Use $T_{avg}$ input map. If false, will be computed out of $T_{max}$ and $T_{min}$ | False   |
+| InitLisflood              |                                                                                    | False   |
+| InitLisfloodwithoutSplit  |                                                                                    | False   |
+| EFAS                      | Use *EFAS* setup                                                                   | True    |
+| CORDEX[^1]                | Use *CORDEX* setup                                                                 | False   |
 
 [^1]: Keep in mind that EFAS and CORDEX are two mutually-exclusive flags. If both are true, EFAS flag has precedence.
