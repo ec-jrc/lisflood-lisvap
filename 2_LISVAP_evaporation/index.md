@@ -160,12 +160,12 @@ where<br/>
 Synoptic weather stations often do not supply vapour pressure data, but provided dew point temperature instead. In that case the **actual vapour pressure** *ea* can be calculated from humidity:
 
 $$
-e_a = ( P_{surf} \cdot Q_{air} ) / 62.2
+e_a = \frac{( P_{surf} \cdot Q_{air} )}{62.2}
 $$
 
 where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$P_{surf}$:&nbsp;&nbsp;		surface pressure $[pa]$
-&nbsp;&nbsp;&nbsp;&nbsp;$P_{surf}$:&nbsp;&nbsp;		near-surface specific humidity
+&nbsp;&nbsp;&nbsp;&nbsp;$Q_{air}$:&nbsp;&nbsp;		near-surface specific humidity
  
 
 The equation of Allen (1994) is used to estimate the **cloud cover factor**:
@@ -179,23 +179,21 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$Tran_{Atm}, Atmospheric transition [-]
 
 
-
 Rso = R_{a,d} * (0.75 + (2 * 10**-5 * self.Dem))
-
 
 
 $$
 Trans_{Atm}=\frac{R_{g,d}}{R_{so}}
 $$ 
 
-where 
+where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}, Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} according to the meteo set available
 
 $$
 R_{so}= R_{a,d} \cdot (0.75 + ( 2 \cdot 10^5 \cdot z ) )
 $$ 
 
-where
+where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$R_{a,d}, Angot Radiation
 &nbsp;&nbsp;&nbsp;&nbsp;$z, altitude according to Digital Elevation Model
 
