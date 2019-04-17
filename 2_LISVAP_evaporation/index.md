@@ -14,9 +14,21 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$EA$:&nbsp;&nbsp;	Evaporative demand of the atmosphere $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\Delta$:&nbsp;&nbsp;		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\gamma$:&nbsp;&nbsp;		Psychrometric constant $[\frac{mbar}{^\circ C}]$
-    
 
-The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.
+The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). 
+
+**potential evaporation rate from a bare soil surface [mm/day]** 
+$$
+ES = \frac{\Delta R_{na-soil} + \gamma EA_{soil}{\Delta + \gamma}
+$$
+
+**potential evaporation rate from water surface [mm/day]**
+$$
+EW = \frac{\Delta R_{na-water} + \gamma EA_{water}{\Delta + \gamma}
+$$
+
+
+The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.
 
  
 
