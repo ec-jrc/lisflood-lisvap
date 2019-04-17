@@ -58,8 +58,7 @@ The table below lists the properties of the reference surfaces that are used in 
 Calculating the net absorbed radiation term involves the following four steps:
 
 1. Calculate the daily extra-terrestrial radiation (Angot radiation)
-2. From the Angot radiation, calculate the daily incoming solar radiation (using information on the daily number of sunshine hours or cloud cover, if available)
-3. Calculate the daily net long-wave radiation (based on meteorological conditions)
+2. Calculate the daily net long-wave radiation (based on meteorological conditions)
 4. Calculate the net absorbed radiation
 
  
@@ -127,50 +126,14 @@ $$
 
 where *PD* is a correction constant (-2.65).
 
-### Step 2: Incoming solar radiation
 
-Depending on the availability of input data, three equations are available to calculate the incoming solar radiation. *If the number of sunshine hours on a particular day is known*, the Ångström equation is used:
+### Step 2: Net absorbed radiation 
+Net absorbed radiation is calculated for three reference surfaces:
+1. Reference vegetation canopy
+2. Bare soil surface
+3. Open water surface
 
-$$
-R_{g,d} = R_{a,d}(A_a + B_a \frac{n}{L_d})
-$$
-
-where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp;		 Incoming daily global solar radiation $[{\frac{J}{m^2 \ day}}]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{a,d}$:&nbsp;&nbsp;		Daily extra-terrestrial radiation (Angot radiation) $[{\frac{J}{m^2 \ day}}]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$n$:&nbsp;&nbsp;			Number of bright sunshine hours per day $[h]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$L_d$:&nbsp;&nbsp;		Astronomical day length $[h]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$A_a, B_a$:&nbsp;&nbsp;		Empirical constants $[-]$
-
-In the absence of any observed information on the number of sunshine hours, the following equation is used if cloud cover observations are available (Supit, 1994; Supit & Van Kappel, 1998):
-
-$$
-R_{g,d}= R_{a,d}(A_s \sqrt{(T_{max}-T_{min})} + B_h \sqrt{(1-\frac{CC}{8})}+C_s)
-$$
-
-where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$T_{max}$:&nbsp;&nbsp;		Maximum temperature $[^\circ C]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$T_{min}$:&nbsp;&nbsp;		Minimum temperature $[^\circ C]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$CC$:&nbsp;&nbsp;		Mean total cloud cover during the day $[octas]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$L_d$:&nbsp;&nbsp;		Astronomical day length $[h]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$A_s$:&nbsp;&nbsp;		Empirical constant $[^\circ C - 0.5]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$B_s$:&nbsp;&nbsp;		Empirical constant $[-]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$C_s$:&nbsp;&nbsp;		Empirical constant $[{\frac{J}{m^2 \ day}}]$
-
-
-*If neither sunshine duration nor cloud cover observations are available*, the Hargreaves equation is used instead:
-
-$$
-R_{g,d}= R_{a,d} \cdot A_h \sqrt{(T_{max}-T_{min})}+B_h
-$$
-
-where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$A_h$:&nbsp;&nbsp;		Empirical constant $[^\circ C - 0.5]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$B_h$:&nbsp;&nbsp;		Empirical constant $[{\frac{J}{m^2 \ day}}]$
- 
-
-### Step 3: Net long-wave radiation 
-
+   
 The following equation is used to calculate the **net long-wave radiation**[[1\]](#_ftn1) (Maidment, 1993):
 
 $$
@@ -194,43 +157,59 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$e_a$:&nbsp;&nbsp;			Actual vapour pressure $[mbar]$
 
 
-Synoptic weather stations often do not supply vapour pressure data, but provided dew point temperature instead. In that case the **actual vapour pressure** *ea* can be calculated using the following equation by Goudriaan (1977):
+Synoptic weather stations often do not supply vapour pressure data, but provided dew point temperature instead. In that case the **actual vapour pressure** *ea* can be calculated from humidity:
 
 $$
-e_a = 6.10588 \cdot e^{\frac{17.32491 \cdot T_{dew}}{T_{dew}+238.102}}
-$$
-
-where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$T_{dew}$:&nbsp;&nbsp;		dew point temperature $[^\circ C]$
- 
-
-The equation of Brunt (1932) is used to estimate the **cloud cover factor**:
-
-$$
-f= (B_e + B_f \frac{n}{L_d})
+e_a = ( P_{surf} \cdot Q_{air} ) / 62.2
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$B_e, B_f$:&nbsp;&nbsp;	Constants according to Brunt (1932) (depend on latitude) [-]
+&nbsp;&nbsp;&nbsp;&nbsp;$P_{surf}$:&nbsp;&nbsp;		surface pressure $[pa]$
+&nbsp;&nbsp;&nbsp;&nbsp;$P_{surf}$:&nbsp;&nbsp;		near-surface specific humidity
  
 
-*If no information on the number of bright sunshine hours is available*, the **relative sunshine duration term** is estimated using the Ångström equation:
+The equation of Allen (1994) is used to estimate the **cloud cover factor**:
 
 $$
-\frac{n}{L_d}= \frac{(\frac{R_{g,d}}{R_{a,d}})-A_a}{B_a}
+f= (1.8 \cdot Trans_{Atm} - 0.35) 
 $$
 
-where *Aa* and *Ba* are the empirical Ångström constants.
+where<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$f, Cloud cover adjustment factor [-] in between [0,1]
+&nbsp;&nbsp;&nbsp;&nbsp;$Tran_{Atm}, Atmospheric transition [-]
+
+
+
+Rso = R_{a,d} * (0.75 + (2 * 10**-5 * self.Dem))
+
+
+
+$$
+Trans_{Atm}=\frac{R_{g,d}}{R_{so}}
+$$ 
+
+where 
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}, Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} according to the meteo set available
+
+$$
+R_{so}= R_{a,d} \cdot (0.75 + ( 2 \cdot 10^5 \cdot z ) )
+$$ 
+
+where
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{a,d}, Angot Radiation
+&nbsp;&nbsp;&nbsp;&nbsp;$z, altitude according to Digital Elevation Model
+
+
 
 ### Step 4: Net absorbed radiation 
 
 Finally, the **net absorbed radiation** [mm day-1] is calculated as:
 
 $$
-R_{na}=\frac{(1- \alpha)R_{gd}-R_{nl}}{L}
+R_{na}=\frac{(1- \alpha)R_{g,d}-R_{nl}}{L}
 $$
 
-where *α* is the albedo (reflection coefficient) of the surface, and *L* is the latent heat of vaporization $[\frac{MJ}{kg}]$:&nbsp;&nbsp;
+where *α* is the albedo (reflection coefficient) of the surface, $R_{g,d} is Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} and *L* is the latent heat of vaporization $[\frac{MJ}{kg}]$:&nbsp;&nbsp;
 
 $$
 L=2.501-2.361 \cdot 10^{-3} \cdot T_{av}
