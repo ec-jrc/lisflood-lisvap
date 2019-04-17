@@ -174,8 +174,8 @@ f= (1.8 \cdot Trans_{Atm} - 0.35)
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$f:&nbsp;&nbsp; Cloud cover adjustment factor [-] in between [0,1]<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$Tran_{Atm}:&nbsp;&nbsp; Atmospheric transition [-]
+&nbsp;&nbsp;&nbsp;&nbsp;$f$:&nbsp;&nbsp; Cloud cover adjustment factor [-] in between [0,1]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$Tran_{Atm}$:&nbsp;&nbsp; Atmospheric transition [-]
 
 Rso = R_{a,d} * (0.75 + (2 * 10**-5 * self.Dem))
 
@@ -185,15 +185,15 @@ Trans_{Atm}=\frac{R_{g,d}}{R_{so}}
 $$ 
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}:&nbsp;&nbsp; Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} according to the meteo set available
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp; Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} according to the meteo set available
 
 $$
 R_{so}= R_{a,d} \cdot (0.75 + ( 2 \cdot 10^5 \cdot z ) )
 $$ 
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{a,d}:&nbsp;&nbsp; Angot Radiation
-&nbsp;&nbsp;&nbsp;&nbsp;$z:&nbsp;&nbsp; altitude according to Digital Elevation Model
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{a,d}$:&nbsp;&nbsp; Angot Radiation
+&nbsp;&nbsp;&nbsp;&nbsp;$z$:&nbsp;&nbsp; altitude according to Digital Elevation Model
 
 
 
