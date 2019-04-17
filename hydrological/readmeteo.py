@@ -95,7 +95,7 @@ class ReadMeteo(object):
                 # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
                 # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
 
-        if self.var.TemperatureInKelvinFlag:
+        if self.settings.options['TemperatureInKelvinFlag']:  # self.var.TemperatureInKelvinFlag:
             self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
             self.var.TMin = self.var.TMin - self.var.ZeroKelvin
             self.var.TMax = self.var.TMax - self.var.ZeroKelvin
