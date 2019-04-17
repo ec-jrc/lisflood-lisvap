@@ -26,17 +26,6 @@ repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-m
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
 #words_per_minute         : 200
-#comments:
-#  provider               : # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "staticman_v2" "custom"
-#  disqus:
-#    shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
-#  discourse:
-#    server               : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
-#  facebook:
-#    # https://developers.facebook.com/docs/plugins/comments
-#    appid                :
-#    num_posts            : # 5 (default)
-#    colorscheme          : # "light" (default), "dark"
 staticman:
   allowedFields          : # ['name', 'email', 'url', 'message']
   branch                 : # "master"
@@ -201,27 +190,8 @@ timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 # Plugins (previously gems:)
 plugins:
-#  - jemoji
-#  - jekyll-redirect-from
-#  - jekyll-sitemap
-#  - jekyll-feed
 # mimic GitHub Pages with --safe
 whitelist:
-#  - jemoji
-#  - jekyll-redirect-from
-#  - jekyll-sitemap
-#  - jekyll-feed
-
-# Archives
-#  Type
-#  - GitHub Pages compatible archive pages built with Liquid ~> type: liquid (default)
-#  - Jekyll Archives plugin archive pages ~> type: jekyll-archives
-#  Path (examples)
-#  - Archive page should exist at path when using Liquid method or you can
-#    expect broken links (especially with breadcrumbs enabled)
-#  - <base_path>/tags/my-awesome-tag/index.html ~> path: /tags/
-#  - <base_path/categories/my-awesome-category/index.html ~> path: /categories/
-#  - <base_path/my-awesome-category/index.html ~> path: /
 
 category_archive:
   type: liquid
@@ -242,7 +212,6 @@ compress_html:
 # Defaults
 
 defaults:
-  # _pages
   - scope:
       path: ""
       type: pages
@@ -265,12 +234,12 @@ defaults:
           url: 2_LISVAP_evaporation
         - title: "- Installation of LISVAP"
           url: 3_LISVAP_installation
-        - title: "- LISVAP input files"
-          url: 4_LISVAP_input
-        - title: "- The LISVAP settings file"
-          url: 5_LISVAP_settingsfile
+        - title: "- Setup"
+          url: 3_1_LISVAP_setup
+        - title: "- Run LISVAP"
+          url: 4_LISVAP_run
         - title: "- LISVAP output files"
-          url: 6_LISVAP_output
+          url: 5_LISVAP_output
         - title: "- References"
           url: 0_References
 

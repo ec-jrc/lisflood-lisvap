@@ -5,11 +5,11 @@
 Reference values for **potential evapotranspiration and evaporation** are estimated using the Penman-Monteith equation (Supit *et al*., 1994, Supit & Van Der Goot, 2003):
 
 $$
-ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
+ET_0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$ET0$:&nbsp;&nbsp; Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$ET_0$:&nbsp;&nbsp; Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$R_{na}$:&nbsp;&nbsp;	Net absorbed radiation $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$EA$:&nbsp;&nbsp;	Evaporative demand of the atmosphere $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\Delta$:&nbsp;&nbsp;		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$<br/>
@@ -18,7 +18,7 @@ where<br/>
 
 The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). The procedure to calculate potential evapo(transpi)ration is summarised in the following Figure.
 
- 
+
 
 ![img](..\media\figure1.jpg)
 
@@ -26,16 +26,15 @@ The same equation is also used to estimate potential evaporation from a water su
 
  
 
-The table below lists the properties of the reference surfaces that are used in the computation of $ET0$, $ES0$ and $EW0$, respectively. 
+The table below lists the properties of the reference surfaces that are used in the computation of $ET_0$, $ES_0$ and $EW_0$, respectively. 
 
-   **Table:** *Properties of reference surfaces for* $ET0$, $ES0$ and $EW0$ 
+   **Table:** *Properties of reference surfaces for* $ET_0$, $ES_0$ and $EW_0$ 
 
-|         |                          |                                                              |
-| ------- | ------------------------ | ------------------------------------------------------------ |
-|         | **α** *(surface albedo)* | **fc**   *(empirical constant in evaporative demand equation)* |
-| **ET0** | 0.23                     | 1                                                            |
-| **ES0** | 0.15                     | 0.75                                                         |
-| **EW0** | 0.05                     | 0.5                                                          |
+|            | **α** *(surface albedo)* | **fc** *(empirical constant in evaporative demand equation)* |
+| -------    | ------------------------ | ------------------------------------------------------------ |
+| **$ET_0$** | 0.23                     | 1                                                            |
+| **$ES_0$** | 0.15                     | 0.75                                                         |
+| **$EW_0$** | 0.05                     | 0.5                                                          |
 
  
 

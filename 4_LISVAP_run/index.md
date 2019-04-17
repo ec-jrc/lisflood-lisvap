@@ -7,7 +7,6 @@ All input to LISVAP is provided as maps (grid files in PCRaster format) and tabl
 The following Table lists all needed input **(base) maps**. 
 
 
-
 **Table:** *LISVAP base maps*
 
 | Map                      | Default name | Description                                       |
@@ -30,9 +29,8 @@ The following Table lists all needed input **(base) maps**.
 
 
 
-The Table below lists all **meteorological input variables** (note that not all of them are compulsory, which will be explained later).
+The Table below lists all **meteorological input variables** (note that not all of them are compulsory).
 
- 
 
 **Table:** *LISVAP meteorological input variables*
 
@@ -55,41 +53,14 @@ The Table below lists all **meteorological input variables** (note that not all 
 | RgdMaps             | rg             | Downward  surface solar radiation [J m-2 d]        |
 | RNMaps              | rn             | Net thermal radiation [J m-2 d] (always negative!) |
 
-## Input tables
 
-In addition to the maps, two **tables** are required:
-
- 
-
-**Table:** *LISVAP input tables.*
-
-| Table     | Default name | Description                                |
-| --------- | ------------ | ------------------------------------------ |
-| TabEBrunt | ebrunt.txt   | constant in Brunt cloud cover equation [-] |
-| TabFBrunt | fbrunt.txt   | constant in Brunt cloud cover equation [-] |
-
- 
-
-Note that the values in these tables correspond to constants $B_e$ and $B_f$ in Eq 14. Both constants are a function of latitude. The following notation is used:
-
- ```xml
-<,45>		0.3
-[45,>		0.1
- ```
-
-
-
-The items in the first column are latitude ranges. In this case this means that for latitudes up to (but not including) 45° a value of 0.3 is used, and a value of 0.1 for latitudes of 45° and more. See the PCRaster Manual’s section on lookup tables for a detailed description of the format. 
-
-## Organisation of input data
+## Organisation of input and output data
 
 It is up to the user how the input data are organised. However, it is advised to keep the base maps and meteorological input maps separated (i.e. store them in separate directories). For practical reasons the following input structure is suggested: 
 
 - all meteorological input maps are in one directory (e.g. ‘meteoIn’)
 - all base maps are in one directory (e.g. ‘mapsIn’)
-- all tables are in one directory (e.g. ‘tables’)
 - all output goes into one directory (e.g. ‘out’)
-
  
 
 The following Figure illustrates this:
@@ -106,4 +77,7 @@ The following Figure illustrates this:
 
 ## Generating input base maps
 
-At the time of writing this document, complete sets of LISVAP base maps covering the whole of Europe have been compiled at 1- and 5-km pixel resolution. A number of automated procedures have been written that allow you to generate sub-sets of these for pre-defined areas (using either existing mask maps or co-ordinates of catchment outlets). These procedures (which are specific to the data server setup at the Floods Action, IES, JRC, Ispra) are documented in a separate document on ‘LISFLOOD and LISVAP map extraction’. If you are an external user of LISFLOOD, please contact the Floods Action to extract the data for you.
+At the time of writing this document, complete sets of LISVAP base maps covering the whole of Europe have been compiled at 1- and 5-km pixel resolution. 
+A number of automated procedures have been written that allow you to generate sub-sets of these for pre-defined areas (using either existing mask maps or co-ordinates of catchment outlets). 
+These procedures (which are specific to the data server setup at the Floods Action, IES, JRC, Ispra) are documented in a separate document on ‘LISFLOOD and LISVAP map extraction’. 
+If you are an external user of LISFLOOD, please contact the Floods Action to extract the data for you.
