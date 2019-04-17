@@ -185,7 +185,7 @@ Trans_{Atm}=\frac{R_{g,d}}{R_{so}}
 $$ 
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp; Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} according to the meteo set available
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp; Daily-extra terrestrial radiation or down short wave radiation $R_{d,s}$ according to the meteo set available
 
 $$
 R_{so}= R_{a,d} \cdot (0.75 + ( 2 \cdot 10^5 \cdot z ) )
@@ -203,7 +203,7 @@ $$
 R_{na}=\frac{(1- \alpha)R_{g,d}-R_{nl}}{L}
 $$
 
-where *α* is the albedo (reflection coefficient) of the surface, $R_{g,d} is Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} and *L* is the latent heat of vaporization $[\frac{MJ}{kg}]$:&nbsp;&nbsp;
+where *α* is the albedo (reflection coefficient) of the surface, $R_{g,d}$ is Daily-extra terrestrial radiation or down short wave radiation $R_{d,s}$ and *L* is the latent heat of vaporization $[\frac{MJ}{kg}]$:&nbsp;&nbsp;
 
 $$
 L=2.501-2.361 \cdot 10^{-3} \cdot T_{av}
