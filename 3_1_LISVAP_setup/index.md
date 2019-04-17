@@ -4,43 +4,66 @@ Before to run LISVAP, you need to:
 
 1. Prepare base maps
 2. Prepare input dataset
-3. Compile the XML settings file
+3. [Prepare the XML settings file](/3_2_LISVAP_settingsfile)
 
+All input to LISVAP is provided as maps (grid files in PCRaster format or maps in netCDF format). 
 
-### Prepare base maps
+### Base maps
 
 LISVAP needs some base maps representing areas of simulation. These basemaps must be coherent with input dataset, which means having same area (or containing it), and projection.
 
 
-   **Table:** *Base maps*
+The following Table lists all types of input **base maps**. 
 
 
-| Map name                          |  Description                                                                                                                  |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| DEM                               | Digital Elevation Model. Used in temperature correction.                                                                      |
-| Area map                          | Boolean map of the AOI                                                                                                        |
-| Latitude                          | Latitude map. Each cell holds *latitude* coordinate value of the corresponding cell in DEM and Area maps                      |
-| Longitude                         | Longitude map. Each cell holds *longitude* of the corresponding cell in DEM and Area maps                                     |
- 
+**Table:** *LISVAP base maps*
+
+| Map name in settings file     | Default name           | Description                                       |
+| ----------------------------- | ---------------------- | ------------------------------------------------- |
+| **GENERAL**                   |                        |                                                   |
+| MaskMap                       | area.map or area.nc    | Boolean map that defines model boundaries         |
+| **TOPOGRAPHY**                |                        |                                                   |
+| Dem                           | dem.map                | Elevation, in [m] above sea level                 |
+| Lat                           | lat.map                | Latitude [decimal degrees]                        |
+| Lon                           | lon.map                | Longitude [decimal degrees]                       |
+| **ANGSTROM CONSTANTS**[^1]    |                        |                                                   |
+| Aa                            | angstr_a.map           | Angstrom regression coefficient [-]               |
+| Ba                            | angstr_b.map           | Angstrom regression coefficient [-]               |
+| **SUPIT CONSTANTS**           |                        |                                                   |
+| As                            | supit_a.map            | Supit model regression coefficient [°C-0.5]       |
+| Bs                            | supit_b.map            | Supit model regression coefficient [-]            |
+| Cs                            | supit_c.map            | Supit model regression coefficient [MJ m-2 day-1] |
+| **HARGREAVES CONSTANTS**      |                        |                                                   |
+| Ah                            | hargrv_a.map           | Hargreaves formula constant [°C-0.5]              |
+| Bh                            | hargrv_b.map           | Hargreaves formula constant [MJ m-2 day-1]        |
+
+[^1]: Constants can be set as a single value in settings file instead of using a map.
 
 On repository, you can find [base maps](https://github.com/ec-jrc/lisflood-lisvap/tree/master/basemaps) for Europe (EFAS domain).
+
+
+#### Generating input base maps
+
+At the time of writing this document, complete sets of LISVAP base maps covering the whole of Europe have been compiled at 1- and 5-km pixel resolution. 
+A number of automated procedures have been written that allow you to generate sub-sets of these for pre-defined areas (using either existing mask maps or co-ordinates of catchment outlets). 
+These procedures (which are specific to the data server setup at the Floods Action, IES, JRC, Ispra) are documented in a separate document on ‘LISFLOOD and LISVAP map extraction’. 
+If you are an external user of LISFLOOD, please contact the Floods Action to extract the data for you.
 
 
 ### Input dataset
 
 LISVAP model inputs are meteo variables, provided as netCDF mapstacks (timeseries of 2D georeferenced variables).
-Depending on available meteo variables, you can setup LISVAP to run on two different datasets, EFAS or CORDEX [^1].  
+Depending on available meteo variables, you can setup LISVAP to run on two different datasets, EFAS or CORDEX [^2].  
 
-[^1]: [CORDEX](https://www.cordex.org/)
+[^2]: [CORDEX](https://www.cordex.org/)
 
 #### EFAS
 
-Input variables for the _"EFAS run"_ are:
 
    **Table:** *Input variables for the "EFAS run"*
 
-| Variable name                     |  Description                            |
-| --------------------------------- | --------------------------------------- |
+| Variable name                     |  Description                             |
+| --------------------------------- | ---------------------------------------- |
 | PD                                | Actual vapour pressure \[mbar\]          |
 | RG                                | rgd - calculated solar radiation \[W/m2\]|
 | TN                                | Minimum daily temperature \[deg C\]      |
@@ -50,75 +73,62 @@ Input variables for the _"EFAS run"_ are:
 
 #### CORDEX
 
+
    **Table:** *Input variables for CORDEX run*
 
 
-| Variable name                     |  Description                            |
-| --------------------------------- | --------------------------------------- |
-| PD                                | Actual vapour pressure \[mbar\]          |
-| RG                                | rgd - calculated solar radiation \[W/m2\]|
-| TN                                | Minimum daily temperature \[deg C\]      |
-| TX                                | Maximum daily temperature \[deg C\]      |
-| WS                                | Wind speed at 10 m from surface \[m/s\]  |
-
-### Settings file
-
-
-
-
-## Running LISVAP
-
-There is no difference in running LISVAP in a Docker container or directly by source code. You need to prepare your XML settings file and pass it as argument.
-
-### Using Docker
-
-For Docker, first thing is to map folders using volumes as in the table below. Those paths are configured in the XML settings file that you submit to LISVAP.
+| Variable name                     |  Description                                    |
+| --------------------------------- | ----------------------------------------------- |
+| PS                                | Instantaneous sea level pressur \[Pa\]          |
+| HUSS                              | 2 m instantaneous specific humidity \[kg/kg\]   |
+| TN                                | Minimum daily temperature \[K\]                 |
+| TX                                | Maximum daily temperature \[K\]                 |
+| WS                                | Wind speed at 10 m from surface \[m/s\]         |
+| RDS                               | Downward short wave radiation \[W/m2\]          |
+| RDL                               | Down long wave radiation \[W/m2\]               |
+| RUS                               | Up short wave radiation \[W/m2\]                |
+| RUL                               | Up long wave radiation \[W/m2\]                 |
 
 
-   **Table:** *Mapping volumes to run LISVAP in Docker*
-   
+The Table below lists all **meteorological input variables**.
+ 
 
-| Volume                            |  Example of folder on your system |  Correspondant folder in Docker | Mapping                        |
-| --------------------------------- | --------------------------------- | ------------------------------- | ------------------------------ |
-| Folder with the XML settings file | ./                                | /tmp                            | -v `pwd`/:/tmp                 |
-| Path containing input dataset     | /DATA/Meteo/2017/EMA              | /input                          | -v /DATA/Meteo/2017/EMA:/input |
-| Path for output                   | /DATA/Lisvap/out                  | /output                         | -v /DATA/Lisvap/out:/output    |
+**Table:** *LISVAP meteorological input variables*
 
-Then, the correspondant Docker command (in Linux) to run the LISVAP container, given mysettings.xml is in current folder, will be:
+| Map stack           | Default prefix | Description                                        |
+| ------------------- | -------------- | -------------------------------------------------- |
+| **TEMPERATURE**     |                |                                                    |
+| TMaxMaps            | tx             | Maximum daily temperature [°C or K]                |
+| TMinMaps            | tn             | Minimum daily temperature [°C or K]                |
+| **VAPOUR PRESSURE** |                |                                                    |
+| TDewMaps            | td             | Average daily dew point temperature [°C or K]      |
+| EActMaps            | pd             | Actual vapour pressure [mbar]                      |
+| **WIND SPEED**      |                |                                                    |
+| WindMaps            | ws             | Wind speed at 10 m height [m s-1]                  |
+| WindUMaps           | wu             | Wind speed at 10 m height, U-component [m s-1]     |
+| WindVMaps           | wv             | Wind speed at 10 m height, V-component [m s-1]     |
+| **SUNSHINE**        |                |                                                    |
+| SunMaps             | s              | Sunshine duration [hours]                          |
+| CloudMaps           | c              | Cloud cover [octas]                                |
+| **RADIATION**       |                |                                                    |
+| RgdMaps             | rg             | Downward  surface solar radiation [J m-2 d]        |
+| RNMaps              | rn             | Net thermal radiation [J m-2 d] (always negative!) |
 
-```bash
-docker run -v $(pwd)/:/tmp -v /DATA/Meteo/2017/EMA:/input -v /DATA/Lisvap/out:/output efas/lisvap:latest /tmp/mysettings.xml
-```
 
-### Using the code
+## Organisation of input data
 
-Once alle dependencies are installed, you can run the model using python2 interpreter:
+It is up to the user how the input data are organised. However, it is advised to keep the base maps and meteorological input maps separated (i.e. store them in separate directories). For practical reasons the following input structure is suggested: 
 
-```bash
-python lisvap1.py mysettings.xml -v -t
-```
+- all meteorological input maps are in one directory (e.g. ‘meteoIn’)
+- all base maps are in one directory (e.g. ‘mapsIn’)
+- all tables are in one directory (e.g. ‘tables’)
+- all output goes into one directory (e.g. ‘out’)
 
-If you just type `python lisvap1.py` you will see the usage dialogue:
 
- ```console
-LisvapPy - Lisvap (Global) using pcraster Python framework
-Authors:  Peter Burek, Johan van der Knijff, Ad de Roo
-Version:  Version: 0.2
-Date:  10/04/2019
-Status:  Development
+The following Figure illustrates this:
+  
 
-    Arguments list:
-    settings.xml     settings file
+![img](../media/figure3.jpg)
+ 
 
-    -q --quiet       output progression given as .
-    -v --veryquiet   no output progression is given
-    -l --loud        output progression given as time step, date and discharge
-    -c --checkfiles  input maps and stack maps are checked, output for each input map BUT no model run
-    -h --noheader    .tss file have no header and start immediately with the time series
-    -t --printtime   the computation time for hydrological modules are printed
-
- ```
-In Docker, you would just type `docker run efas/lisvap:latest`, which is the equivalent of running lisvap1.py without arguments.
-
-The layout of the settings file is detailed in [LISVAP Settings file](/5_LISVAP_settingsfile).
-Along with source code, you will have a settings_tpl.xml file to use as a template to start writing your own settings.
+**Figure:** *Suggested file structure for LISVAP*.

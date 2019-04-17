@@ -2,7 +2,7 @@
 
 ## System requirements
 
-LISVAP is an open source software written in Python and released under EUPL 1.2.
+LISVAP is an open source software written in Python and released under [EUPL 1.2](https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12).
 You can run LISVAP as a docker container (preferred way) or by grabbing the source code from github repository and install dependencies on your system.  
 
 If you use Docker to run LISVAP, you need to install Docker software from [docker.com download page](https://www.docker.com/get-started).
@@ -15,6 +15,9 @@ or [Linux](http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/).
 
 [^1]: Next versions of LISVAP will be updated to Python 3.
 
+We warmly recommend using a `virtualenv` to not pollute the python distribution of your system and to avoid side effects.
+To create a virtualenv to run LISVAP in an isolated environment, follow [this guide](https://docs.python-guide.org/dev/virtualenvs/#lower-level-virtualenv). 
+
 ## Install LISVAP
 
 ### Using Docker
@@ -26,10 +29,10 @@ To pull the most updated Docker image:
 
 `docker pull efas/lisvap:latest`
 
-### Using the code
+### From code
 
 While LISVAP is a plain python application and there is no need of explicit compilation/installation/setup steps, you need to install some requirements, though.
-To run LISVAP, PCRaster framework and its python interface must be correctly installed. Additionally, you have to install numpy, and netCDF4 (both libraries and python interface).
+To run LISVAP, PCRaster framework its dependencies, and its python interface must be correctly installed. Additionally, you have to install numpy and netCDF4 (both libraries and python interface).
 
 Just follow these steps:
 
@@ -42,11 +45,13 @@ cd lisflood-lisvap/
 
 #### 2. Install dependencies
 
+Activate the LISVAP virtualenv that you should have already created.
+ 
 ```bash
 pip install -r requirements.txt
 ```
 
-For PCRaster, follow official guides:
+To install PCRaster, follow official guides:
 
 * [Windows](http://pcraster.geo.uu.nl/quick-start-guide/) 
 * [Linux](http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/)

@@ -2,7 +2,11 @@
 
 ## Introduction
 
-In LISVAP, all file and parameter specifications are defined in a settings file. The purpose of the settings file is to link variables and parameters in the model to in- and output files (maps, time series) and numerical values. In addition, the settings file can be used to specify several *options*. Since the XML structure is identical to the one used for LISFLOOD settings files, please have a look at Chapter 5 of the LISFLOOD User Manual (van der Knijff & de Roo, 2008) for a detailed description of the format. The settings file can be prepared in any text editor (e.g. Notepad, Editpad, Emacs, vi), or alternatively in a dedicated XML editor (e.g. XMLSpy, XXE).
+In LISVAP, all file and parameter specifications are defined in a XML settings file. 
+The purpose of the settings file is to link variables and parameters in the model to in- and output files (maps, time series) and numerical values. 
+In addition, the settings file can be used to specify several *options*. 
+Since the XML structure is identical to the one used for LISFLOOD settings files, please have a look at Chapter 5 of the LISFLOOD User Manual (van der Knijff & de Roo, 2008) for a detailed description of the format.
+The settings file can be prepared in any text editor (e.g. Notepad, Editpad, Emacs, vi), or alternatively in a dedicated XML editor (e.g. XMLSpy, XXE).
 
  
 
@@ -103,12 +107,6 @@ Path to input base maps
 </comment>
 </textvar>
 
-<textvar name="PathTables" value="./tables">
-<comment>
-Path to tables
-</comment>
-</textvar>
-
 <textvar name="PathMeteoIn" value="./meteoIn">
 <comment>
 Path to input raw meteo maps
@@ -116,9 +114,8 @@ Path to input raw meteo maps
 </textvar>
  ```
 
-- ***PathOut*** is the path where all output is written
+-  ***PathOut*** is the path where all output is written
 -  ***PathBaseMapsIn*** is the path where all input base maps (Table 4.1) are located
--  ***PathTables*** is the path where all tables (Table 4.3) are located
 -  ***PathMeteoIn*** is the path where all meteo input (Table 4.2) is stored
 
 
@@ -219,7 +216,7 @@ prefix net longwave radiation maps
 </textvar>
  ```
 
-- ***PrefixTMax*** is the prefix of the maximum temperature maps
+-  ***PrefixTMax*** is the prefix of the maximum temperature maps
 -  ***PrefixTMin*** is the prefix of the minimum temperature maps
 -  ***PrefixTDew*** is the prefix of the dew point temperature maps
 -  ***PrefixEAct*** is the prefix of the actual vapour pressure maps
