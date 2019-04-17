@@ -20,13 +20,13 @@ The same equation is also used to estimate potential evaporation from a water su
 **potential evaporation rate from a bare soil surface [mm/day]** 
 
 $$
-ES = \frac{\Delta R_{nasoil} + \gamma EA_{soil}}{\Delta + \gamma}
+ES = \frac{\Delta R_{nasoil} + \gamma EA}{\Delta + \gamma}
 $$
 
 **potential evaporation rate from water surface [mm/day]**
 
 $$
-EW = \frac{\Delta R_{nawater} + \gamma EA_{water}}{\Delta + \gamma}
+EW = \frac{\Delta R_{nawater} + \gamma EA}{\Delta + \gamma}
 $$
 
 
@@ -122,7 +122,7 @@ $$
 with:
 
 $$
-B_{ld} = \frac{-sin (\frac{PD}{\pi})+sin \ \delta \cdot sin \ \lambda}{cos \ \delta \cdot \ \lambda}
+B_{ld} = \frac{-sin (\frac{PD}{\pi})+sin \ \delta \cdot sin \ \lambda}{cos \ \delta \cdot \ cos \ \lambda}
 $$
 
 where *PD* is a correction constant (-2.65).
