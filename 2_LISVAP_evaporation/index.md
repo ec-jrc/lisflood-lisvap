@@ -55,11 +55,10 @@ The table below lists the properties of the reference surfaces that are used in 
 
 ## Calculating net absorbed radiation
 
-Calculating the net absorbed radiation term involves the following four steps:
+Calculating the net absorbed radiation term involves the following two steps:
 
 1. Calculate the daily extra-terrestrial radiation (Angot radiation)
-2. Calculate the daily net long-wave radiation (based on meteorological conditions)
-4. Calculate the net absorbed radiation
+2. Calculate the net absorbed radiation
 
  
 
@@ -164,8 +163,8 @@ e_a = \frac{( P_{surf} \cdot Q_{air} )}{62.2}
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$P_{surf}$:&nbsp;&nbsp;		surface pressure $[pa]$
-&nbsp;&nbsp;&nbsp;&nbsp;$Q_{air}$:&nbsp;&nbsp;		near-surface specific humidity
+&nbsp;&nbsp;&nbsp;&nbsp;$P_{surf}$:&nbsp;&nbsp;		surface pressure $[pa]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$Q_{air}$:&nbsp;&nbsp;		near-surface specific humidity [-]
  
 
 The equation of Allen (1994) is used to estimate the **cloud cover factor**:
@@ -175,9 +174,8 @@ f= (1.8 \cdot Trans_{Atm} - 0.35)
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$f, Cloud cover adjustment factor [-] in between [0,1]
-&nbsp;&nbsp;&nbsp;&nbsp;$Tran_{Atm}, Atmospheric transition [-]
-
+&nbsp;&nbsp;&nbsp;&nbsp;$f:&nbsp;&nbsp; Cloud cover adjustment factor [-] in between [0,1]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$Tran_{Atm}:&nbsp;&nbsp; Atmospheric transition [-]
 
 Rso = R_{a,d} * (0.75 + (2 * 10**-5 * self.Dem))
 
@@ -187,19 +185,17 @@ Trans_{Atm}=\frac{R_{g,d}}{R_{so}}
 $$ 
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}, Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} according to the meteo set available
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}:&nbsp;&nbsp; Daily-extra terrestrial radiation or down short wave radiation $R_{d,s} according to the meteo set available
 
 $$
 R_{so}= R_{a,d} \cdot (0.75 + ( 2 \cdot 10^5 \cdot z ) )
 $$ 
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{a,d}, Angot Radiation
-&nbsp;&nbsp;&nbsp;&nbsp;$z, altitude according to Digital Elevation Model
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{a,d}:&nbsp;&nbsp; Angot Radiation
+&nbsp;&nbsp;&nbsp;&nbsp;$z:&nbsp;&nbsp; altitude according to Digital Elevation Model
 
 
-
-### Step 4: Net absorbed radiation 
 
 Finally, the **net absorbed radiation** [mm day-1] is calculated as:
 
