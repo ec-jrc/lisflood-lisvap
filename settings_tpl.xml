@@ -57,20 +57,6 @@ You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this 
 
         </group>
 
-<!--        <group>-->
-<!--            <comment>-->
-<!--                **************************************************************-->
-<!--                SPECIAL FLAGS AND SWITCHES-->
-<!--                **************************************************************-->
-<!--            </comment>-->
-<!--            <textvar name="TemperatureInKelvinFlag" value="0">-->
-<!--                <comment>-->
-<!--                    Flag that is 1 if input temperatures (TMax, TMin, TDew) are in Kelvin,-->
-<!--                    and 0 if they are in deg C-->
-<!--                </comment>-->
-<!--            </textvar>-->
-<!--        </group>-->
-
         <group>
 
             <comment>

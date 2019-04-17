@@ -78,11 +78,6 @@ class MiscInitial(object):
 
         self.var.dem = cover(loadmap('Dem'), scalar(0.0))
 
-        # **************************************************************
-        # SPECIAL FLAGS AND SWITCHES
-        # **************************************************************
-        # self.var.TemperatureInKelvinFlag = loadmap('TemperatureInKelvinFlag')
-
         # ************************************************************
         # ***** Some additional stuff
         # ************************************************************
