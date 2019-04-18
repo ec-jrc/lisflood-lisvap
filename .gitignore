@@ -5,7 +5,7 @@ __pycache__/
 *.nc
 *.xml
 *.prof
-
+!basemaps/area.nc
 # unignoring xml settings for templates and tests
 !settings_tpl.xml
 !options*.xml
@@ -15,8 +15,6 @@ __pycache__/
 # unignoring reference and input data for tests
 !tests/data/reference/**/*.nc
 !tests/data/input/**/*.nc
-# unignoring area.nc for tests
-!tests/data/areaall.nc
 
 /.pytest_cache/
 /dt
