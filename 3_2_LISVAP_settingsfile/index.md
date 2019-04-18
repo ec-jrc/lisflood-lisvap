@@ -259,6 +259,29 @@ Here you can define the prefix that is used for each meteorological output varia
 -  ***PrefixES0*** prefix of the potential bare-soil evaporation maps
 -  ***PrefixET0*** prefix of the potential (reference) evapotranspiration maps
 
+## Constants
+
+There are constants you define in settings file. Some of them may have different values from defaults, depending of region under simulation.
+In case they are constant but not uniform for the region you are examinating, you can use a netCDF/PCRaster map to define it. 
+Just use the path to the map instead of a numeric value.
+
+Current list of constant and their default values are reported in the following table:
+
+  **Table:** *LISVAP constants.*	
+
+| Name           | Description                                                                        | Default  |
+| -------------- | ---------------------------------------------------------------------------------- | -------- |
+| AvSolarConst   | Average solar radiation at top atmosphere \[J/m2/s\] (I.E.A. 1978)                 | 1370     |
+| StefBolt       | Stefan-Boltzmann constant \[J/m2/K4/day\]                                          | 4.903E-3 |
+| Press0         | Atmosheric pressure at sea level \[mbar\]                                          | 1013     |
+| PD             | Correction constant in daylength formula \[degrees\]                               | -2.65    |
+| AlbedoSoil     | Albedo of bare soil surface (Supit et. al.)                                        | 0.15     |
+| AlbedoWater    | Albedo of water surface (Supit et. al.)                                            | 0.05     |
+| AlbedoCanopy   | Albedo of vegetation canopy (FAO,1998)                                             | 0.23     |
+| FactorSoil     | Estimated value for surface roughness factor of bare soil (Supit et. al.)          | 0.75     |
+| FactorWater    | Estimated value for surface roughness factor of water surface (Supit et. al.)      | 0.5      |
+| FactorCanopy   | Estimated value for surface roughness factor of vegetation canopy (Supit et. al.)  | 1        |
+
 
 ## LISVAP input options
 

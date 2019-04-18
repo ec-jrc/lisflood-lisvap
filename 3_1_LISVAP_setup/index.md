@@ -13,7 +13,7 @@ All input to LISVAP is provided as maps (grid files in PCRaster format or maps i
 LISVAP needs some base maps representing areas of simulation. These basemaps must be coherent with input dataset, which means having same area (or containing it), and projection.
 
 
-The following Table lists all types of input **base maps**. 
+The following Table lists input **base maps**. 
 
 
 **Table:** *LISVAP base maps*
@@ -21,23 +21,15 @@ The following Table lists all types of input **base maps**.
 | Map name in settings file     | Default name           | Description                                       |
 | ----------------------------- | ---------------------- | ------------------------------------------------- |
 | **GENERAL**                   |                        |                                                   |
-| MaskMap                       | area.map or area.nc    | Boolean map that defines model boundaries         |
+| MaskMap                       | area.nc                | Boolean map that defines model boundaries         |
 | **TOPOGRAPHY**                |                        |                                                   |
-| Dem                           | dem.map                | Elevation, in [m] above sea level                 |
-| Lat                           | lat.map                | Latitude [decimal degrees]                        |
-| Lon                           | lon.map                | Longitude [decimal degrees]                       |
-| **ANGSTROM CONSTANTS**[^1]    |                        |                                                   |
-| Aa                            | angstr_a.map           | Angstrom regression coefficient [-]               |
-| Ba                            | angstr_b.map           | Angstrom regression coefficient [-]               |
-| **SUPIT CONSTANTS**           |                        |                                                   |
-| As                            | supit_a.map            | Supit model regression coefficient [°C-0.5]       |
-| Bs                            | supit_b.map            | Supit model regression coefficient [-]            |
-| Cs                            | supit_c.map            | Supit model regression coefficient [MJ m-2 day-1] |
-| **HARGREAVES CONSTANTS**      |                        |                                                   |
-| Ah                            | hargrv_a.map           | Hargreaves formula constant [°C-0.5]              |
-| Bh                            | hargrv_b.map           | Hargreaves formula constant [MJ m-2 day-1]        |
+| Dem                           | dem.nc                 | Elevation, in [m] above sea level                 |
+| Lat                           | lat.nc                 | Latitude [decimal degrees]                        |
+| Lon                           | lon.nc                 | Longitude [decimal degrees]                       |
 
-[^1]: Constants can be set as a single value in settings file instead of using a map.
+
+Some parameters can be set as a single value (constant) in settings file or as a base input map in case they change for different regions of the simulation area.
+Check [settings file reference](/lisflood-lisvap/3_2_settingsfile) for more details.
 
 
 
