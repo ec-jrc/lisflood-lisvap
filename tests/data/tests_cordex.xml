@@ -493,7 +493,7 @@
                 **************************************************************
             </comment>
 
-            <textvar name="MaskMap" value="$(ProjectDir)/tests/data/areaall.nc">
+            <textvar name="MaskMap" value="$(ProjectDir)/basemaps/area.nc">
                 <comment>
                     Clone map
                 </comment>
