@@ -5,10 +5,11 @@
 In LISVAP, all file and parameter specifications are defined in a XML settings file. 
 The purpose of the settings file is to link variables and parameters in the model to in- and output files (maps, time series) and numerical values. 
 In addition, the settings file can be used to specify several *options*. 
-Since the XML structure is identical to the one used for LISFLOOD settings files, please have a look at Chapter 5 of the LISFLOOD User Manual (van der Knijff & de Roo, 2008) for a detailed description of the format.
- 
 
-Instead of writing the settings file completely from scratch, we suggest to use the example settings file that is provided with LISVAP as a starting point.  In order to use the example, you should make sure the following requirements are met:
+It's convenient to download the [XML template](https://raw.githubusercontent.com/ec-jrc/lisflood-lisvap/master/settings_tpl.xml) that is shipped with source code and start from there 
+instead of writing the settings file completely from scratch. 
+
+In order to use the example, you should make sure the following requirements are met:
  
 - All input maps are named according to default file names
 - All base maps are in one directory or in its subfolders
@@ -287,7 +288,10 @@ Current list of constant and their default values are reported in the following 
 
 LISVAP has several options, which can be set in the settings file’s ‘lfoptions’ element. Most options in LISVAP are related to the input data used. Since different providers of meteorological data often provide slightly different variables, LISVAP has been designed to offer some flexibility in this respect. 
 
-Table 5.1 below lists all currently implemented input options and their respective defaults. These options all act as switches (1= on,  0=off).  Note that each option generally requires additional items in the settings file. For instance, using the dew point temperature option requires that the corresponding map stack is defined in the settings file. The template settings file that is provided with LISVAP always contains file definitions for all implemented options. 
+Table 5.1 below lists all currently implemented input options and their respective defaults. These options all act as switches (1= on,  0=off). 
+Note that each option generally requires additional items in the settings file. 
+For instance, using the dew point temperature option requires that the corresponding map stack is defined in the settings file. 
+The template settings file that is provided with LISVAP always contains file definitions for all implemented options. 
 
  **Table:** *LISVAP input options.*	
 

@@ -2,6 +2,9 @@
 
 There is no difference in running LISVAP in a Docker container or directly by source code. You need to prepare your XML settings file and pass it as argument.
 
+The layout of the settings file is detailed in [LISVAP Settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile/).
+Along with source code, you will have a [settings_tpl.xml](https://raw.githubusercontent.com/ec-jrc/lisflood-lisvap/master/settings_tpl.xml) file to use as a template to start writing your own settings.
+
 ### Using Docker
 
 For Docker, first thing is to map folders using volumes as in the table below. Those paths are configured in the XML settings file that you submit to LISVAP.
@@ -53,6 +56,3 @@ Status:  Development
 
  ```
 In Docker, you would just type `docker run efas/lisvap:latest`, which is the equivalent of running lisvap1.py without arguments.
-
-The layout of the settings file is detailed in [LISVAP Settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile).
-Along with source code, you will have a settings_tpl.xml file to use as a template to start writing your own settings.

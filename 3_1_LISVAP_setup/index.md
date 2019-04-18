@@ -4,7 +4,7 @@ Before to run LISVAP, you need to:
 
 1. Prepare base maps
 2. Prepare input dataset
-3. [Prepare the XML settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile)
+3. [Prepare the XML settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile/)
 
 All input to LISVAP is provided as maps (grid files in PCRaster format or maps in netCDF format). 
 
@@ -37,13 +37,15 @@ Check [settings file reference](/lisflood-lisvap/3_2_settingsfile) for more deta
 
 On the repository, you can find some [base maps](https://github.com/ec-jrc/lisflood-lisvap/tree/master/basemaps) for the test case.
 
-It is recommended to generate the input base maps depending on the specific use case, takeing into account the spatial resolution required and the coordinate system. In the future, a more detailed documentation assisting in the generation of input base maps will be made available.  
+It is recommended to generate the input base maps depending on the specific use case, taking into account the spatial resolution required and the coordinate system. 
+In the future, a more detailed documentation assisting in the generation of input base maps will be made available.  
 
 
 ### Input dataset
 
 LISVAP model inputs are meteo variables, provided as netCDF mapstacks (timeseries of 2D georeferenced variables).
-Depending on available meteo variables, you can setup LISVAP to run using two different datasets of meteorological input variables. To facilitate the use of LISVAP two specific use cases, derived from the EFAS and CORDEX set up are available for demonstration purposes.  [^2].  
+Depending on available meteo variables, you can setup LISVAP to run using two different datasets of meteorological input variables.
+To facilitate the use of LISVAP two specific use cases, derived from the EFAS and CORDEX set up are available for demonstration purposes.  [^2].  
 
 [^2]: [CORDEX](https://www.cordex.org/)
 
