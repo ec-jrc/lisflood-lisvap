@@ -32,17 +32,16 @@ class TestEFAS(object):
     @classmethod
     def setup_class(cls):
         settings = LisSettings(cls.settings_path)
-        # settings.flags['printtime'] = True
-        lisvapexe(settings)
-
-    @classmethod
-    def teardown_class(cls):
-        settings = LisSettings.instance()
         output_path = settings.binding['PathOut']
         for var in reference_files:
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
+        # settings.flags['printtime'] = True
+        lisvapexe(settings)
+
+    @classmethod
+    def teardown_class(cls):
         cdf_flags['all'] = 0
         cdf_flags['steps'] = 0
         cdf_flags['end'] = 0
@@ -67,17 +66,16 @@ class TestCORDEX(object):
     @classmethod
     def setup_class(cls):
         settings = LisSettings(cls.settings_path)
-        # settings.flags['printtime'] = True
-        lisvapexe(settings)
-
-    @classmethod
-    def teardown_class(cls):
-        settings = LisSettings.instance()
         output_path = settings.binding['PathOut']
         for var in reference_files:
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
+        # settings.flags['printtime'] = True
+        lisvapexe(settings)
+
+    @classmethod
+    def teardown_class(cls):
         cdf_flags['all'] = 0
         cdf_flags['steps'] = 0
         cdf_flags['end'] = 0
