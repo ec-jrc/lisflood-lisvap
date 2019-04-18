@@ -102,7 +102,7 @@ def headerinfo():
     print """\n
 (C) Disaster Risk Management Knowledge Centre
     Joint Research Centre of the European Commission
-    TP122, I-21020 Ispra (Va), Italy
+    Unit E1, I-21020 Ispra (Va), Italy
 \n
 """
 
