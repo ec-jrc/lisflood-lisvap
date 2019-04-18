@@ -427,19 +427,19 @@
                 **************************************************************
             </comment>
 
-            <textvar name="MaskMap" value="$(ProjectDir)/basemaps/area.nc">
+            <textvar name="MaskMap" value="$(PathBaseMapsIn)/area.nc">
                 <comment>
                     Clone map
                 </comment>
             </textvar>
 
-            <textvar name="Dem" value="$(PathBaseMapsIn)/dem.map">
+            <textvar name="Dem" value="$(PathBaseMapsIn)/dem.nc">
                 <comment>
                     Digital elevation model [meters a.s.l.]
                 </comment>
             </textvar>
 
-            <textvar name="Lat" value="$(PathBaseMapsIn)/lat.map">
+            <textvar name="Lat" value="$(PathBaseMapsIn)/lat.nc">
                 <comment>
                     Latitude [decimal degrees]
                 </comment>

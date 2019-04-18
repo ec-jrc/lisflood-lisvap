@@ -5,7 +5,7 @@ __pycache__/
 *.nc
 *.xml
 *.prof
-!basemaps/area.nc
+!basemaps/*.nc
 # unignoring xml settings for templates and tests
 !settings_tpl.xml
 !options*.xml
