@@ -19,16 +19,18 @@ For Docker, first thing is to map folders using volumes as in the table below. T
 Then, the correspondant Docker command (in Linux) to run the LISVAP container, given mysettings.xml is in current folder, will be:
 
 ```bash
+docker pull efas/lisvap:latest
 docker run -v $(pwd)/:/tmp -v /DATA/Meteo/2017/EMA:/input -v /DATA/Lisvap/out:/output efas/lisvap:latest /tmp/mysettings.xml
 ```
 
 ### Using the code
 
-Once alle dependencies are installed, you can run the model using python2 interpreter:
+Once all dependencies are installed, you can run the model using python (2.7 version) interpreter[^1]:
 
 ```bash
 python lisvap1.py mysettings.xml -v -t
 ```
+[^1]: As previously said, we strongly recommend using an isolated python virtualenv.
 
 If you just type `python lisvap1.py` you will see the usage dialogue:
 
