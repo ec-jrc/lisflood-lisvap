@@ -158,7 +158,7 @@ def loadmap(name):
     return res
 
 
-def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, variable_name=None):
+def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, variable_name=None):
     """ Read maps from netCDF stacks (forcings, fractions, water demand)
 
     Read maps from netCDF stacks (forcings, fractions, water demand).
@@ -171,7 +171,7 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
     water demand and landuse changes in time).
 
     :param name: string containing path and name of netCDF file to be read
-    :param time: current simulation timestep of the model as integer number (referred to CalendarStartDay)
+    :param timestep: current simulation timestep of the model as integer number (referred to CalendarStartDay)
     :param timestampflag: look for exact time stamp in netcdf file ('exact') or for the closest (left) time stamp available ('closest')
     :param averageyearflag: if True, use "average year" netcdf file over the entire model simulation period
     :param variable_name: if given, will select the variable from netcdf instead of guessing
@@ -179,42 +179,64 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
     :except: if current simulation timestep is not stored in the stack, it stops with error message (if timestampflag='exact')
     """
 
-    filename = name + '.nc' if not name.endswith('nc') else name
+    filename = '{}.nc'.format(name) if not name.endswith('nc') else name
     nf1 = iter_open_netcdf(filename, 'r')
-    settings = LisSettings.instance()
     # read information from netCDF file
     # original code
     # Attempt at checking if input files are not in the format we expect
     if not variable_name:
-        varNames = [nf1.variables.items()[it][0] for it in xrange(len(nf1.variables.items()))]
+        var_names = [nf1.variables.items()[it][0] for it in xrange(len(nf1.variables.items()))]
         # targets = list()
         skip_names = ('x', 'y', 'laea', 'lambert_azimuthal_equal_area', 'time', 'lat', 'lon')
-        targets = [it for it in varNames if it not in skip_names]
+        targets = [it for it in var_names if it not in skip_names]
         # Return warning if we have more than 1 non-coordinate-related variable
         # (i.e. x, y, laea, time) OR if the last variable in the netCDF file is not the variable to get data for
         if len(targets) > 1 or not str(nf1.variables.items()[-1]).find(targets[0]) > -1:
-            warnings.warn("Wrong number of variables found in netCDF file %s" % filename)
+            warnings.warn('Wrong number of variables found in netCDF file %s' % filename)
         else:
             variable_name = targets[0]
 
+    current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep)
+
+    cutmaps = CutMap.instance().slices
+    mapnp = nf1.variables[variable_name][current_ncdf_index, cutmaps[0], cutmaps[1]]
+    nf1.close()
+    mapnp[np.isnan(mapnp)] = -9999
+    mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
+    timename = os.path.basename(name) + str(timestep)
+    settings = LisSettings.instance()
+    if settings.flags['checkfiles']:
+        checkmap(timename, filename, mapnp, True, 1)
+    return mapnp
+
+
+def netcdf_step(averageyearflag, nf1, timestampflag, timestep):
+    """
+    Get netcdf step index based on timestep
+    :param averageyearflag:
+    :param nf1: netcdf file handler
+    :type nf1: netcdf.Dataset
+    :param timestampflag:
+    :param timestep: current timestep
+    :type timestep: int
+    :return: current_ncdf_index
+    :rtype: int
+    """
     t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
     t_unit = nf1.variables['time'].units  # get unit (u'hours since 2015-01-01 06:00:00')
     try:
         t_cal = nf1.variables['time'].calendar  # get calendar from netCDF file
     except AttributeError:  # Attribute does not exist
-        t_cal = u"gregorian"  # Use standard calendar
-
+        t_cal = u'gregorian'  # Use standard calendar
+    settings = LisSettings.instance()
     begin = calendar(settings.binding['CalendarDayStart'])
     DtSec = float(settings.binding['DtSec'])
     DtDay = float(DtSec / 86400)
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
-
     # get date of current simulation step
-    current_date = calendar(time)
-
+    current_date = calendar(timestep)
     if not isinstance(current_date, datetime.datetime):
         current_date = begin + datetime.timedelta(days=(current_date - 1) * DtDay)
-
     # if reading from an average year NetCDF stack, ignore the year in current simulation date and change it to the netCDF time unit year
     if averageyearflag:
         # CM: get year from time unit in case average year is used
@@ -228,37 +250,22 @@ def readnetcdf(name, time, timestampflag='closest', averageyearflag=False, varia
             # CM: if simulation year is leap and average year is not, switch 29/2 with 28/2
             current_date = current_date.replace(day=28)
             current_date = current_date.replace(year=t_ref_year)
-
     # get timestep in netCDF file corresponding to current simulation date
     current_ncdf_step = date2num(current_date, units=t_unit, calendar=t_cal)
-
     # read netCDF map
     if current_ncdf_step not in t_steps:
         if timestampflag == 'exact':
             # look for exact time stamp when loading data
-            msg = "Date " + str(current_date) + " not stored in " + filename
+            msg = "Date " + str(current_date) + " not stored in input map"
             raise LisfloodError(msg)
         elif timestampflag == 'closest':
             # CM: get the closest value
             current_ncdf_step_new = take_closest(t_steps, current_ncdf_step)
             # CM: set current_ncdf_step to the closest available time step in netCDF file
             current_ncdf_step = current_ncdf_step_new
-
     # get index of timestep in netCDF file corresponding to current simulation date
     current_ncdf_index = np.where(t_steps == current_ncdf_step)[0][0]
-
-    # mapnp = nf1.variables[variable_name][time - 1, cutmap[2]:cutmap[3], cutmap[0]:cutmap[1]]
-    cutmaps = CutMap.instance().slices
-    mapnp = nf1.variables[variable_name][current_ncdf_index, cutmaps[0], cutmaps[1]]
-
-    nf1.close()
-    # return mapnp
-    mapnp[np.isnan(mapnp)] = -9999
-    map = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
-    timename = os.path.basename(name) + str(time)
-    if settings.flags['checkfiles']:
-        checkmap(timename, filename, map, True, 1)
-    return map
+    return current_ncdf_index
 
 
 def checknetcdf(name, start, end):
@@ -275,7 +282,7 @@ def checknetcdf(name, start, end):
     :raises Exception: stop if netCDF maps do not cover simulation time period
     """
 
-    filename = name + '.nc' if not name.endswith('.nc') else name
+    filename = '{}.nc'.format(name) if not name.endswith('nc') else name
     nf1 = iter_open_netcdf(filename, 'r')
 
     # read information from netCDF file
@@ -358,8 +365,6 @@ def remote_input_access(function, file_path):
     while num_trials <= 10:
         try:
             obj = function(file_path)
-            if num_trials > 1:
-                print("File {0} succesfully accessed after {1} attempts".format(file_path, num_trials))
         except IOError:
             if os.path.exists(root) and not os.path.exists(file_path):
                 raise LisfloodError(file_path)

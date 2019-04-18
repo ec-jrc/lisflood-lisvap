@@ -32,7 +32,6 @@ class LisvapModelDyn(DynamicModel):
             defines the mask map and the outlet points
             initialization of the hydrological modules
         """
-        # DynamicModel.__init__(self)
         super(LisvapModelDyn, self).__init__()
         self.calendar_date = None
         self.calendar_day = None
