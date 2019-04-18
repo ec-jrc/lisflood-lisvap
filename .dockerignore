@@ -1,4 +1,3 @@
-tests/**
 _site/**
 .mypy_cache/
 .pytest_cache/

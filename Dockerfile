@@ -26,8 +26,9 @@ RUN wget https://cmake.org/files/LatestRelease/cmake-3.14.1-Linux-x86_64.tar.gz 
     && cd pcraster-4.2.1 && mkdir build && cd build \
     && cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=/opt/pcraster /opt/pcraster-4.2.1/ && cmake --build ./ && make install
 
+COPY docker-entrypoint.sh /
 WORKDIR /lisvap
 COPY . /lisvap/
-RUN pip install -r /lisvap/requirements.txt
+RUN pip install -r /lisvap/requirements.txt && pip install pytest
 
-ENTRYPOINT ["python", "lisvap1.py"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
