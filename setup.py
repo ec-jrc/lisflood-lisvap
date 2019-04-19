@@ -10,7 +10,7 @@ sys.path.append(os.path.join(current_dir, './src/'))
 
 setup(
     name='lisflood-lisvap',
-    version='0.3',
+    version='0.3.1',
     package_dir={'': 'src'},
     py_modules=[os.path.splitext(os.path.basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
