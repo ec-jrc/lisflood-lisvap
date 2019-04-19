@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 
 set -e
-if [[ "$1" = 'test' ]]; then
-    echo "RUNNING tests....."
-    pytest /lisvap/tests/ -s
-    mkdir -p /output/cordex
-    mkdir -p /output/efas
-    echo "copy produced files to /output/cordex......"
-    cp /lisvap/tests/data/output/cordex/*.nc /output/cordex/
-    cp /lisvap/tests/data/tests_cordex.xml /output/cordex/
-    echo "copy produced files to /output/efas......"
-    cp /lisvap/tests/data/output/efas/*.nc /output/efas/
-    cp /lisvap/tests/data/tests_efas.xml /output/efas/
+if [[ "$1" = 'usecases' ]]; then
+#    pytest /lisvap/tests/ -s
+    mkdir -p /input/cordex
+    mkdir -p /input/efas
+    mkdir -p /input/basemaps
+    echo "Copying basemaps to /input/..."
+    cp /basemaps/* /input/basemaps/
+    echo "copy input files to /input/cordex......"
+    cp /lisvap/tests/data/input/cordex/*.nc /input/cordex/
+    cp /lisvap/tests/data/tests_cordex.xml /input/cordex/
+
+    echo "copy input files to /input/efas......"
+    cp /lisvap/tests/data/input/efas/*.nc /input/efas/
+    cp /lisvap/tests/data/tests_efas.xml /input/efas/
 else
     exec python /lisvap/lisvap1.py "$@"
 fi

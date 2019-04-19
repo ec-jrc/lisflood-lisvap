@@ -17,18 +17,24 @@ RUN apt-file update
 
 RUN apt install -y --no-install-recommends gcc g++ git libboost-all-dev libpython-dev libxerces-c-dev libxml2 libxml2-utils libxslt1-dev qtbase5-dev \
     libqwt-dev gfortran gdal-bin libgdal-dev python-gdal libqt5opengl5 libqt5opengl5-dev qtbase5-dev \
-    && pip install docopt numpy==1.15
+    && pip install docopt numpy==1.15 pytest
 
 WORKDIR /opt
 RUN wget https://cmake.org/files/LatestRelease/cmake-3.14.1-Linux-x86_64.tar.gz && tar -xzvf cmake-3.14.1-Linux-x86_64.tar.gz \
     && wget http://pcraster.geo.uu.nl/pcraster/4.2.1/pcraster-4.2.1.tar.bz2 && tar xf pcraster-4.2.1.tar.bz2 \
     && mkdir /lisvap && mkdir /input && mkdir /output \
+    && mkdir /tests && mkdir /basemaps \
     && cd pcraster-4.2.1 && mkdir build && cd build \
     && cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=/opt/pcraster /opt/pcraster-4.2.1/ && cmake --build ./ && make install
 
+WORKDIR /
+COPY LICENSE /
+COPY settings_tpl.xml /
 COPY docker-entrypoint.sh /
-WORKDIR /lisvap
-COPY . /lisvap/
-RUN pip install -r /lisvap/requirements.txt && pip install pytest
+COPY requirements.txt /
+RUN pip install -r /requirements.txt
+COPY src/. /lisvap/
+COPY tests/. /tests/
+COPY basemaps/. /basemaps/
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

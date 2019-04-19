@@ -9,8 +9,8 @@ from pcraster import numpy_operations, Nominal
 from pcraster.framework.dynamicFramework import DynamicFramework
 from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimum, mapmaximum
 
-from utils import LisfloodError
-from utils.decorators import counted
+from . import LisfloodError
+from .decorators import counted
 
 
 def valuecell(coordx, coordstr):
@@ -99,7 +99,7 @@ def date_to_int(date_in, both=False):
     the number of steps as integer is returned
     :return: number of steps as integer and input date as string
     """
-    from utils import LisSettings
+    from lisvap.utils import LisSettings
     settings = LisSettings.instance()
     binding = settings.binding
     # CM: get reference date to be used with step numbers from 'CalendarDayStart' in Settings.xml file
@@ -134,7 +134,7 @@ def checkdate(start, end):
     :returns: modelSteps (modelSteps[0] = intStart
     modelSteps.append(intEnd)
     """
-    from utils import LisSettings
+    from lisvap.utils import LisSettings
     settings = LisSettings.instance()
     binding = settings.binding
     # CM: calendar date start (CalendarDayStart)

@@ -19,8 +19,8 @@ import datetime
 
 from pcraster.operations import scalar, cover
 
-from utils.readers import loadmap
-from utils.tools import calendar
+from lisvap.utils.readers import loadmap
+from lisvap.utils.tools import calendar
 
 
 class MiscInitial(object):

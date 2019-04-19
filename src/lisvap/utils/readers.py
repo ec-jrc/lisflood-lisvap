@@ -8,8 +8,8 @@ import pcraster
 from netCDF4 import Dataset, num2date, date2num
 from pcraster import numpy_operations, operations, Boolean, Nominal, Scalar
 
-from utils import LisSettings, LisfloodError, MaskMapMetadata, CutMap
-from utils.tools import take_closest, calendar, checkmap
+from . import LisSettings, LisfloodError, MaskMapMetadata, CutMap
+from .tools import take_closest, calendar, checkmap
 
 
 def loadsetclone(name):
