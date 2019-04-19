@@ -7,10 +7,12 @@ from setuptools import setup, find_packages
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(current_dir, './src/'))
 
+from lisvap.lisvap1 import __version__
+
 
 setup(
     name='lisflood-lisvap',
-    version='0.3.1',
+    version=__version__,
     package_dir={'': 'src'},
     py_modules=[os.path.splitext(os.path.basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
