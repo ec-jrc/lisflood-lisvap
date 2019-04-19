@@ -28,9 +28,12 @@ copy input files to /input/cordex......
 copy input files to /input/efas......
 ```
 
+After executed the command, you will find data under `/local/folder/lisvap/input` directory, in two subfolders `cordex` and `efas`.
+
+
 ### Source code
 
-If you clone/download LISVAP github repository, you find relevant files under `basemaps` and `tests/data` folder.
+If you clone/download LISVAP github repository, you find relevant files under `basemaps` and `tests/data` folder:
 
 1. [input and settings files](https://github.com/ec-jrc/lisflood-lisvap/tree/master/tests/data)
 2. [basemaps](https://github.com/ec-jrc/lisflood-lisvap/tree/master/basemaps)
