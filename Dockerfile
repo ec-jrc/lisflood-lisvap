@@ -28,13 +28,13 @@ RUN wget https://cmake.org/files/LatestRelease/cmake-3.14.1-Linux-x86_64.tar.gz 
     && cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=/opt/pcraster /opt/pcraster-4.2.1/ && cmake --build ./ && make install
 
 WORKDIR /
+COPY requirements.txt /
+RUN pip install -r /requirements.txt
+COPY tests/. /tests/
+COPY basemaps/. /basemaps/
+COPY src/. /
 COPY LICENSE /
 COPY settings_tpl.xml /
 COPY docker-entrypoint.sh /
-COPY requirements.txt /
-RUN pip install -r /requirements.txt
-COPY src/. /lisvap/
-COPY tests/. /tests/
-COPY basemaps/. /basemaps/
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

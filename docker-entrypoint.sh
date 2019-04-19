@@ -8,11 +8,12 @@ if [[ "$1" = 'usecases' ]]; then
     echo "Copying basemaps to /input/..."
     cp /basemaps/* /input/basemaps/
     echo "copy input files to /input/cordex......"
-    cp /lisvap/tests/data/input/cordex/*.nc /input/cordex/
-    cp /lisvap/tests/data/tests_cordex.xml /input/cordex/
+    cp /tests/data/input/cordex/*.nc /input/cordex/
+    cp /tests/data/tests_cordex.xml /input/
     echo "copy input files to /input/efas......"
-    cp /lisvap/tests/data/input/efas/*.nc /input/efas/
-    cp /lisvap/tests/data/tests_efas.xml /input/efas/
+    cp /tests/data/input/efas/*.nc /input/efas/
+    cp /tests/data/tests_efas.xml /input/
+    chmod a+w /input/*.xml
 else
     exec python /lisvap/lisvap1.py "$@"
 fi

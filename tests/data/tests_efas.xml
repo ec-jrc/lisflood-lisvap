@@ -64,19 +64,19 @@
                 **************************************************************
             </comment>
 
-            <textvar name="PathOut" value="$(ProjectDir)/tests/data/output/efas">
+            <textvar name="PathOut" value="$(SettingsDir)/output/efas">
                 <comment>
                     Output path
                 </comment>
             </textvar>
 
-            <textvar name="PathBaseMapsIn" value="$(ProjectDir)/basemaps">
+            <textvar name="PathBaseMapsIn" value="$(SettingsDir)/../../basemaps">
                 <comment>
                     Path to input base maps
                 </comment>
             </textvar>
 
-            <textvar name="PathMeteoIn" value="$(ProjectDir)/tests/data/input/efas">
+            <textvar name="PathMeteoIn" value="$(SettingsDir)/input/efas">
                 <comment>
                     Path to input raw meteo maps
                     E:/lisflood_test/LisvapWorld/meteo/raster
