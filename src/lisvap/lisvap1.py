@@ -108,6 +108,8 @@ def headerinfo():
 
 
 def main():
+    if len(sys.argv) < 2:
+        usage()
     settingsxml = sys.argv[1]  # setting.xml file
     lissettings = LisSettings(settingsxml)
     # setting of global flag e.g checking input maps, producing more output information
@@ -117,6 +119,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        usage()
     sys.exit(main())
