@@ -13,12 +13,20 @@ For Python, ensure to install the latest 2.7 [^1] version for your system [from 
 For details on how to install PCRaster the reader is referred to the PCRaster installation guide [for Windows](http://pcraster.geo.uu.nl/quick-start-guide/) 
 or [Linux](http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/).
 
-[^1]: Next versions of LISVAP will be updated to Python 3.
+
 
 We warmly recommend using a `virtualenv` to not pollute the python distribution of your system and to avoid side effects.
 To create a virtualenv to run LISVAP in an isolated environment, follow [this guide](https://docs.python-guide.org/dev/virtualenvs/#lower-level-virtualenv). 
 
 ## Install LISVAP
+
+There are three possibilites to get LISVAP. 
+
+1. Pull the Docker image
+2. Install LISVAP python module using pip tool
+3. Clone the repository from github
+
+In case you need some exemplary data to run it (basemaps, meteo input etc.), we suggest to install using Docker or by cloning the repository to have access to all assets.
 
 ### Using Docker
 
@@ -28,6 +36,16 @@ Docker will pull the most updated image from our repository and it will run LISV
 To pull the most updated Docker image:
 
 `docker pull efas/lisvap:latest`
+
+
+### Using pip tool
+
+LISVAP module is distributed as a pip package and regularly published to pypi repository.
+
+To install[^2]
+
+`pip install lisflood-lisvap`
+
 
 ### From code
 
@@ -45,7 +63,7 @@ cd lisflood-lisvap/
 
 #### 2. Install dependencies
 
-Activate the LISVAP virtualenv that you should have already created.
+After activated the LISVAP virtualenv that you should have already created, install dependencies:
  
 ```bash
 pip install -r requirements.txt
@@ -55,3 +73,6 @@ To install PCRaster, follow official guides:
 
 * [Windows](http://pcraster.geo.uu.nl/quick-start-guide/) 
 * [Linux](http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/)
+
+[^1]: Next versions of LISVAP will be updated to Python 3.
+[^2]: Remember that pip installation of lisvap will install its python dependencies as well but you still need to install PCRaster python manually.

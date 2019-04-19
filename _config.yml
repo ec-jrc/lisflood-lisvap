@@ -243,7 +243,7 @@ defaults:
           url: 4_LISVAP_run
         - title: "- LISVAP output files"
           url: 5_LISVAP_output
-        - title: "- LISVAP test cases"
+        - title: "- LISVAP use cases"
           url: 6_LISVAP_tests
         - title: "- References"
           url: 0_References

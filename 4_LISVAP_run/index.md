@@ -5,7 +5,7 @@ There is no difference in running LISVAP in a Docker container or directly by so
 The layout of the settings file is detailed in [LISVAP Settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile/).
 Along with source code, you will have a [settings_tpl.xml](https://raw.githubusercontent.com/ec-jrc/lisflood-lisvap/master/settings_tpl.xml) file to use as a template to start writing your own settings.
 
-### Using Docker
+### ... in a Docker container
 
 For Docker, first thing is to map folders using volumes as in the table below. Those paths are configured in the XML settings file that you submit to LISVAP.
 
@@ -26,12 +26,22 @@ docker pull efas/lisvap:latest
 docker run -v $(pwd)/:/tmp -v /DATA/Meteo/2017/EMA:/input -v /DATA/Lisvap/out:/output efas/lisvap:latest /tmp/mysettings.xml
 ```
 
-### Using the code
+### ... as an installed python module
+
+If you installed lisvap in your python environment using pip tool, you will have a binary called `lisvap` in your path.
+
+```bash
+pip install lisflood-lisvap
+lisvap mysettings.xml -v -t
+```
+
+### ... from source code
 
 Once all dependencies are installed, you can run the model using python (2.7 version) interpreter[^1]:
 
 ```bash
-python lisvap1.py mysettings.xml -v -t
+cd src/
+python lisvap/lisvap1.py mysettings.xml -v -t
 ```
 [^1]: As previously said, we strongly recommend using an isolated python virtualenv.
 
@@ -56,3 +66,4 @@ Status:  Development
 
  ```
 In Docker, you would just type `docker run efas/lisvap:latest`, which is the equivalent of running lisvap1.py without arguments.
+As a python module installed in your python environment, type `lisvap` with no arguments.

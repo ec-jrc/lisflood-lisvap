@@ -32,7 +32,6 @@ Some parameters can be set as a single value (constant) in settings file or as a
 Check [settings file reference](/lisflood-lisvap/3_2_settingsfile) for more details.
 
 
-
 #### Generating input base maps
 
 On the repository, you can find some [base maps](https://github.com/ec-jrc/lisflood-lisvap/tree/master/basemaps) for the test case.
