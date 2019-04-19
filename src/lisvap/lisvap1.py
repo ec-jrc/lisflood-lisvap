@@ -39,10 +39,10 @@ import sys
 
 from pyexpat import *
 
-from utils import LisSettings, TimeProfiler
-from utils.tools import checkdate, DynamicFrame
-from lisvapdynamic import LisvapModelDyn
-from lisvapinitial import LisvapModelIni
+from lisvap.utils import LisSettings, TimeProfiler
+from lisvap.utils.tools import checkdate, DynamicFrame
+from lisvap.lisvapdynamic import LisvapModelDyn
+from lisvap.lisvapinitial import LisvapModelIni
 
 
 class LisvapModel(LisvapModelIni, LisvapModelDyn):

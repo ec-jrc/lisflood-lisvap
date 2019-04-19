@@ -16,16 +16,19 @@ See the Licence for the specific language governing permissions and limitations 
 """
 
 import os
+import sys
 from functools import wraps
 
 from pyexpat import *
 import numpy as np
 from pcraster.numpy_operations import pcr2numpy
 
-from utils import LisSettings
-from utils.readers import readnetcdf, iter_open_netcdf
-
 current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(current_dir, '../src/'))
+
+from lisvap.utils import LisSettings
+from lisvap.utils.readers import readnetcdf, iter_open_netcdf
+
 
 reference_files = {
     'efas': {
@@ -100,5 +103,7 @@ def listest(domain, variable):
                 results.append(check_var_step(domain, variable, step))
             assert all(results)
             return f(*args, **kwds)
+
         return wrapper
+
     return decorator

@@ -30,9 +30,9 @@ import numpy as np
 from netCDF4 import Dataset
 from pcraster import pcraster
 
-from utils.decorators import cached
+from .decorators import cached
 
-project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
+project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../..'))
 
 
 class LisfloodError(Exception):

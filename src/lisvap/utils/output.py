@@ -24,10 +24,10 @@ from pcraster.framework.Timeoutput import TimeoutputTimeseries
 from pcraster.operations import mapmaximum, catchmenttotal, nominal
 from pcraster.framework import report
 
-from utils import cdf_flags, LisfloodError
-from utils.tools import valuecell
-from utils.writers import writenet
-from utils.readers import loadmap
+from . import cdf_flags, LisfloodError
+from .tools import valuecell
+from .writers import writenet
+from .readers import loadmap
 
 
 class OutputTssMap(object):

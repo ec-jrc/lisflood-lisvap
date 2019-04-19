@@ -18,7 +18,7 @@ See the Licence for the specific language governing permissions and limitations 
 from pcraster import operations
 from pcraster.operations import scalar
 
-from utils.readers import readnetcdf
+from lisvap.utils.readers import readnetcdf
 
 
 class ReadMeteo(object):

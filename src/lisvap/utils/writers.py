@@ -5,7 +5,7 @@ from netCDF4 import Dataset
 import pcraster
 from pcraster import numpy_operations
 
-from utils import CutMap, NetcdfMetadata
+from . import CutMap, NetcdfMetadata
 
 
 def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flag_time=True):
