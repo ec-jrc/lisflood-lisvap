@@ -83,16 +83,50 @@ class LisSettings(object):
 
     def __init__(self, settings_file):
         dom = xml.dom.minidom.parse(settings_file)
-        # domopt = xml.dom.minidom.parse(options_xml)
 
+        self.settings_path = os.path.normpath(os.path.dirname((os.path.abspath(settings_file))))
         self.flags = self.config_flags()
 
         user_settings, bindings = self.get_binding(dom)
+
         self.binding = bindings
         self.options = self.get_options(dom)
         self.report_steps = self._report_steps(user_settings, bindings)
         self.report_timeseries = self._report_tss()
         self.report_maps_steps, self.report_maps_all, self.report_maps_end = self._reported_maps()
+
+    def get_binding(self, dom):
+        binding = {}
+
+        #  built-in user variables
+        user = {
+            'ProjectDir': project_dir, 'ProjectPath': project_dir,
+            'SettingsDir': self.settings_path, 'SettingsPath': self.settings_path,
+        }
+        lfuse = dom.getElementsByTagName("lfuser")[0]
+        for userset in lfuse.getElementsByTagName("textvar"):
+            user[userset.attributes['name'].value] = str(userset.attributes['value'].value)
+            binding[userset.attributes['name'].value] = str(userset.attributes['value'].value)
+
+        # get all the binding in the last part of the settingsfile  = lfbinding
+        bind_elem = dom.getElementsByTagName("lfbinding")[0]
+        for textvar_elem in bind_elem.getElementsByTagName("textvar"):
+            binding[textvar_elem.attributes['name'].value] = str(textvar_elem.attributes['value'].value)
+
+        # replace/add the information from lfuser to lfbinding
+        for i in binding:
+            expr = binding[i]
+            while expr.find('$(') > -1:
+                a1 = expr.find('$(')
+                a2 = expr.find(')')
+                try:
+                    s2 = user[expr[a1 + 2:a2]]
+                except KeyError:
+                    print 'no ', expr[a1 + 2:a2], ' in lfuser defined'
+                else:
+                    expr = expr.replace(expr[a1:a2 + 1], s2)
+            binding[i] = expr
+        return user, binding
 
     def __str__(self):
         res = """
@@ -191,7 +225,7 @@ report_maps_end: {report_maps_end}
             try:
                 opts, arguments = getopt.getopt(argz, 'qvlcht', flag_names)
             except getopt.GetoptError as e:
-                from lisvap1 import usage
+                from lisvap.lisvap1 import usage
                 usage()
             else:
                 for o, a in opts:
@@ -224,37 +258,6 @@ report_maps_end: {report_maps_end}
         # eg. produce output if not(initLisflood)
         options['nonInit'] = not (options['InitLisflood'])
         return options
-
-    @staticmethod
-    def get_binding(dom):
-        binding = {}
-
-        #  built-in user variables
-        user = {'ProjectDir': project_dir, 'ProjectPath': project_dir}
-        lfuse = dom.getElementsByTagName("lfuser")[0]
-        for userset in lfuse.getElementsByTagName("textvar"):
-            user[userset.attributes['name'].value] = str(userset.attributes['value'].value)
-            binding[userset.attributes['name'].value] = str(userset.attributes['value'].value)
-
-        # get all the binding in the last part of the settingsfile  = lfbinding
-        bind_elem = dom.getElementsByTagName("lfbinding")[0]
-        for textvar_elem in bind_elem.getElementsByTagName("textvar"):
-            binding[textvar_elem.attributes['name'].value] = str(textvar_elem.attributes['value'].value)
-
-        # replace/add the information from lfuser to lfbinding
-        for i in binding:
-            expr = binding[i]
-            while expr.find('$(') > -1:
-                a1 = expr.find('$(')
-                a2 = expr.find(')')
-                try:
-                    s2 = user[expr[a1 + 2:a2]]
-                except KeyError:
-                    print 'no ', expr[a1 + 2:a2], ' in lfuser defined'
-                else:
-                    expr = expr.replace(expr[a1:a2 + 1], s2)
-            binding[i] = expr
-        return user, binding
 
 
 class NetcdfMetadata(object):

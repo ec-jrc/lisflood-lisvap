@@ -24,7 +24,9 @@ import numpy as np
 from pcraster.numpy_operations import pcr2numpy
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(current_dir, '../src/'))
+src_dir = os.path.join(current_dir, '../src/')
+if os.path.exists(src_dir):
+    sys.path.append(os.path.join(current_dir, '../src/'))
 
 from lisvap.utils import LisSettings
 from lisvap.utils.readers import readnetcdf, iter_open_netcdf
