@@ -1,6 +1,11 @@
 .idea/
 *.py[cod]
 __pycache__/
+build/
+dist/
+.pytest_cache
+lisflood_lisvap.egg-info/
+
 *.tmp
 *.nc
 *.xml
@@ -16,11 +21,10 @@ __pycache__/
 !tests/data/reference/**/*.nc
 !tests/data/input/**/*.nc
 
-/.pytest_cache/
-/dt
-/LatHeatVap
-/psy
-/psy0
+dt
+LatHeatVap
+psy
+psy0
 /.jekyll-metadata
 /Gemfile.lock
 /_site/
