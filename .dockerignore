@@ -10,3 +10,6 @@ dt
 .jekyll-metadata
 psy
 psy0
+build/**
+dist/**
+lisflood_lisvap.egg-info/**
