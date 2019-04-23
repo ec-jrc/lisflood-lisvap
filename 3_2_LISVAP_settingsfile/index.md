@@ -111,7 +111,7 @@ Here you can specify paths of all in- and output.
 -  ***PathBaseMapsIn*** is the path where all input base maps (Table 4.1) are located
 -  ***PathMeteoIn*** is the path where all meteo input (Table 4.2) is stored
 
-**Note:** To refer to the folder where LISVAP project is running, you may use $(ProjectPath), or its alias $(ProjectDir). 
+**Note:** To refer to the folder where LISVAP project is running, you may use `$(ProjectPath)`, or its alias `$(ProjectDir)`.
 
 
 ## Prefixes of input meteo variables and output variables
