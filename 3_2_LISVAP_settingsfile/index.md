@@ -6,7 +6,7 @@ In LISVAP, all file and parameter specifications are defined in a XML settings f
 The purpose of the settings file is to link variables and parameters in the model to in- and output files (maps, time series) and numerical values. 
 In addition, the settings file can be used to specify several *options*. 
 
-It's convenient to download the [XML template](https://raw.githubusercontent.com/ec-jrc/lisflood-lisvap/master/settings_tpl.xml) that is shipped with source code and start from there 
+It's convenient to download the [XML template](https://raw.githubusercontent.com/ec-jrc/lisflood-lisvap/master/settings_tpl.xml) that comes with source code and start from there 
 instead of writing the settings file completely from scratch. 
 
 In order to use the example, you should make sure the following requirements are met:
@@ -66,10 +66,10 @@ time step [seconds] ALWAYS USE 86400!!
 </lfsettings>
  ```
 
--  ***CalendarDayStart*** is the calendar day of the first time step in the model run; format is DD/MM/YYYY HH:MI
+-  ***CalendarDayStart*** is the calendar day of the first time step in the model run; format is DD/MM/YYYY hh:mm
 -  ***DtSec*** is the simulation time interval in seconds. It has a value of 86400  for a daily time interval. Some of the simplifying assumptions made in LISVAP related to the radiation balance are not valid at time steps smaller than days. Therefore, it is advised to use LISVAP for daily time intervals only (i.e. *DtSec* should always be 86400)
--  ***StepStart*** Date of first time step; format is DD/MM/YYYY HH:MI
--  ***StepEnd*** Date of the last time step; format is DD/MM/YYYY HH:MI
+-  ***StepStart*** Date of first time step; format is DD/MM/YYYY hh:mm
+-  ***StepEnd*** Date of the last time step; format is DD/MM/YYYY hh:mm
 -  ***ReportSteps*** Interval of steps to be reported in output maps and tss; format is a..b, with a,b >= 1 and a, b integers.
 
 
@@ -114,32 +114,13 @@ Here you can specify paths of all in- and output.
 **Note:** To refer to the folder where LISVAP project is running, you may use `$(ProjectPath)`, or its alias `$(ProjectDir)`.
 
 
-## Prefixes of input meteo variables and output variables
+## Prefixes of input/output meteorological variables
 
 Each variable is read as a stack of maps. 
+Name of each map is made up of its prefix followed by .nc extension.
 
-### Using PCRaster format
-
-For PCRaster maps, the name of each map starts with prefix, and ends with the number of the time step. All characters in between are filled with zeroes.
- The name of each map is made up of a total of 11 characters: 8 characters, a dot and a 3-character suffix. For instance, using a prefix ‘tx’ we get:
-
-   tx000000.007		at time step 7
-
-   tx000035.260		at time step 35260
-
-
-To avoid unexpected behaviour, **never** use numbers in the prefix! For example:
-
-​    PrefixTMax=tx10
-
-For the first time step this yields the following file name: tx100000.001
-But this is actually interpreted as time step 100,000,001! **Therefore, do not use numbers in the prefix!**
-
-### Using netCDF mapstacks
-
-Name of each map is made up of its prefix followed by .nc extension. 
-
-The corresponding part of the settings file is pretty self-explanatory (note that you will never need *all* these variables together in one LISVAP run): 
+Define in this section prefixes for all the meteorological **input** variables you would like let LISVAP run with.
+Below the prefix configuration of the meteorological input variables from the EFAS dataset as an example. 
 
  ```xml
 <group>
@@ -158,11 +139,6 @@ The corresponding part of the settings file is pretty self-explanatory (note tha
         prefix minimum temperature maps
         </comment>
     </textvar>
-    <textvar name="PrefixTDew" value="td">
-        <comment>
-        prefix dew point temperature maps
-        </comment>
-    </textvar>
     <textvar name="PrefixEAct" value="pd">
         <comment>
         prefix vapour pressure maps
@@ -173,34 +149,9 @@ The corresponding part of the settings file is pretty self-explanatory (note tha
         prefix wind speed maps
         </comment>
     </textvar>
-    <textvar name="PrefixWindU" value="wu">
-        <comment>
-        prefix wind speed U-component maps
-        </comment>
-    </textvar>
-    <textvar name="PrefixWindV" value="wv">
-        <comment>
-        prefix wind speed V-component maps
-        </comment>
-    </textvar>
-    <textvar name="PrefixSun" value="s">
-        <comment>
-        prefix sunshine duration maps
-        </comment>
-    </textvar>
-    <textvar name="PrefixCloud" value="c">
-        <comment>
-        prefix cloud cover maps
-        </comment>
-    </textvar>
     <textvar name="PrefixRgd" value="rg">
         <comment>
         prefix incoming solar radiation maps
-        </comment>
-    </textvar>
-    <textvar name="PrefixRN" value="rn">
-        <comment>
-        prefix net longwave radiation maps
         </comment>
     </textvar>
 </group>
@@ -208,18 +159,12 @@ The corresponding part of the settings file is pretty self-explanatory (note tha
 
 -  ***PrefixTMax*** prefix of the maximum temperature maps
 -  ***PrefixTMin*** prefix of the minimum temperature maps
--  ***PrefixTDew*** prefix of the dew point temperature maps
 -  ***PrefixEAct*** prefix of the actual vapour pressure maps
 -  ***PrefixWind*** prefix of the wind speed maps
--  ***PrefixWindU*** prefix of the wind speed U-component maps
--  ***PrefixWindV*** prefix of the wind speed V-component maps
--  ***PrefixSun*** prefix of the sunshine duration maps
--  ***PrefixCloud*** prefix of the cloud cover maps
 -  ***PrefixRgd*** prefix of the incoming solar radiation maps
--  ***PrefixRN*** prefix of the net long-wave radiation maps
 
 
-Here you can define the prefix that is used for each meteorological output variable.
+Here you can define the prefix that is used for each meteorological **output** variable.
 
  ```xml
  <group>
@@ -263,7 +208,7 @@ Here you can define the prefix that is used for each meteorological output varia
 ## Constants
 
 There are constants you define in settings file. Some of them may have different values from defaults, depending of region under simulation.
-In case they are constant but not uniform for the region you are examinating, you can use a netCDF/PCRaster map to define it. 
+In case they are constant but not uniform for the region you are examinating, you can use a netCDF map to define it. 
 Just use the path to the map instead of a numeric value.
 
 Current list of constant and their default values are reported in the following table:
@@ -286,12 +231,10 @@ Current list of constant and their default values are reported in the following 
 
 ## LISVAP input options
 
-LISVAP has several options, which can be set in the settings file’s ‘lfoptions’ element. Most options in LISVAP are related to the input data used. Since different providers of meteorological data often provide slightly different variables, LISVAP has been designed to offer some flexibility in this respect. 
+LISVAP has several options, which can be set in the settings file’s ‘lfoptions’ element. Most options in LISVAP are related to the input data used. 
+Since different providers of meteorological data often provide slightly different variables, LISVAP has been designed to offer some flexibility in this respect. 
 
-Table 5.1 below lists all currently implemented input options and their respective defaults. These options all act as switches (1= on,  0=off). 
-Note that each option generally requires additional items in the settings file. 
-For instance, using the dew point temperature option requires that the corresponding map stack is defined in the settings file. 
-The template settings file that is provided with LISVAP always contains file definitions for all implemented options. 
+Table below lists all currently implemented input options and their respective defaults.  
 
  **Table:** *LISVAP input options.*	
 
@@ -313,3 +256,26 @@ The template settings file that is provided with LISVAP always contains file def
 | CORDEX[^1]                | Use *CORDEX* setup                                                                 | False   |
 
 [^1]: Keep in mind that EFAS and CORDEX are two mutually-exclusive flags. If both are true, EFAS flag has precedence.
+
+
+These options all act as switches (1= on,  0=off). Below an example of how to change the default settings by adding/changing the respective option parameter into the settings file:
+
+```xml
+
+   <lfoptions>
+
+        <setoption name="readNetcdfStack" choice="1" />
+        <setoption name="writeNetcdfStack" choice="1" />
+        <setoption name="TemperatureInKelvinFlag" choice="0" />
+        <setoption name="repE0Maps" choice="1" />
+        <setoption name="repTavgMaps" choice="1"/>
+
+        <setoption name="EFAS" choice="1" />
+        <setoption name="CORDEX" choice="0" />
+
+    </lfoptions>
+``` 
+
+Note that each option generally requires additional items in the settings file. 
+For instance, using the dew point temperature option requires that the corresponding map stack is defined in the settings file. 
+The template settings file that is provided with LISVAP always contains file definitions for all implemented options.

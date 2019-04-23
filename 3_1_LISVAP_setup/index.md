@@ -1,6 +1,6 @@
 ## Prepare the environment
 
-Before to run LISVAP, you need to:
+Before you can run LISVAP, you need to:
 
 1. Prepare base maps
 2. Prepare input dataset
@@ -8,7 +8,7 @@ Before to run LISVAP, you need to:
 
 All input to LISVAP is provided as maps (grid files in PCRaster format or maps in netCDF format). 
 
-### Base maps
+### 1. Base maps
 
 LISVAP needs some base maps representing areas of simulation. These basemaps must be coherent with input dataset, which means having same area (or containing it), and projection.
 
@@ -32,7 +32,7 @@ Some parameters can be set as a single value (constant) in settings file or as a
 Check [settings file reference](/lisflood-lisvap/3_2_settingsfile) for more details.
 
 
-#### Generating input base maps
+#### Generating base maps
 
 On the repository, you can find some [base maps](https://github.com/ec-jrc/lisflood-lisvap/tree/master/basemaps) for the test case.
 
@@ -40,18 +40,47 @@ It is recommended to generate the input base maps depending on the specific use 
 In the future, a more detailed documentation assisting in the generation of input base maps will be made available.  
 
 
-### Input dataset
+### 2. Meteorological input datasets
 
-LISVAP model inputs are meteo variables, provided as netCDF mapstacks (timeseries of 2D georeferenced variables).
-Depending on available meteo variables, you can setup LISVAP to run using two different datasets of meteorological input variables.
-To facilitate the use of LISVAP two specific use cases, derived from the EFAS and CORDEX set up are available for demonstration purposes.  [^2].  
+LISVAP needs meteorological variables as input. Those should be provided as netCDF mapstacks (timeseries of 2D georeferenced variables).
+The Table below lists all **meteorological input variables** that LISVAP can digest. However, not all of these need to be provided as demonstrated below in two examples.
+ 
 
-[^2]: [CORDEX](https://www.cordex.org/)
+**Table:** *LISVAP meteorological input variables*
 
-#### EFAS
+| Map stack           | Default prefix | Description                                          |
+| ------------------- | -------------- | ---------------------------------------------------- |
+| **TEMPERATURE**     |                |                                                      |
+| TMaxMaps            | tx             | Maximum daily temperature \[°C or K\]                |
+| TMinMaps            | tn             | Minimum daily temperature \[°C or K\]                |
+| **VAPOUR PRESSURE** |                |                                                      |
+| TDewMaps            | td             | Average daily dew point temperature [°C or K]        |
+| EActMaps            | pd             | Actual vapour pressure [mbar]                        |
+| PSurfMaps           | ps             | Instantaneous sea level pressure [Pa]                |
+| **WIND SPEED**      |                |                                                      |
+| WindMaps            | ws             | Wind speed at 10 m height [m s-1]                    |
+| WindUMaps           | wu             | Wind speed at 10 m height, U-component [m s-1]       |
+| WindVMaps           | wv             | Wind speed at 10 m height, V-component [m s-1]       |
+| **SUNSHINE**        |                |                                                      |
+| SunMaps             | s              | Sunshine duration \[hours\]                          |
+| CloudMaps           | c              | Cloud cover \[octas\]                                |
+| **RADIATION**       |                |                                                      |
+| RgdMaps             | rg             | Downward  surface solar radiation [J m-2 d]          |
+| RNMaps              | rn             | Net thermal radiation \[J m-2 d\] (always negative!) |
+| RdsMaps             | rds            | Downward short wave radiation \[W/m2\]               |
+| RdlMaps             | rdl            | Down long wave radiation \[W/m2\]                    |
+| RusMaps             | rus            | rus - up short wave radiation \[W/m2\]               |
+| RulMaps             | rul            | rul - up long wave radiation \[W/m2\]                |
+| **HUMIDITY**        |                |                                                      |
+| QAirMaps            | huss          | 2 m instantaneous specific humidity [kg/kg]           |
 
 
-   **Table:** *Input variables for the "EFAS run"*
+
+In the following two example meteorological data sets that are used to run LISVAP. The first one is derived from the meteorological data collection from EFAS (European Flood Awaress System), 
+and the second from [CORDEX](https://www.cordex.org/). We use those in the [LISVAP use cases section](https://ec-jrc.github.io/lisflood-lisvap/6_LISVAP_tests/) to demonstrate how to use LISVAP. 
+
+
+   **Table:** *Meteorological input variables from EFAS data collection*
 
 | Variable name                     |  Description                             |
 | --------------------------------- | ---------------------------------------- |
@@ -62,10 +91,9 @@ To facilitate the use of LISVAP two specific use cases, derived from the EFAS an
 | WS                                | Wind speed at 10 m from surface \[m/s\]  |
 
 
-#### CORDEX
 
 
-   **Table:** *Input variables for CORDEX run*
+   **Table:** *Meteorological input variables form the CORDEX data collection*
 
 
 | Variable name                     |  Description                                    |
@@ -81,34 +109,12 @@ To facilitate the use of LISVAP two specific use cases, derived from the EFAS an
 | RUL                               | Up long wave radiation \[W/m2\]                 |
 
 
-The Table below lists all **meteorological input variables**.
- 
-
-**Table:** *LISVAP meteorological input variables*
-
-| Map stack           | Default prefix | Description                                        |
-| ------------------- | -------------- | -------------------------------------------------- |
-| **TEMPERATURE**     |                |                                                    |
-| TMaxMaps            | tx             | Maximum daily temperature [°C or K]                |
-| TMinMaps            | tn             | Minimum daily temperature [°C or K]                |
-| **VAPOUR PRESSURE** |                |                                                    |
-| TDewMaps            | td             | Average daily dew point temperature [°C or K]      |
-| EActMaps            | pd             | Actual vapour pressure [mbar]                      |
-| **WIND SPEED**      |                |                                                    |
-| WindMaps            | ws             | Wind speed at 10 m height [m s-1]                  |
-| WindUMaps           | wu             | Wind speed at 10 m height, U-component [m s-1]     |
-| WindVMaps           | wv             | Wind speed at 10 m height, V-component [m s-1]     |
-| **SUNSHINE**        |                |                                                    |
-| SunMaps             | s              | Sunshine duration [hours]                          |
-| CloudMaps           | c              | Cloud cover [octas]                                |
-| **RADIATION**       |                |                                                    |
-| RgdMaps             | rg             | Downward  surface solar radiation [J m-2 d]        |
-| RNMaps              | rn             | Net thermal radiation [J m-2 d] (always negative!) |
-
 
 ## Organisation of input data
 
-It is up to the user how the input data are organised. However, it is advised to keep the base maps and meteorological input maps separated (i.e. store them in separate directories). For practical reasons the following input structure is suggested: 
+It is up to the user how the input data are organised. However, it is advised to keep the base maps and meteorological input maps separated (i.e. store them in separate directories). 
+
+For practical reasons the following input structure is suggested: 
 
 - all meteorological input maps are in one directory (e.g. ‘meteoIn’)
 - all base maps are in one directory (e.g. ‘mapsIn’)
