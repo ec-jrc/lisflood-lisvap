@@ -67,19 +67,24 @@
             <textvar name="PathOut" value="$(SettingsDir)/output/efas">
                 <comment>
                     Output path
+                    for Docker: /output
+                    from local host: e.g. E:/lisflood_test/Lisvap/output
                 </comment>
             </textvar>
 
             <textvar name="PathBaseMapsIn" value="$(SettingsDir)/../../basemaps">
                 <comment>
                     Path to input base maps
+                    for Docker: /input/basemaps
+                    from local host: e.g. E:/lisflood_test/Lisvap/input/basemaps
                 </comment>
             </textvar>
 
             <textvar name="PathMeteoIn" value="$(SettingsDir)/input/efas">
                 <comment>
                     Path to input raw meteo maps
-                    E:/lisflood_test/LisvapWorld/meteo/raster
+                    for Docker: /input/efas
+                    from local host: e.g. E:/lisflood_test/Lisvap/input/efas
                 </comment>
             </textvar>
 
@@ -314,7 +319,6 @@
             <textvar name="EActMaps" value="$(PathMeteoIn)/pd_1_15">
                 <comment>
                     Actual vapour pressure [mbar]
-
                 </comment>
             </textvar>
 
