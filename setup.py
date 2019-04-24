@@ -10,6 +10,11 @@ sys.path.append(os.path.join(current_dir, './src/'))
 from lisvap.lisvap1 import __version__
 
 
+readme_file = os.path.join(current_dir, 'README.md')
+
+with open(readme_file, 'r') as f:
+    long_description = f.read()
+
 setup(
     name='lisflood-lisvap',
     version=__version__,
@@ -17,6 +22,8 @@ setup(
     py_modules=[os.path.splitext(os.path.basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
     packages=find_packages('src'),
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     description='LISVAP model python module',
     author='Ad de Roo, Peter Burek, Johan van der Knijff, Domenico Nappo',
     author_email='domenico.nappo@ext.ec.europa.eu',
