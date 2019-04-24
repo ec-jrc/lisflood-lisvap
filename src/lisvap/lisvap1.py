@@ -28,8 +28,8 @@ See the Licence for the specific language governing permissions and limitations 
 """
 
 __authors__ = "Peter Burek, Johan van der Knijff, Ad de Roo"
-__version__ = "0.3.2"
-__date__ = "19/04/2019"
+__version__ = "0.3.3"
+__date__ = "24/04/2019"
 __copyright__ = "Copyright 2019, Lisflood Open Source"
 __maintainers__ = "Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi"
 __status__ = "Development"
