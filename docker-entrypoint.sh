@@ -9,9 +9,11 @@ if [[ "$1" = 'usecases' ]]; then
     cp /basemaps/* /input/basemaps/
     echo "copy input files to /input/cordex......"
     cp /tests/data/input/cordex/*.nc /input/cordex/
+    echo "copy cordex settings to /input/..."
     cp /tests/data/tests_cordex.xml /input/
     echo "copy input files to /input/efas......"
     cp /tests/data/input/efas/*.nc /input/efas/
+    echo "copy efas settings to /input/..."
     cp /tests/data/tests_efas.xml /input/
     chmod a+w /input/*.xml
 else
