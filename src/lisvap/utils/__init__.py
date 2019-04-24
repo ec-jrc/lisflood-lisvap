@@ -254,9 +254,6 @@ report_maps_end: {report_maps_end}
             # overwriting default values from setting.xml
             options[key] = option_setting[key]
 
-        # reverse the initLisflood option to use it as a restriction for output
-        # eg. produce output if not(initLisflood)
-        options['nonInit'] = not (options['InitLisflood'])
         return options
 
 
@@ -426,7 +423,6 @@ class TimeProfiler(object):
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})
 default_options = {
     'useTavg': False,
-    'InitLisflood': False, 'InitLisfloodwithoutSplit': False,
     'readNetcdfStack': False, 'writeNetcdfStack': False, 'writeNetcdf': False,
     'repAvTimeseries': False,
     'repET0Maps': True, 'repES0Maps': True, 'repE0Maps': True, 'repTAvgMaps': True,

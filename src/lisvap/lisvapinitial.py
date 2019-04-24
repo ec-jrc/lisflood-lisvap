@@ -64,7 +64,7 @@ class LisvapModelIni(DynamicModel):
 
     # ====== INITIAL ================================
     def initial(self):
-        """ Initial part of LISFLOOD
+        """ Initial part of LISVAP
             calls the initial part of the hydrological modules
         """
         self.ReportSteps = self.settings.report_steps['rep']

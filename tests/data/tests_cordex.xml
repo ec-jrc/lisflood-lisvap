@@ -11,6 +11,9 @@
 
 #######################################################
 
+TIP:
+You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this XML settings, to refer Lisvap project folder (in case you work with source code)
+You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the XML settings.
 -->
 
 <lfsettings>
