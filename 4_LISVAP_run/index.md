@@ -1,9 +1,12 @@
 ## Running LISVAP
 
-There is no difference in running LISVAP in a Docker container or directly by source code. You need to prepare your XML settings file and pass it as argument.
+There is no difference in running LISVAP in a Docker container or directly by source code. You need to prepare your XML settings file and pass it as an argument.
 
-The layout of the settings file is detailed in [LISVAP Settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile/).
-Along with source code, you will have a [settings_tpl.xml](https://raw.githubusercontent.com/ec-jrc/lisflood-lisvap/master/settings_tpl.xml) file to use as a template to start writing your own settings.
+You find the description of the settings file together with the link to the template in [LISVAP Settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile/).
+
+In the following a description how to run LISVAP, presuming you have prepared you own base maps, meteorological input and the settings file. 
+In order to help you get started we have prepared [two case studies](https://ec-jrc.github.io/lisflood-lisvap/6_LISVAP_tests/) that you can try out after familiarizing first with this section.
+
 
 ### ... in a Docker container
 
@@ -15,37 +18,19 @@ For Docker, first thing is to map folders using volumes as in the table below. T
 
 | Volume                            |  Example of folder on your system |  Correspondant folder in Docker | Mapping                        |
 | --------------------------------- | --------------------------------- | ------------------------------- | ------------------------------ |
-| Folder with the XML settings file | ./                                | /tmp                            | -v `pwd`/:/tmp                 |
+| Folder with the XML settings file | ./                                | /tmp                            | -v $(pwd)/:/tmp                |
 | Path containing input dataset     | /DATA/Meteo/EMA                   | /input                          | -v /DATA/Meteo/EMA:/input      |
 | Path for output                   | /DATA/Lisvap/out                  | /output                         | -v /DATA/Lisvap/out:/output    |
 
-Then, the correspondant Docker command (in Linux) to run the LISVAP container, given mysettings.xml is in current folder, will be:
+Then, the corresponding Docker command (in Linux) to run the LISVAP container, given mysettings.xml is in current folder, will be:
 
 ```bash
 docker pull efas/lisvap:latest
-docker run -v $(pwd)/:/tmp -v /DATA/Meteo/2017/EMA:/input -v /DATA/Lisvap/out:/output efas/lisvap:latest /tmp/mysettings.xml
+docker run -v $(pwd)/:/tmp -v /DATA/Meteo/2017/EMA:/input -v /DATA/Lisvap/out:/output efas/lisvap:latest /tmp/mysettings.xml -v -t
 ```
 
-### ... as an installed python module
-
-If you installed lisvap in your python environment using pip tool, you will have a binary called `lisvap` in your path.
-
-```bash
-pip install lisflood-lisvap
-lisvap mysettings.xml -v -t
-```
-
-### ... from source code
-
-Once all dependencies are installed, you can run the model using python (2.7 version) interpreter[^1]:
-
-```bash
-cd src/
-python lisvap/lisvap1.py mysettings.xml -v -t
-```
-[^1]: As previously said, we strongly recommend using an isolated python virtualenv.
-
-If you just type `python lisvap1.py` you will see the usage dialogue:
+Note that in the above command we added two options (arguments) at the end. You can find the whole list of available options in the usage dialogue below.
+You can print the usage dialogue by typing `docker run efas/lisvap:latest`, which is the equivalent to calling LISVAP without any arguments.
 
  ```console
 LisvapPy - Lisvap (Global) using pcraster Python framework
@@ -65,5 +50,21 @@ Status:  Development
     -t --printtime   the computation time for hydrological modules are printed
 
  ```
-In Docker, you would just type `docker run efas/lisvap:latest`, which is the equivalent of running lisvap1.py without arguments.
-As a python module installed in your python environment, type `lisvap` with no arguments.
+
+### ... as an installed python module
+
+If you installed lisvap in your python environment using pip tool, you will have a binary called `lisvap` in your path.
+
+```bash
+pip install lisflood-lisvap
+lisvap mysettings.xml -v -t
+```
+
+### ... from source code
+
+Once all dependencies are installed, you can run the model using python (2.7 version) interpreter; As previously said, we strongly recommend using an isolated python virtualenv.
+
+```bash
+cd src/
+python lisvap/lisvap1.py mysettings.xml -v -t
+```

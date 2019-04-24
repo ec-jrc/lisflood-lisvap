@@ -229,19 +229,23 @@ Current list of constant and their default values are reported in the following 
 | FactorCanopy   | Estimated value for surface roughness factor of vegetation canopy (Supit et. al.)  | 1        |
 
 
-## LISVAP input options
+## <a id="options"></a>LISVAP options
 
-LISVAP has several options, which can be set in the settings file’s ‘lfoptions’ element. Most options in LISVAP are related to the input data used. 
-Since different providers of meteorological data often provide slightly different variables, LISVAP has been designed to offer some flexibility in this respect. 
+LISVAP has several options, which can be set in the settings file’s `lfoptions` element. Those allow you some flexibility with regard to input and output settings.
+The table below lists all currently implemented options and their respective defaults. 
 
-Table below lists all currently implemented input options and their respective defaults.  
-
- **Table:** *LISVAP input options.*	
+ **Table:** *LISVAP options.*
+ 
 
 | Option                    | Description                                                                        | Default |
 | ------------------------- | ---------------------------------------------------------------------------------- | ------- |
+| **Input**                 |                                                                                    |         |
 | TemperatureInKelvinFlag   | Temperature in Kelvin                                                              | False   |
 | readNetcdfStack           | Input variables as netCDF mapstacks                                                | False   |
+| useTavg                   | Use $T_{avg}$ input map. If false, will be computed out of $T_{max}$ and $T_{min}$ | False   |
+| EFAS                      | Use *EFAS* setup                                                                   | True    |
+| CORDEX[^1]                | Use *CORDEX* setup                                                                 | False   |
+| **Output**                |                                                                                    |         |
 | writeNetcdfStack          | Output variables as netCDF mapstacks                                               | False   |
 | writeNetcdf               | Output variables as netCDF maps                                                    | False   |
 | repAvTimeseries           | Write output TSS                                                                   | False   |
@@ -249,14 +253,8 @@ Table below lists all currently implemented input options and their respective d
 | repET0Maps                | Write output variable $ET_0$ map                                                   | True    |
 | repES0Maps                | Write output variable $ES_0$ map                                                   | True    |
 | repTAvgMaps               | Write output variable $T_{avg}$ map                                                | True    |
-| useTavg                   | Use $T_{avg}$ input map. If false, will be computed out of $T_{max}$ and $T_{min}$ | False   |
-| InitLisflood              |                                                                                    | False   |
-| InitLisfloodwithoutSplit  |                                                                                    | False   |
-| EFAS                      | Use *EFAS* setup                                                                   | True    |
-| CORDEX[^1]                | Use *CORDEX* setup                                                                 | False   |
 
 [^1]: Keep in mind that EFAS and CORDEX are two mutually-exclusive flags. If both are true, EFAS flag has precedence.
-
 
 These options all act as switches (1= on,  0=off). Below an example of how to change the default settings by adding/changing the respective option parameter into the settings file:
 

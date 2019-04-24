@@ -18,14 +18,4 @@ This Table lists all output that can be produced by LISVAP:
 | ES0TS                                                   | es0.tss        | Potential bare-soil soil evaporation [mm day-1]     |
 
 
-Note that reporting of these map stacks can be switched on or off by the user using output options, which are given in the following Table: 
-
-**Table:** *LISVAP output options.*
-
-| Option          | Description                                                                                             | Default     |
-| --------------- | ------------------------------------------------------------------------------------------------------- | ----------- |
-| repTAvgMaps     | Report maps with average temperature                                                                    | False       |
-| repET0Maps      | Report maps with potential (reference) evapotranspiration                                               | True        |
-| repE0Maps       | Report maps with potential open water evaporation                                                       | True        |
-| repES0Maps      | Report maps with potential bare-soil soil evaporation                                                   | True        |
-| repAvTimeseries | Report time series with area-averaged values of average temperature and potential; evapo(transpi)ration | True        |
+Note that reporting of these map stacks can be switched on or off by the user adding/changing [options](/lisflood-lisvap/3_2_LISVAP_settingsfile#options) in the LISVAP settings file.

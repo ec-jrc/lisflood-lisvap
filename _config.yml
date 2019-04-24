@@ -235,15 +235,15 @@ defaults:
           url: 2_LISVAP_evaporation
         - title: "- Installation of LISVAP"
           url: 3_LISVAP_installation
-        - title: "- Setup"
+        - title: "- Setup: input maps"
           url: 3_1_LISVAP_setup
-        - title: "- XML Settings reference"
+        - title: "- Setup: settings file"
           url: 3_2_LISVAP_settingsfile
         - title: "- Run LISVAP"
           url: 4_LISVAP_run
-        - title: "- LISVAP output files"
+        - title: "- Output files"
           url: 5_LISVAP_output
-        - title: "- LISVAP use cases"
+        - title: "- Use cases"
           url: 6_LISVAP_tests
         - title: "- References"
           url: 0_References
