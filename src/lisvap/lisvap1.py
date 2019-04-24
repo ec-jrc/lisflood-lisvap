@@ -47,7 +47,7 @@ from lisvap.lisvapinitial import LisvapModelIni
 
 class LisvapModel(LisvapModelIni, LisvapModelDyn):
     """ Joining the initial and the dynamic part
-        of the Lisflood model
+        of the Lisvap model
     """
 
 

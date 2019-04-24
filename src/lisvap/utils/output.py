@@ -75,23 +75,20 @@ class OutputTssMap(object):
         # ***** WRITING RESULTS: TIME SERIES *************************
         # ************************************************************
 
-        # if fast init than without time series
-        if not self.settings.options['InitLisfloodwithoutSplit']:
+        if self.settings.flags['loud']:
+            # print the discharge of the first output map loc
+            print " %10.2f" % self.var.Tss["DisTS"].firstout(self.var.ChanQ)
 
-            if self.settings.flags['loud']:
-                # print the discharge of the first output map loc
-                print " %10.2f" % self.var.Tss["DisTS"].firstout(self.var.ChanQ)
-
-            for tss in self.settings.report_timeseries:
-                what = getattr(self.var, self.settings.report_timeseries[tss]['outputVar'][0])
-                how = self.settings.report_timeseries[tss]['operation'][0]
-                if how == 'mapmaximum':
-                    changed = mapmaximum(what)
-                    what = 'changed'
-                if how == 'total':
-                    changed = catchmenttotal(what * self.var.PixelArea, self.var.Ldd) * self.var.InvUpArea
-                    what = 'changed'
-                self.var.Tss[tss].sample(what)
+        for tss in self.settings.report_timeseries:
+            what = getattr(self.var, self.settings.report_timeseries[tss]['outputVar'][0])
+            how = self.settings.report_timeseries[tss]['operation'][0]
+            if how == 'mapmaximum':
+                changed = mapmaximum(what)
+                what = 'changed'
+            if how == 'total':
+                changed = catchmenttotal(what * self.var.PixelArea, self.var.Ldd) * self.var.InvUpArea
+                what = 'changed'
+            self.var.Tss[tss].sample(what)
 
         # ************************************************************
         # ***** WRITING RESULTS: MAPS   ******************************

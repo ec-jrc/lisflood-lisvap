@@ -43,7 +43,7 @@ class LisvapModelDyn(DynamicModel):
     # =========== DYNAMIC ====================================================
 
     def dynamic(self):
-        """ Dynamic part of LISFLOOD
+        """ Dynamic part of LISVAP
             calls the dynamic part of the hydrological modules
         """
         tp = TimeProfiler.instance()

@@ -81,7 +81,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
             <textvar name="PathMeteoIn" value="/DATA/lisvap/input">
                 <comment>
                     Path to input raw meteo maps
-                    E:/lisflood_test/LisvapWorld/meteo/raster
+                    E:/lisflood_test/Lisvap/meteo/raster
                 </comment>
             </textvar>
 
