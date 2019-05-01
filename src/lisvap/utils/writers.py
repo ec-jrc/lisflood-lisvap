@@ -33,25 +33,30 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         metadata_ncdf = NetcdfMetadata.instance()
 
         # Dimension
+        spatial_dims = tuple()
         if 'y' in metadata_ncdf:
+            spatial_dims += ('y', )
             nf1.createDimension('y', row)  # x 950
             latitude = nf1.createVariable('y', 'f8', ('y',))
             for i in metadata_ncdf['y']:
                 setattr(latitude, i, metadata_ncdf['y'][i])
 
         if 'lat' in metadata_ncdf:
+            spatial_dims += ('lat', )
             nf1.createDimension('lat', row)  # x 950
             latitude = nf1.createVariable('lat', 'f8', ('lat',))
             for i in metadata_ncdf['lat']:
                 setattr(latitude, i, metadata_ncdf['lat'][i])
 
         if 'x' in metadata_ncdf:
+            spatial_dims += ('x', )
             nf1.createDimension('x', col)  # x 1000
             longitude = nf1.createVariable('x', 'f8', ('x',))
             for i in metadata_ncdf['x']:
                 setattr(longitude, i, metadata_ncdf['x'][i])
 
         if 'lon' in metadata_ncdf:
+            spatial_dims += ('lon', )
             nf1.createDimension('lon', col)
             longitude = nf1.createVariable('lon', 'f8', ('lon',))
             for i in metadata_ncdf['lon']:
@@ -63,9 +68,9 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             time.standard_name = 'time'
             time.units = 'days since %s' % startdate.strftime('%Y-%m-%d %H:%M:%S.0')
             time.calendar = 'gregorian'
-            value = nf1.createVariable(prefix, fillval, ('time', 'y', 'x'), zlib=True)
+            value = nf1.createVariable(prefix, fillval, ('time', ) + spatial_dims, zlib=True)
         else:
-            value = nf1.createVariable(prefix, fillval, ('y', 'x'), zlib=True)
+            value = nf1.createVariable(prefix, fillval, spatial_dims, zlib=True)
 
         value.standard_name = value_standard_name
         value.long_name = value_long_name
