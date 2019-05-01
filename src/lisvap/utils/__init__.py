@@ -203,9 +203,9 @@ report_maps_end: {report_maps_end}
             rep_end = rm.end
             rest_opt = rm.restrictoption
 
-            self._set_active_options(key, rep_maps, report_maps_all, rep_all, rest_opt)
-            self._set_active_options(key, rep_maps, report_maps_steps, rep_steps, rest_opt)
-            self._set_active_options(key, rep_maps, report_maps_end, rep_end, rest_opt)
+            self._set_active_options(key, rep_maps, report_maps_all, [rep_all], rest_opt)
+            self._set_active_options(key, rep_maps, report_maps_steps, [rep_steps], rest_opt)
+            self._set_active_options(key, rep_maps, report_maps_end, [rep_end], rest_opt)
 
         return report_maps_steps, report_maps_all, report_maps_end
 
