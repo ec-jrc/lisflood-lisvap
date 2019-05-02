@@ -143,16 +143,19 @@ report_maps_end: {report_maps_end}
            report_maps_end=self.printer.pformat(self.report_maps_end))
         return res
 
-    def _set_active_options(self, key, rep_maps, reported, report_temp, restricted_options):
-        for rep in report_temp:
+    def _set_active_options(self, obj, reported, report_options, restricted_options):
+        key = obj.name
+        for rep in report_options:
             if self.options.get(rep):
+                # option is set so temporarily allow = True
                 allow = True
-                for j in restricted_options:
-                    if j in self.options and not self.options[j]:
+                # checking that restricted_options are not set
+                for ro in restricted_options:
+                    if ro in self.options and not self.options[ro]:
                         allow = False
                         break
                 if allow:
-                    reported[key] = rep_maps[key]
+                    reported[key] = obj
 
     @staticmethod
     def _report_steps(user_settings, bindings):
@@ -172,40 +175,33 @@ report_maps_end: {report_maps_end}
         return res
 
     def _report_tss(self):
-        rep_timeseries = {}
         report_time_series_act = {}
         # running through all times series
-        report_time_serie = self.options['timeseries']
-        for ts in report_time_serie:
-            key = ts.name
-            rep_timeseries[key] = ts
-            rep_opt = ts.repoption
-            rest_opt = ts.restrictoption
-            self._set_active_options(key, rep_timeseries, report_time_series_act, rep_opt, rest_opt)
+        timeseries = self.options['timeseries']
+        for ts in timeseries:
+            rep_opt = ts.repoption.split(',') if ts.repoption else []
+            rest_opt = ts.restrictoption.split(',') if ts.restrictoption else []
+            self._set_active_options(ts, report_time_series_act, rep_opt, rest_opt)
 
         return report_time_series_act
 
     def _reported_maps(self):
 
-        rep_maps = {}
         report_maps_steps = {}
         report_maps_all = {}
         report_maps_end = {}
 
         # running through all maps
+        reportedmaps = self.options['reportedmaps']
+        for rm in reportedmaps:
+            rep_opt_all = rm.all.split(',') if rm.all else []
+            rep_opt_steps = rm.steps.split(',') if rm.steps else []
+            rep_opt_end = rm.end.split(',') if rm.end else []
+            restricted_options = rm.restrictoption.split(',') if rm.restrictoption else []
 
-        for rm in self.options['reportedmaps']:
-            key = rm.name
-            rep_maps[key] = rm
-
-            rep_all = rm.all
-            rep_steps = rm.steps
-            rep_end = rm.end
-            rest_opt = rm.restrictoption
-
-            self._set_active_options(key, rep_maps, report_maps_all, [rep_all], rest_opt)
-            self._set_active_options(key, rep_maps, report_maps_steps, [rep_steps], rest_opt)
-            self._set_active_options(key, rep_maps, report_maps_end, [rep_end], rest_opt)
+            self._set_active_options(rm, report_maps_all, rep_opt_all, restricted_options)
+            self._set_active_options(rm, report_maps_steps, rep_opt_steps, restricted_options)
+            self._set_active_options(rm, report_maps_end, rep_opt_end, restricted_options)
 
         return report_maps_steps, report_maps_all, report_maps_end
 
@@ -250,10 +246,7 @@ report_maps_end: {report_maps_end}
         for optset in lfoptions_elem.getElementsByTagName("setoption"):
             option_setting[optset.attributes['name'].value] = bool(int(optset.attributes['choice'].value))
 
-        for key in option_setting:
-            # overwriting default values from setting.xml
-            options[key] = option_setting[key]
-
+        options.update(option_setting)
         return options
 
 
