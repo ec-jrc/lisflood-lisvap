@@ -1,3 +1,4 @@
+cython
 netCDF4
 numpy
 python-dateutil
