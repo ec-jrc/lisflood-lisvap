@@ -33,34 +33,13 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         metadata_ncdf = NetcdfMetadata.instance()
 
         # Dimension
-        spatial_dims = tuple()
-        if 'y' in metadata_ncdf:
-            spatial_dims += ('y', )
-            nf1.createDimension('y', row)  # x 950
-            latitude = nf1.createVariable('y', 'f8', ('y',))
-            for i in metadata_ncdf['y']:
-                setattr(latitude, i, metadata_ncdf['y'][i])
-
-        if 'lat' in metadata_ncdf:
-            spatial_dims += ('lat', )
-            nf1.createDimension('lat', row)  # x 950
-            latitude = nf1.createVariable('lat', 'f8', ('lat',))
-            for i in metadata_ncdf['lat']:
-                setattr(latitude, i, metadata_ncdf['lat'][i])
-
-        if 'x' in metadata_ncdf:
-            spatial_dims += ('x', )
-            nf1.createDimension('x', col)  # x 1000
-            longitude = nf1.createVariable('x', 'f8', ('x',))
-            for i in metadata_ncdf['x']:
-                setattr(longitude, i, metadata_ncdf['x'][i])
-
-        if 'lon' in metadata_ncdf:
-            spatial_dims += ('lon', )
-            nf1.createDimension('lon', col)
-            longitude = nf1.createVariable('lon', 'f8', ('lon',))
-            for i in metadata_ncdf['lon']:
-                setattr(longitude, i, metadata_ncdf['lon'][i])
+        spatial_dims = tuple([c for c in ('y', 'lat', 'x', 'lon') if c in metadata_ncdf])
+        for dim_name, dim_size in zip(spatial_dims, [row, col]):
+            nf1.createDimension(dim_name, dim_size)
+            coord = nf1.createVariable(dim_name, 'f8', (dim_name, ))
+            for i in metadata_ncdf[dim_name]:
+                if i != '_FillValue': # to avoid AttributeError ("_FillValue attribute must be set when variable is created") when writing output nc attributes
+                    setattr(coord, i, metadata_ncdf[dim_name][i])
 
         if flag_time:
             nf1.createDimension('time', None)
@@ -118,8 +97,8 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         lats = np.arange(yu, yd, -cell)
         lons = np.arange(xl, xr, cell)
 
-        latitude[:] = lats
-        longitude[:] = lons
+        nf1.variables[spatial_dims[0]][:] = lats
+        nf1.variables[spatial_dims[1]][:] = lons
 
         if 'pr' in metadata_ncdf and 'esri_pe_string' in metadata_ncdf['pr']:
             value.esri_pe_string = metadata_ncdf['pr']['esri_pe_string']
