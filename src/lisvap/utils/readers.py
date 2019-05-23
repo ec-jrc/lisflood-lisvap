@@ -1,3 +1,12 @@
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+from future.utils import iteritems, viewitems, listitems, iterkeys, viewkeys
+from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
+    integer_types, class_types, range, range_list, reraise,
+    iterkeys, itervalues, iteritems, map, zip, filter, input,
+    implements_iterator, implements_to_string, implements_repr, nine,
+    nimport)
+
 import datetime
 import os
 import time
@@ -49,7 +58,7 @@ def loadsetclone(name):
             # try to read a netcdf file
             filename = '{}.{}'.format(os.path.splitext(settings.binding[name])[0], 'nc')
             nf1 = iter_open_netcdf(filename, 'r')
-            value = nf1.variables.items()[-1][0]  # get the last variable name
+            value = listitems(nf1.variables)[-1][0]  # get the last variable name
             # original code
             # x1 = nf1.variables.values()[0][0]
             # x2 = nf1.variables.values()[0][1]
@@ -132,7 +141,7 @@ def loadmap(name):
 
         # load netcdf map but only the rectangle needed
         nf1 = Dataset(filename, 'r')
-        value = nf1.variables.items()[-1][0]  # get the last variable name
+        value = listitems(nf1.variables)[-1][0]  # get the last variable name
         mapnp = nf1.variables[value][cut2:cut3, cut0:cut1]
         nf1.close()
 
@@ -185,13 +194,13 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     # original code
     # Attempt at checking if input files are not in the format we expect
     if not variable_name:
-        var_names = [nf1.variables.items()[it][0] for it in xrange(len(nf1.variables.items()))]
-        # targets = list()
+        variables = listitems(nf1.variables)
+        var_names = [variables[it][0] for it in range(len(variables))]
         skip_names = ('x', 'y', 'laea', 'lambert_azimuthal_equal_area', 'time', 'lat', 'lon')
         targets = [it for it in var_names if it not in skip_names]
         # Return warning if we have more than 1 non-coordinate-related variable
         # (i.e. x, y, laea, time) OR if the last variable in the netCDF file is not the variable to get data for
-        if len(targets) > 1 or not str(nf1.variables.items()[-1]).find(targets[0]) > -1:
+        if len(targets) > 1 or not str(variables[-1]).find(targets[0]) > -1:
             warnings.warn('Wrong number of variables found in netCDF file %s' % filename)
         else:
             variable_name = targets[0]

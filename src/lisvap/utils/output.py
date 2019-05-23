@@ -15,6 +15,15 @@ See the Licence for the specific language governing permissions and limitations 
 
 """
 
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
+    integer_types, class_types, range, range_list, reraise,
+    iterkeys, itervalues, iteritems, map, zip, filter, input,
+    implements_iterator, implements_to_string, implements_repr, nine,
+    nimport)
+
 import os
 from decimal import Decimal
 
@@ -77,7 +86,7 @@ class OutputTssMap(object):
 
         if self.settings.flags['loud']:
             # print the discharge of the first output map loc
-            print " %10.2f" % self.var.Tss["DisTS"].firstout(self.var.ChanQ)
+            print(" %10.2f" % self.var.Tss["DisTS"].firstout(self.var.ChanQ))
 
         for tss in self.settings.report_timeseries:
             what = getattr(self.var, self.settings.report_timeseries[tss].output_var)
@@ -219,11 +228,11 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
             # for cellId in range(1, self._maxId + 1):
             # self._sampleAddresses.append(self._getIndex(cellId))
 
-            self._sampleAddresses = [1 for _ in xrange(self._maxId)]
+            self._sampleAddresses = [1 for _ in range(self._maxId)]
             # init with the left/top cell - could also be 0 but then you have to catch it in
             # the sample routine and put an exeption in
             nrCells = pcraster.pcraster.clone().nrRows() * pcraster.pcraster.clone().nrCols()
-            for cell in xrange(1, nrCells + 1):
+            for cell in range(1, nrCells + 1):
                 if pcraster.pcraster.cellvalue(self._spatialId, cell)[1]:
                     self._sampleAddresses[pcraster.pcraster.cellvalue(self._spatialId, cell)[0] - 1] = cell
 
