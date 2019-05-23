@@ -14,11 +14,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
+from __future__ import (absolute_import, print_function,  # division,
+                        unicode_literals)
+
+from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
+    integer_types, class_types, range, range_list, reraise,
+    iterkeys, itervalues, iteritems, map, zip, filter, input,
+    implements_iterator, implements_to_string, implements_repr, nine,
+    nimport)
 
 from pcraster import operations
-from pcraster.operations import scalar
 
-from lisvap.utils.readers import readnetcdf
+from ..utils.readers import readnetcdf
 
 
 class ReadMeteo(object):
@@ -100,7 +107,7 @@ class ReadMeteo(object):
             self.var.TMin = self.var.TMin - self.var.ZeroKelvin
             self.var.TMax = self.var.TMax - self.var.ZeroKelvin
 
-        self.var.DeltaT = operations.max(self.var.TMax - self.var.TMin, scalar(0.0))
+        self.var.DeltaT = operations.max(self.var.TMax - self.var.TMin, operations.scalar(0.0))
 
         if self.settings.options['CORDEX']:
             self.var.Rds = self.var.Rds * 86400

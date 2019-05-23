@@ -15,6 +15,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from future.utils import with_metaclass
+from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
+    integer_types, class_types, range, range_list, reraise,
+    iterkeys, itervalues, iteritems, map, zip, filter, input,
+    implements_iterator, implements_to_string, implements_repr, nine,
+    nimport)
 
 import inspect
 import os
@@ -33,6 +42,13 @@ from pcraster import pcraster
 from .decorators import cached
 
 project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../..'))
+
+
+if not IS_PYTHON2:
+    # time.clock is deprecated and will be removed in python 3.8
+    process_time = time.process_time
+else:
+    process_time = time.clock
 
 
 class LisfloodError(Exception):
@@ -77,8 +93,8 @@ class Singleton(type):
         return cls._current[cls]
 
 
-class LisSettings(object):
-    __metaclass__ = Singleton
+@nine
+class LisSettings(with_metaclass(Singleton)):
     printer = pprint.PrettyPrinter(indent=4, width=120)
 
     def __init__(self, settings_file):
@@ -122,7 +138,7 @@ class LisSettings(object):
                 try:
                     s2 = user[expr[a1 + 2:a2]]
                 except KeyError:
-                    print 'no ', expr[a1 + 2:a2], ' in lfuser defined'
+                    print('no ', expr[a1 + 2:a2], ' in lfuser defined')
                 else:
                     expr = expr.replace(expr[a1:a2 + 1], s2)
             binding[i] = expr
@@ -159,6 +175,7 @@ report_maps_end: {report_maps_end}
 
     @staticmethod
     def _report_steps(user_settings, bindings):
+
         res = {}
         repsteps = user_settings['ReportSteps'].split(',')
         if repsteps[-1] == 'endtime':
@@ -166,12 +183,12 @@ report_maps_end: {report_maps_end}
         jjj = []
         for i in repsteps:
             if '..' in i:
-                j = map(int, i.split('..'))
-                for jj in xrange(j[0], j[1] + 1):
+                j = list(map(int, i.split('..')))
+                for jj in range(j[0], j[1] + 1):
                     jjj.append(jj)
             else:
                 jjj.append(i)
-        res['rep'] = map(int, jjj)
+        res['rep'] = list(map(int, jjj))
         return res
 
     def _report_tss(self):
@@ -250,8 +267,8 @@ report_maps_end: {report_maps_end}
         return options
 
 
-class NetcdfMetadata(object):
-    __metaclass__ = Singleton
+@nine
+class NetcdfMetadata(with_metaclass(Singleton)):
 
     @classmethod
     def register(cls, netcdf_file):
@@ -293,8 +310,7 @@ class NetcdfMetadata(object):
         return res
 
 
-class MaskMapMetadata(object):
-    __metaclass__ = Singleton
+class MaskMapMetadata(with_metaclass(Singleton)):
 
     @classmethod
     def register(cls):
@@ -331,8 +347,7 @@ class MaskMapMetadata(object):
         return k in self._metadata
 
 
-class CutMap(tuple):
-    __metaclass__ = Singleton
+class CutMap(tuple, with_metaclass(Singleton)):
 
     @classmethod
     def register(cls, in_file):
@@ -385,11 +400,10 @@ TimeSeries = namedtuple('TimeSeries', 'name, output_var, where, repoption, restr
 ReportedMap = namedtuple('ReportedMap','name, output_var, unit, end, steps, all, restrictoption')
 
 
-class TimeProfiler(object):
-    __metaclass__ = Singleton
+class TimeProfiler(with_metaclass(Singleton)):
 
     def __init__(self):
-        self.start = time.clock()
+        self.start = process_time()
         self.times = defaultdict(list)
         self.times_sum = {}
 
@@ -398,19 +412,19 @@ class TimeProfiler(object):
 
     def timemeasure(self, name):
         if self.times[name]:
-            t = time.clock() - self.times[name][-1]
+            t = process_time() - self.times[name][-1]
         else:
-            t = time.clock() - self.start
+            t = process_time() - self.start
         self.times[name].append(t)
 
     def report(self):
         for name in self.times:
             self.times_sum[name] = sum(self.times[name])
         tot = sum(v for v in self.times_sum.values())
-        print "\n\nTime profiling"
-        print "%-17s %10s %8s" % ("Name", "time[s]", "%")
+        print('\n\nTime profiling')
+        print('%-17s %10s %8s' % ('Name', 'time[s]', '%'))
         for name in self.times_sum:
-            print "%-17s %10.2f %8.1f" % (name, self.times_sum[name], 100 * self.times_sum[name] / tot)
+            print("%-17s %10.2f %8.1f" % (name, self.times_sum[name], 100 * self.times_sum[name] / tot))
 
 
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})

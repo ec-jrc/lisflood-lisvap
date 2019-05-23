@@ -15,6 +15,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
+    integer_types, class_types, range, range_list, reraise,
+    iterkeys, itervalues, iteritems, map, zip, filter, input,
+    implements_iterator, implements_to_string, implements_repr, nine,
+    nimport)
 
 import time as xtime
 

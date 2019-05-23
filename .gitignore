@@ -28,3 +28,5 @@ psy0
 /.jekyll-metadata
 /Gemfile.lock
 /_site/
+/.coverage
+/.tox

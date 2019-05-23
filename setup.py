@@ -1,14 +1,48 @@
+"""
+Copyright 2019 European Union
+
+Licensed under the EUPL, Version 1.2 or as soon they will be approved by the European Commission  subsequent versions of the EUPL (the "Licence");
+
+You may not use this work except in compliance with the Licence.
+You may obtain a copy of the Licence at:
+
+https://joinup.ec.europa.eu/sites/default/files/inline-files/EUPL%20v1_2%20EN(1).txt
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an "AS IS" basis,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the Licence for the specific language governing permissions and limitations under the Licence.
+
+---------------------------------------------------------------------------------------------------------------------------------------
+Use python setup.y upload to publish versioned tags and pypi package
+
+Manually step by step:
+
+1. python setup.py sdist
+
+2a. To upload new package on PyPi Test:
+twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+2b. To upload new package on PyPi:
+twine upload dist/*
+
+3a. Test package install
+pip install --index-url https://test.pypi.org/simple/ lisflood-lisvap==0.3.4
+
+3b. In prod:
+pip install lisflood-lisvap
+"""
+
+
 import os
 import sys
 from glob import glob
 
 from setuptools import setup, find_packages
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(current_dir, './src/'))
 
-from lisvap.lisvap1 import __version__
-
+from lisvap import metainfo
 
 readme_file = os.path.join(current_dir, 'README.md')
 
@@ -17,7 +51,7 @@ with open(readme_file, 'r') as f:
 
 setup(
     name='lisflood-lisvap',
-    version=__version__,
+    version=metainfo.__version__,
     package_dir={'': 'src'},
     py_modules=[os.path.splitext(os.path.basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
@@ -30,7 +64,9 @@ setup(
     keywords='lisflood lisvap efas evapotranspiration evaporation',
     license='EUPL 1.2',
     url='https://github.com/ec-jrc/lisflood-lisvap',
-    install_requires=['numpy>=1.15', 'pytest', 'netCDF4', 'python-dateutil'],
+    setup_requires=['future', 'nine'],
+    install_requires=['numpy>=1.15', 'netCDF4', 'python-dateutil', 'future', 'nine'],
+    python_requires=">=2.7,!=3.0.*,!=3.1.*",
     entry_points={'console_scripts': ['lisvap = lisvap.lisvap1:main']},
     zip_safe=True,
     classifiers=[
@@ -48,6 +84,11 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Scientific/Engineering :: Physics',
     ],
 )

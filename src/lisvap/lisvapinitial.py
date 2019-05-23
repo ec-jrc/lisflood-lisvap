@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 
 Copyright 2019 European Union
@@ -14,15 +16,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
+    integer_types, class_types, range, range_list, reraise,
+    iterkeys, itervalues, iteritems, map, zip, filter, input,
+    implements_iterator, implements_to_string, implements_repr, nine,
+    nimport)
 
 from pcraster.framework.dynamicPCRasterBase import DynamicModel
 from pcraster.operations import scalar
 
-from utils import LisSettings, NetcdfMetadata, CutMap
-from utils.readers import loadsetclone
-from utils.output import OutputTssMap
-from hydrological.miscinitial import MiscInitial
-from hydrological.readmeteo import ReadMeteo
+from .utils import LisSettings, NetcdfMetadata, CutMap
+from .utils.readers import loadsetclone
+from .utils.output import OutputTssMap
+from .hydrological.miscinitial import MiscInitial
+from .hydrological.readmeteo import ReadMeteo
 
 
 class LisvapModelIni(DynamicModel):
