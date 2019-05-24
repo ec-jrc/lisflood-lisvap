@@ -28,25 +28,18 @@ See the Licence for the specific language governing permissions and limitations 
 
 #######################################################
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
-from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
-    integer_types, class_types, range, range_list, reraise,
-    iterkeys, itervalues, iteritems, map, zip, filter, input,
-    implements_iterator, implements_to_string, implements_repr, nine,
-    nimport)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import datetime
 import sys
 
 from pyexpat import *
 
-from .utils import LisSettings, TimeProfiler
-from .utils.tools import checkdate, DynamicFrame
-from .lisvapdynamic import LisvapModelDyn
-from .lisvapinitial import LisvapModelIni
-from . import __status__, __date__, __version__, __maintainers__, __authors__
+from lisvap import __status__, __date__, __version__, __maintainers__, __authors__
+from lisvap.utils import LisSettings, TimeProfiler
+from lisvap.utils.tools import checkdate, DynamicFrame
+from lisvap.lisvapdynamic import LisvapModelDyn
+from lisvap.lisvapinitial import LisvapModelIni
 
 
 class LisvapModel(LisvapModelIni, LisvapModelDyn):
@@ -82,14 +75,17 @@ def usage():
         which arguments and parameters it accepts, etc
     """
     print(
-        """\n\nLisvapPy - Lisvap (Global) using pcraster Python framework
-        Version:      ', __version__
-        Last updated: ', __date__
-        Status:       ', __status__
-        Authors:      ', __authors__
-        Mantainers:   ', __maintainers__
-    \n
+        """\n\n
+LisvapPy - Lisvap (Global) using pcraster Python framework
+
+    Version      : {version}
+    Last updated : {date}
+    Status       : {status}
+    Authors      : {authors}
+    Maintainers  : {maintainers}
+
     Arguments list:
+
     settings.xml     settings file
 
     -q --quiet       output progression given as .
@@ -98,7 +94,7 @@ def usage():
     -c --checkfiles  input maps and stack maps are checked, output for each input map BUT no model run
     -h --noheader    .tss file have no header and start immediately with the time series
     -t --printtime   the computation time for hydrological modules are printed\n
-    """.format(__version__, __date__, __status__, __authors__, __maintainers__)
+    """.format(version=__version__, date=__date__, status=__status__, authors=__authors__, maintainers=__maintainers__)
     )
     sys.exit(1)
 

@@ -19,11 +19,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from future.utils import with_metaclass
-from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
-    integer_types, class_types, range, range_list, reraise,
-    iterkeys, itervalues, iteritems, map, zip, filter, input,
-    implements_iterator, implements_to_string, implements_repr, nine,
-    nimport)
+from nine import (IS_PYTHON2, str, range, map, nine)
 
 import inspect
 import os
@@ -238,7 +234,7 @@ report_maps_end: {report_maps_end}
             try:
                 opts, arguments = getopt.getopt(argz, 'qvlcht', flag_names)
             except getopt.GetoptError as e:
-                from lisvap.lisvap1 import usage
+                from lisvap1 import usage
                 usage()
             else:
                 for o, a in opts:

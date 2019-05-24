@@ -17,5 +17,5 @@ if [[ "$1" = 'usecases' ]]; then
     cp /tests/data/tests_efas.xml /input/
     chmod a+w /input/*.xml
 else
-    exec python /lisvap/lisvap1.py "$@"
+    exec python /lisvap1.py "$@"
 fi

@@ -18,7 +18,7 @@ See the Licence for the specific language governing permissions and limitations 
 import os
 
 from lisvap.utils import LisSettings, cdf_flags
-from lisvap.lisvap1 import lisvapexe
+from lisvap1 import lisvapexe
 
 from tests import listest, reference_files
 
@@ -37,7 +37,6 @@ class TestEFAS(object):
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
-        # settings.flags['printtime'] = True
         lisvapexe(settings)
 
     @classmethod
@@ -71,7 +70,6 @@ class TestCORDEX(object):
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
-        # settings.flags['printtime'] = True
         lisvapexe(settings)
 
     @classmethod

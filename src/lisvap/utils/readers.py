@@ -1,11 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from future.utils import iteritems, viewitems, listitems, iterkeys, viewkeys
-from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
-    integer_types, class_types, range, range_list, reraise,
-    iterkeys, itervalues, iteritems, map, zip, filter, input,
-    implements_iterator, implements_to_string, implements_repr, nine,
-    nimport)
+from future.utils import listitems
+from nine import (str, range)
 
 import datetime
 import os
