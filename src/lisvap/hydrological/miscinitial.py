@@ -14,13 +14,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import datetime
 
 from pcraster.operations import scalar, cover
 
-from lisvap.utils.readers import loadmap
-from lisvap.utils.tools import calendar
+from ..utils.readers import loadmap
+from ..utils.tools import calendar
 
 
 class MiscInitial(object):

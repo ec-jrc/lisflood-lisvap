@@ -13,3 +13,6 @@ psy0
 build/**
 dist/**
 lisflood_lisvap.egg-info/**
+/.coverage
+/.tox
+/.eggs/

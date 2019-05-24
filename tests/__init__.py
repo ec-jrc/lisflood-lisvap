@@ -14,6 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+from nine import range
 
 import os
 import sys
@@ -74,20 +78,20 @@ def check_var_step(domain, var, step):
         max_diff = np.max(diff_values)
         large_diff = max_diff > 0.02
         if perc_wrong >= 0.05:
-            print '[ERROR]'
-            print 'Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff)
+            print('[ERROR]')
+            print('Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff))
             return False
         elif perc_wrong >= 0.005 and large_diff:
-            print '[WARNING]'
-            print 'Var: {} - STEP {}: {:3.9f}% of values have large difference. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff)
+            print('[WARNING]')
+            print('Var: {} - STEP {}: {:3.9f}% of values have large difference. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff))
             # FIXME we had a few points with null (-9999 in pcraster maps) but not in reference files. Could not find the reason.
             #  It could be a minor issue but it pollutes tests in a real bad way
             return True if 9998.0 < max_diff <= 9999.09 else False
         else:
-            print '[OK] {} {}'.format(var, step)
+            print('[OK] {} {}'.format(var, step))
             return True
     else:
-        print '[OK] {} {}'.format(var, step)
+        print('[OK] {} {}'.format(var, step))
         return True
 
 
@@ -98,10 +102,10 @@ def listest(domain, variable):
             settings = LisSettings.instance()
             output_path = settings.binding['PathOut']
             output_nc = os.path.join(output_path, variable)
-            print '>>> Reference: {} - Current Output: {}'.format(reference_files[domain][variable], output_nc)
+            print('>>> Reference: {} - Current Output: {}'.format(reference_files[domain][variable], output_nc))
             results = []
             numsteps = netcdf_steps(reference_files[domain][variable])
-            for step in xrange(0, numsteps):
+            for step in range(0, numsteps):
                 results.append(check_var_step(domain, variable, step))
             assert all(results)
             return f(*args, **kwds)
