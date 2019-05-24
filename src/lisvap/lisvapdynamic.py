@@ -17,15 +17,7 @@ See the Licence for the specific language governing permissions and limitations 
 
 """
 
-from __future__ import (absolute_import, print_function,  # division,
-                        # unicode_literals
-                        )
-
-from nine import (IS_PYTHON2, str, basestring, native_str, chr, long,
-    integer_types, class_types, range, range_list, reraise,
-    iterkeys, itervalues, iteritems, map, zip, filter, input,
-    implements_iterator, implements_to_string, implements_repr, nine,
-    nimport)
+from __future__ import (absolute_import, print_function)
 
 import sys
 import datetime

@@ -30,3 +30,4 @@ psy0
 /_site/
 /.coverage
 /.tox
+/.eggs/
