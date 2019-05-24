@@ -57,7 +57,8 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             nf1.createDimension(dim_name, dim_size)
             coord = nf1.createVariable(dim_name, 'f8', (dim_name, ))
             for i in metadata_ncdf[dim_name]:
-                if i != '_FillValue': # to avoid AttributeError ("_FillValue attribute must be set when variable is created") when writing output nc attributes
+                if i != '_FillValue':
+                    # to avoid AttributeError ("_FillValue attribute must be set when variable is created") when writing output nc attributes
                     setattr(coord, i, metadata_ncdf[dim_name][i])
 
         if flag_time:
