@@ -50,27 +50,31 @@ Easiest and quickest way to get LISVAP is to install its python package into you
 LISVAP module is distributed as a [python pip package](https://pypi.org/project/lisflood-lisvap/) and regularly published to pypi repository. 
 Pip is the tool to install python packages/libraries into your python environment, and it manages versions and dependencies.  
 
-Ensure you have the latest Python 2.7 [^1] distribution for your system [from this page](https://www.python.org/downloads/release/python-2716/) along with the pip tool (which is usually already installed).
+Ensure you have a recent Python distribution (>=3.5 works) for your system [from this page](https://www.python.org/downloads/release/python-2716/) along with the pip tool (which is usually already installed).
+LISVAP works also with Python 2.7 but keep in mind that its support will be dropped late in 2020.
 
-Pip will install LISVAP python dependencies as well but you still need to install PCRaster and its python interface manually.
+Pip will install LISVAP python dependencies as well but you still need to compile and install PCRaster and its python interface manually.
 For details on how to install PCRaster the reader is referred to the PCRaster installation guide [for Windows](http://pcraster.geo.uu.nl/quick-start-guide/) 
 or [Linux](http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/).
 
-To install:
+To install LISVAP from pypi repository execute the following command:
 
-`pip install lisflood-lisvap`
+```bash
+pip install lisflood-lisvap
+```
 
 
 ## Option 3. Clone the repository from github
 
 Using option 3 requires having Git installed. Go on the [download page](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and follow instructions for your system.
+TODO:  *** write something about git on windows ***
 
 
 Once git is installed, follow these steps:
 
 #### 1. Grab the code
 
- *** write something about git on windows ***
+
 ```bash
 git clone https://github.com/ec-jrc/lisflood-lisvap.git
 cd lisflood-lisvap
@@ -91,5 +95,3 @@ To install PCRaster, follow official guides:
 
 * [Windows](http://pcraster.geo.uu.nl/quick-start-guide/) 
 * [Linux](http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/)
-
-[^1]: Next versions of LISVAP will be updated to Python 3.

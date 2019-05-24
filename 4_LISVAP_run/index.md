@@ -34,12 +34,15 @@ You can print the usage dialogue by typing `docker run efas/lisvap:latest`, whic
 
  ```console
 LisvapPy - Lisvap (Global) using pcraster Python framework
-Authors:  Peter Burek, Johan van der Knijff, Ad de Roo
-Version:  Version: 0.2
-Date:  10/04/2019
-Status:  Development
+
+    Version      : 0.3.4
+    Last updated : 23/05/2019
+    Status       : Development
+    Authors      : Peter Burek, Johan van der Knijff, Ad de Roo
+    Maintainers  : Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi
 
     Arguments list:
+
     settings.xml     settings file
 
     -q --quiet       output progression given as .
@@ -65,6 +68,5 @@ lisvap mysettings.xml -v -t
 Once all dependencies are installed, you can run the model using python (2.7 version) interpreter; As previously said, we strongly recommend using an isolated python virtualenv.
 
 ```bash
-cd src/
-python lisvap/lisvap1.py mysettings.xml -v -t
+python src/lisvap1.py mysettings.xml -v -t
 ```
