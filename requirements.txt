@@ -3,4 +3,9 @@ netCDF4
 numpy
 python-dateutil
 docopt
+future
+nine
 pytest
+tox
+coverage
+pytest-cov

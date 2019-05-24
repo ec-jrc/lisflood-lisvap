@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 
 Copyright 2019 European Union
@@ -15,6 +17,8 @@ See the Licence for the specific language governing permissions and limitations 
 
 """
 
+from __future__ import (absolute_import, print_function)
+
 import sys
 import datetime
 
@@ -22,7 +26,7 @@ import numpy as np
 from pcraster import operations
 from pcraster.framework import DynamicModel, report
 
-from utils import LisSettings, TimeProfiler
+from .utils import LisSettings, TimeProfiler
 
 
 class LisvapModelDyn(DynamicModel):
@@ -62,7 +66,7 @@ class LisvapModelDyn(DynamicModel):
         self.time_since_start = self.currentTimeStep() - self.firstTimeStep() + 1
 
         if settings.flags['loud']:
-            print "%-6i %10s" % (self.currentTimeStep(), self.calendar_date.strftime("%d/%m/%Y")),
+            print("%-6i %10s" % (self.currentTimeStep(), self.calendar_date.strftime("%d/%m/%Y")))
         elif not settings.flags['checkfiles']:
             if settings.flags['quiet'] and not settings.flags['veryquiet']:
                 sys.stdout.write(".")

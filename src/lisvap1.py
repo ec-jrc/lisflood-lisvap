@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 
 Copyright 2019 European Union
@@ -26,19 +28,14 @@ See the Licence for the specific language governing permissions and limitations 
 
 #######################################################
 """
-
-__authors__ = "Peter Burek, Johan van der Knijff, Ad de Roo"
-__version__ = "0.3.3"
-__date__ = "24/04/2019"
-__copyright__ = "Copyright 2019, Lisflood Open Source"
-__maintainers__ = "Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi"
-__status__ = "Development"
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import datetime
 import sys
 
 from pyexpat import *
 
+from lisvap import __status__, __date__, __version__, __maintainers__, __authors__
 from lisvap.utils import LisSettings, TimeProfiler
 from lisvap.utils.tools import checkdate, DynamicFrame
 from lisvap.lisvapdynamic import LisvapModelDyn
@@ -60,10 +57,10 @@ def lisvapexe(settings):
     timestep_start = (start_date - start_date_simulation).days + 1
     timestep_end = (end_date - start_date_simulation).days + 1
     checkdate('StepStart', 'StepEnd')
-    print 'Start date: {} ({}) - End date: {} ({})'.format(step_start, timestep_start, step_end, timestep_end)
+    print('Start date: {} ({}) - End date: {} ({})'.format(step_start, timestep_start, step_end, timestep_end))
 
     if settings.flags['loud']:
-        print '%-6s %10s %11s\n' % ('Step', 'Date', 'ET0')
+        print('%-6s %10s %11s\n' % ('Step', 'Date', 'ET0'))
 
     lisvap_model = LisvapModel()
     dynfmw = DynamicFrame(lisvap_model, firstTimestep=timestep_start, lastTimeStep=timestep_end)
@@ -77,14 +74,18 @@ def usage():
     """ prints some lines describing how to use this program
         which arguments and parameters it accepts, etc
     """
-    print '\n\nLisvapPy - Lisvap (Global) using pcraster Python framework'
-    print 'Authors:      ', __authors__
-    print 'Mantainers:   ', __maintainers__
-    print 'Version:      ', __version__
-    print 'Last updated: ', __date__
-    print 'Status:       ', __status__
-    print """\n
+    print(
+        """\n\n
+LisvapPy - Lisvap (Global) using pcraster Python framework
+
+    Version      : {version}
+    Last updated : {date}
+    Status       : {status}
+    Authors      : {authors}
+    Maintainers  : {maintainers}
+
     Arguments list:
+
     settings.xml     settings file
 
     -q --quiet       output progression given as .
@@ -93,18 +94,19 @@ def usage():
     -c --checkfiles  input maps and stack maps are checked, output for each input map BUT no model run
     -h --noheader    .tss file have no header and start immediately with the time series
     -t --printtime   the computation time for hydrological modules are printed\n
-    """
+    """.format(version=__version__, date=__date__, status=__status__, authors=__authors__, maintainers=__maintainers__)
+    )
     sys.exit(1)
 
 
 def headerinfo():
-    print 'Lisvap ', __version__, ' ', __date__,
-    print """\n
+    print('Lisvap ', __version__, ' ', __date__,)
+    print("""
 (C) Disaster Risk Management Knowledge Centre
     Joint Research Centre of the European Commission
-    Unit E1, I-21020 Ispra (Va), Italy
+    Units E1,D2 I-21020 Ispra (Va), Italy
 \n
-"""
+""")
 
 
 def main():

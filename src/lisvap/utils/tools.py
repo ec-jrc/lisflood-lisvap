@@ -14,6 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
+from __future__ import (absolute_import, print_function, unicode_literals)
+from nine import str, range
 
 import datetime
 import sys
@@ -46,7 +48,7 @@ def valuecell(coordx, coordstr):
     null = np.zeros((pcraster.clone().nrRows(), pcraster.clone().nrCols()))
     null[null == 0] = -9999
 
-    for i in xrange(int(len(coord) / 2)):
+    for i in range(int(len(coord) / 2)):
         col = int((coord[i * 2] - pcraster.clone().west()) / pcraster.clone().cellSize())
         row = int((pcraster.clone().north() - coord[i * 2 + 1]) / pcraster.clone().cellSize())
         if 0 <= col < pcraster.clone().nrCols() and 0 <= row < pcraster.clone().nrRows():
@@ -196,7 +198,7 @@ class DynamicFrame(DynamicFramework):
 
 @counted
 def checkmap(name, value, map, flagmap, find):
-    """ check maps if the fit to the mask map
+    """ check maps if they fit to the mask map
     """
     s = [name, value]
     MMaskMap = 0
@@ -236,6 +238,6 @@ def checkmap(name, value, map, flagmap, find):
         s.append(float(map))
 
     if checkmap.called == 1:  # FIXME omg
-        print "%-25s%-40s%11s%11s%11s%11s%11s" % ("Name", "File/Value", "nonMV", "MV", "min", "mean", "max")
-    print "%-25s%-40s%11i%11i%11.2f%11.2f%11.2f" % (s[0], s[1][-39:], s[2], s[3], s[4], s[5], s[6])
+        print ("%-25s%-40s%11s%11s%11s%11s%11s" % ("Name", "File/Value", "nonMV", "MV", "min", "mean", "max"))
+    print ("%-25s%-40s%11i%11i%11.2f%11.2f%11.2f" % (s[0], s[1][-39:], s[2], s[3], s[4], s[5], s[6]))
     return
