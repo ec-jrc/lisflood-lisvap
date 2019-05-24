@@ -65,7 +65,7 @@ lisvap mysettings.xml -v -t
 
 ### ... from source code
 
-Once all dependencies are installed, you can run the model using python (2.7 version) interpreter; As previously said, we strongly recommend using an isolated python virtualenv.
+Once all dependencies are installed, you can run the model using python interpreter; As previously said, we strongly recommend using an isolated python virtualenv.
 
 ```bash
 python src/lisvap1.py mysettings.xml -v -t
