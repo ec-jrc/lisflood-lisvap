@@ -123,7 +123,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="PrefixRgd" value="rg">
                 <comment>
-                    prefix down solar radiation maps [W/m2]
+                    prefix down solar radiation maps [J/m2/day]
                 </comment>
             </textvar>
 
