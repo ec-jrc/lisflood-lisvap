@@ -92,47 +92,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <comment>
                 **************************************************************
-                PREFIXES OF INPUT METEO VARIABLES
-                **************************************************************
-            </comment>
-
-            <textvar name="PrefixTMax" value="tx">
-                <comment>
-                    prefix maximum temperature maps [k]
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixTMin" value="tn">
-                <comment>
-                    prefix minimum temperature maps [K]
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixEAct" value="pd">
-                <comment>
-                    prefix vapour pressure maps
-                    --- MISSING ---
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixWind" value="ws">
-                <comment>
-                    prefix wind speed maps at 10m [m/s]
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixRgd" value="rg">
-                <comment>
-                    prefix down solar radiation maps [J/m2/day]
-                </comment>
-            </textvar>
-
-        </group>
-
-        <group>
-
-            <comment>
-                **************************************************************
                 PREFIXES OF OUTPUT METEO VARIABLES
                 **************************************************************
             </comment>
@@ -293,20 +252,23 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="TMaxMaps" value="$(PathMeteoIn)/EMO-5-tx_1990_2017">
                 <comment>
-                    Maximum daily temperature [K]
+                    Maximum daily temperature
+                    Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
                 </comment>
             </textvar>
 
             <textvar name="TMinMaps" value="$(PathMeteoIn)/EMO-5-tn_1990_2017">
                 <comment>
-                    Minimum daily temperature [K]
+                    Minimum daily temperature 
+                    Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
                 </comment>
             </textvar>
-
 
             <textvar name="EActMaps" value="$(PathMeteoIn)/EMO-5-pd_1990_2017">
                 <comment>
                     Actual vapour pressure [mbar]
+                    Used when the "EFAS" option is switched on.
+                    If the "CORDEX" option is on, "QairMaps" is used instead.
                 </comment>
             </textvar>
 
@@ -318,19 +280,65 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="RgdMaps" value="$(PathMeteoIn)/EMO-5-rg_1990_2017">
                 <comment>
-                    rgd - calculated solar radiation [W/m2]
+                    rgd - calculated solar radiation [J/day/m2]
+                    Used when the "EFAS" option is switched on.
+                    If the "CORDEX" option is on, the following are used instead: "RdsMaps", "RdlMaps", "RusMaps", "RulMaps".
                 </comment>
             </textvar>
+
             <textvar name="TAvgMaps" value="$(PathMeteoIn)/ta/ta_1990_2017">
                 <comment>
-                    average daily temperature [C or K]
+                    average daily temperature 
+                    Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
                 </comment>
             </textvar>
+
             <textvar name="PSurfMaps" value="0">
                 <comment>
                     Instantaneous sea level pressure [Pa]
                 </comment>
             </textvar>
+
+            <textvar name="QAirMaps" value="$(PathMeteoIn)/huss_1_15">
+                <comment>
+                    2 m instantaneous specific humidity [kg/kg]
+                    Used when the "CORDEX" option is switched on.
+                    If the "EFAS" option is on, "EActMaps" is used instead.
+                </comment>
+            </textvar>
+
+            <textvar name="RdsMaps" value="$(PathMeteoIn)/rsds_1_15">
+                <comment>
+                    rds - Downward short wave radiation [W/m2]
+                    Used when the "CORDEX" option is switched on.
+                    If the "EFAS" option is on, "RgdMaps" is used instead.
+                </comment>
+            </textvar>
+
+            <textvar name="RdlMaps" value="$(PathMeteoIn)/rlds_1_15">
+                <comment>
+                    rdl - Down long wave radiation [W/m2]
+                    Used when the "CORDEX" option is switched on.
+                    If the "EFAS" option is on, "RgdMaps" is used instead.
+                </comment>
+            </textvar>
+
+            <textvar name="RusMaps" value="$(PathMeteoIn)/rsus_1_15">
+                <comment>
+                    rus - up short wave radiation [W/m2]
+                    Used when the "CORDEX" option is switched on.
+                    If the "EFAS" option is on, "RgdMaps" is used instead.
+                </comment>
+            </textvar>
+
+            <textvar name="RulMaps" value="$(PathMeteoIn)/rlus_1_15">
+                <comment>
+                    rul - up long wave radiation [W/m2]
+                    Used when the "CORDEX" option is switched on.
+                    If the "EFAS" option is on, "RgdMaps" is used instead.
+                </comment>
+            </textvar>
+
 
 
         </group>
