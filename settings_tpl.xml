@@ -124,8 +124,9 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="readNetcdfStack" choice="1" />
         <setoption name="writeNetcdfStack" choice="1" />
         <setoption name="repE0Maps" choice="1" />
-        <setoption name="EFAS" choice="1" />
+        <setoption name="EFAS" choice="0" />
         <setoption name="CORDEX" choice="0" />
+        <setoption name="GLOFAS" choice="1" />
     </lfoptions>
 
 
@@ -249,6 +250,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 INPUT METEOROLOGICAL TIMESERIES AS MAPS
                 **************************************************************
             </comment>
+            
 
             <textvar name="TMaxMaps" value="$(PathMeteoIn)/EMO-5-tx_1990_2017">
                 <comment>
@@ -263,6 +265,15 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                     Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
                 </comment>
             </textvar>
+            
+            <textvar name="TDew" value="$(PathMeteoIn)/rlus_1_15">
+                <comment>
+                    TDew - Dew point Temperature used for actual vap pressure 
+                    Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+                    Used when the "GLOFAS" option is switched on.
+                    
+                </comment>
+            
 
             <textvar name="EActMaps" value="$(PathMeteoIn)/EMO-5-pd_1990_2017">
                 <comment>
@@ -275,6 +286,18 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
             <textvar name="WindMaps" value="$(PathMeteoIn)/EMO-5-ws_1990_2017">
                 <comment>
                     Wind speed at 10 m from surface [m/s]
+                </comment>
+            </textvar>
+            
+            <textvar name="WindMapsU" value="$(PathMeteoIn)/EMO-5-ws_1990_2017">
+                <comment>
+                    Wind speed U component at 10 m from surface [m/s]
+                </comment>
+            </textvar>
+            
+            <textvar name="WindMapsV" value="$(PathMeteoIn)/EMO-5-ws_1990_2017">
+                <comment>
+                    Wind speed V component at 10 m from surface [m/s]
                 </comment>
             </textvar>
 
@@ -337,6 +360,15 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                     Used when the "CORDEX" option is switched on.
                     If the "EFAS" option is on, "RgdMaps" is used instead.
                 </comment>
+                
+            <textvar name="RnlMaps" value="$(PathMeteoIn)/rlus_1_15">
+                <comment>
+                    rnl - net long wave radiation [W/m2]
+                    Used when the "GLOFAS" option is switched on.
+                    
+                </comment>
+            
+                
             </textvar>
 
 
