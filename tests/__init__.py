@@ -73,20 +73,15 @@ def check_var_step(domain, var, step):
     all_ok = same_size and same_values
     array_ok = np.isclose(diff_values, np.zeros(diff_values.shape), atol=atol)
     wrong_values_size = array_ok[~array_ok].size
-    perc_wrong = float(wrong_values_size * 100) / float(diff_values.size)
+
     if not all_ok and wrong_values_size > 0:
         max_diff = np.max(diff_values)
-        large_diff = max_diff > 0.02
-        if perc_wrong >= 0.05:
+        large_diff = max_diff > atol
+        perc_wrong = float(wrong_values_size * 100) / float(diff_values.size)
+        if perc_wrong >= 0.05 or perc_wrong >= 0.01 and large_diff:
             print('[ERROR]')
             print('Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff))
             return False
-        elif perc_wrong >= 0.005 and large_diff:
-            print('[WARNING]')
-            print('Var: {} - STEP {}: {:3.9f}% of values have large difference. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff))
-            # FIXME we had a few points with null (-9999 in pcraster maps) but not in reference files. Could not find the reason.
-            #  It could be a minor issue but it pollutes tests in a real bad way
-            return True if 9998.0 < max_diff <= 9999.09 else False
         else:
             print('[OK] {} {}'.format(var, step))
             return True
@@ -109,7 +104,5 @@ def listest(domain, variable):
                 results.append(check_var_step(domain, variable, step))
             assert all(results)
             return f(*args, **kwds)
-
         return wrapper
-
     return decorator
