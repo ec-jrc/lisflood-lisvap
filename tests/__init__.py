@@ -46,6 +46,9 @@ reference_files = {
         'e0': os.path.join(current_dir, 'data/reference/cordex/e0_1_15'),
         'et': os.path.join(current_dir, 'data/reference/cordex/et_1_15'),
     },
+    'glofas': {
+        'e0': os.path.join(current_dir, 'data/reference/glofas/e0_1_15'),
+    },
 }
 atol = 0.01
 
