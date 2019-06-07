@@ -95,6 +95,54 @@ class ReadMeteo(object):
                 # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
                 # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
 
+
+            elif self.settings.option['GLOFAS']:
+                # set of forcings(rg, rn, ta, td, wu, wv)
+                
+                #self.var.TMin = readnetcdf(binding['TMinMaps'], self.var.currentTimeStep())
+                # Minimum daily temperature (C)
+                #self.var.TMax = readnetcdf(binding['TMaxMaps'], self.var.currentTimeStep())
+                # Maximum daily temperature (C)
+                #self.var.TAvg = (self.var.TMin + self.var.TMax) / 2.0
+                # Average daily temperature (C)
+                self.var.TAvg = readnetcdf(self.settings.binding['TAvg'], self.var.currentTimeStep())
+                # Average daily temperature (C)
+
+                self.var.Tdew = readnetcdf(self.settings.binding['TDew'], self.var.currentTimeStep())
+                
+                #Synoptic weather stations often do not supply vapour pressure data, 
+                #but provided dew point temperature instead. 
+                #In that case Eact can be calculatet using Goudriaan Formula(1977)
+                #
+                self.var.EAct = 6.10588 * exp((17.32491 * self.var.Tdew) / (self.var.Tdew * 238.102))
+                
+                # actual vapor pressure; has to be in mbar = hPa
+                # self.var.EAct = self.var.EAct / 10
+                # from hPa tp kPa
+                # actual vapour pressure (pd maps): typical value 0-70 hPa = 0-7 kPa
+                
+                self.var.WindU = readnetcdf(self.settings.binding['WindMapsU'], self.var.currentTimeStep())
+                self.var.WindV = readnetcdf(self.settings.binding['WindMapsV'], self.var.currentTimeStep())
+                
+
+                self.var.Wind = pcraster.sqrt(pcraster.sqr(self.var.WindU)+pcraster.sqr(self.var.WindU))
+                # near surface windspeed at 10 m
+                self.var.Wind = self.var.Wind * 0.749
+                # Adjust wind speed for measurement height: wind speed measured at
+                # 10 m, but needed at 2 m height
+                # Shuttleworth, W.J. (1993) in Maidment, D.R. (1993), p. 4.36
+                # Typical input values 0-15 m/s (wind at 10m)
+                self.var.Rnl = readnetcdf(self.settings.binding['RnlMaps'], self.var.currentTimeStep())
+                # Net long wave radiation [W/m2]
+                self.var.Rnl = self.var.Rnl * 86400
+
+                self.var.Rgd = readnetcdf(self.settings.binding['RgdMaps'], self.var.currentTimeStep())
+                self.var.Rgd = self.var.Rgd * 86400
+                # calculated radiation [J/m2/day]
+                # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
+                # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
+
+
         if self.settings.options['TemperatureInKelvinFlag']:  # self.var.TemperatureInKelvinFlag:
             self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
             self.var.TMin = self.var.TMin - self.var.ZeroKelvin
