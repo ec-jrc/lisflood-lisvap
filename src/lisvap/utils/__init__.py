@@ -29,12 +29,13 @@ import sys
 import getopt
 import time
 import xml.dom.minidom
-from collections import Counter, defaultdict, namedtuple
+from collections import Counter, defaultdict
 
 import numpy as np
 from netCDF4 import Dataset
 from pcraster import pcraster
 
+from .defaults_options import defaults
 from .decorators import cached
 
 project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../..'))
@@ -251,7 +252,7 @@ report_maps_end: {report_maps_end}
 
     @staticmethod
     def get_options(dom):
-        options = copy.deepcopy(default_options)
+        options = copy.deepcopy(defaults)
         # getting option set in the specific settings file
         # and resetting them to their choice value
         lfoptions_elem = dom.getElementsByTagName("lfoptions")[0]
@@ -392,10 +393,6 @@ class CutMap(tuple, with_metaclass(Singleton)):
         return slice(self.cuts[2], self.cuts[3]), slice(self.cuts[0], self.cuts[1])
 
 
-TimeSeries = namedtuple('TimeSeries', 'name, output_var, where, repoption, restrictoption, operation')
-ReportedMap = namedtuple('ReportedMap','name, output_var, unit, end, steps, all, restrictoption')
-
-
 class TimeProfiler(with_metaclass(Singleton)):
 
     def __init__(self):
@@ -424,22 +421,3 @@ class TimeProfiler(with_metaclass(Singleton)):
 
 
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})
-default_options = {
-    'useTavg': False,
-    'readNetcdfStack': False, 'writeNetcdfStack': False, 'writeNetcdf': False,
-    'repAvTimeseries': False,
-    'repET0Maps': True, 'repES0Maps': True, 'repE0Maps': True, 'repTAvgMaps': True,
-    'EFAS': True, 'CORDEX': False,
-    'timeseries': [
-        TimeSeries(name='TAvgTS', output_var='TAvg', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
-        TimeSeries(name='ET0TS', output_var='ETRef', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
-        TimeSeries(name='E0TS', output_var='EWRef', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
-        TimeSeries(name='ES0TS', output_var='ESRef', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
-    ],
-    'reportedmaps': [
-        ReportedMap(name='ET0Maps', output_var='ETRef', unit='mm day-1', end='', steps='', all='repET0Maps', restrictoption=''),
-        ReportedMap(name='E0Maps', output_var='EWRef', unit='mm day-1', end='', steps='', all='repE0Maps', restrictoption=''),
-        ReportedMap(name='ES0Maps', output_var='ESRef', unit='mm day-1', end='', steps='', all='repES0Maps', restrictoption=''),
-        ReportedMap(name='TAvgMaps', output_var='TAvg', unit='degree C', end='', steps='', all='repTAvgMaps', restrictoption=''),
-    ],
-}

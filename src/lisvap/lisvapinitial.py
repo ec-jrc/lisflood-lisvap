@@ -48,15 +48,16 @@ class LisvapModelIni(DynamicModel):
         # try to make the maskmap more flexible e.g. col, row,x1,y1  or x1,x2,y1,y2
         self.MaskMap = loadsetclone('MaskMap')
         self.settings = LisSettings.instance()
-
+        map_for_metadata = self.settings.binding.get('TMinMaps') or self.settings.binding.get('TAvgMaps') or self.settings.binding.get('TDewMaps')
         if self.settings.options['readNetcdfStack']:
             # CutMap defines the extent to read from input netcdf data (cropping)
-            CutMap.register(self.settings.binding['TMinMaps'])
+
+            CutMap.register(map_for_metadata)
 
         if self.settings.options['writeNetcdfStack'] or self.settings.options['writeNetcdf']:
             # if NetCDF is written, the pr.nc is read to get the metadata
             # like projection
-            NetcdfMetadata.register(self.settings.binding['TMinMaps'])
+            NetcdfMetadata.register(map_for_metadata)
 
         # ----------------------------------------
         self.output_module = OutputTssMap(self)

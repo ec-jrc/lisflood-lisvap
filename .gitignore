@@ -10,7 +10,7 @@ lisflood_lisvap.egg-info/
 *.nc
 *.xml
 *.prof
-!basemaps/*.nc
+!basemaps/**/*.nc
 # unignoring xml settings for templates and tests
 !settings_tpl.xml
 !options*.xml
