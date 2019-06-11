@@ -11,9 +11,9 @@
 
 #######################################################
 
-TIP:
+TIPs:
 You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this XML settings, to refer Lisvap project folder (in case you work with source code)
-You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the XML settings.
+You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this XML settings.
 -->
 
 <lfsettings>
@@ -77,7 +77,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 </comment>
             </textvar>
 
-            <textvar name="PathBaseMapsIn" value="$(SettingsDir)/../../basemaps">
+            <textvar name="PathBaseMapsIn" value="$(SettingsDir)/../../basemaps/global">
                 <comment>
                     Path to input base maps
                     for Docker: /input/basemaps
@@ -85,17 +85,15 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 </comment>
             </textvar>
 
-            <textvar name="PathMeteoIn" value="$(SettingsDir)/input/cordex">
+            <textvar name="PathMeteoIn" value="$(SettingsDir)/input/glofas">
                 <comment>
                     Path to input raw meteo maps
                     for Docker: /input/cordex
-                    from local host: e.g.  E:/lisflood_test/Lisvap/input/cordex
+                    from local host: e.g. E:/lisflood_test/Lisvap/input/cordex
                 </comment>
             </textvar>
 
         </group>
-
-
         <group>
 
             <comment>
@@ -104,15 +102,15 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 **************************************************************
             </comment>
 
-            <textvar name="PrefixTMax" value="tmax">
+            <textvar name="PrefixTMax" value="tx">
                 <comment>
-                    prefix maximum temperature maps [k]
+                    prefix maximum temperature maps
                 </comment>
             </textvar>
 
-            <textvar name="PrefixTMin" value="tmin">
+            <textvar name="PrefixTMin" value="tn">
                 <comment>
-                    prefix minimum temperature maps [K]
+                    prefix minimum temperature maps
                 </comment>
             </textvar>
 
@@ -121,29 +119,21 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                     prefix dew point temperature maps
                 </comment>
             </textvar>
+            <textvar name="PrefixTAvg" value="ta">
+                <comment>
+                    prefix average temperature maps
+                </comment>
+            </textvar>
 
-            <textvar name="PrefixEAct" value="eact">
+            <textvar name="PrefixEAct" value="pd">
                 <comment>
                     prefix vapour pressure maps
                 </comment>
             </textvar>
 
-            <textvar name="PrefixPSurf" value="ps">
+            <textvar name="PrefixWind" value="ws">
                 <comment>
-                    Instantaneous surface pressure [Pa]
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixQAir" value="qair">
-                <comment>
-                    2 m instantaneous specific humidity [kg/kg]
-                </comment>
-            </textvar>
-
-
-            <textvar name="PrefixWind" value="wind">
-                <comment>
-                    prefix wind speed maps at 10m [m/s]
+                    prefix wind speed maps
                 </comment>
             </textvar>
 
@@ -158,28 +148,15 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                     prefix wind speed V-component maps
                 </comment>
             </textvar>
-
-            <textvar name="PrefixSun" value="s">
+            <textvar name="PrefixRgd" value="rg">
                 <comment>
-                    prefix sunshine duration maps
+                    prefix incoming solar radiation maps
                 </comment>
             </textvar>
 
-            <textvar name="PrefixCloud" value="c">
+            <textvar name="PrefixRN" value="rn">
                 <comment>
-                    prefix cloud cover maps
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixRgd" value="swd">
-                <comment>
-                    prefix down solar radiation maps [W/m2]
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixRN" value="lwdown">
-                <comment>
-                    prefix down longwave radiation maps [W/m2]
+                    prefix net longwave radiation maps
                 </comment>
             </textvar>
 
@@ -199,23 +176,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 </comment>
             </textvar>
 
-            <textvar name="PrefixES0" value="es">
-                <comment>
-                    prefix ES0 maps
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixET0" value="et">
-                <comment>
-                    prefix ET0 maps
-                </comment>
-            </textvar>
-            <textvar name="PrefixTAvg" value="tair">
-                <comment>
-                    prefix TAvg maps
-                </comment>
-            </textvar>
-
         </group>
 
 
@@ -225,13 +185,23 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
         <setoption name="readNetcdfStack" choice="1"/>
         <setoption name="writeNetcdfStack" choice="1"/>
-        <setoption name="TemperatureInKelvinFlag" choice="1" />
+        <setoption name="TemperatureInKelvinFlag" choice="0"/>
         <setoption name="repE0Maps" choice="1"/>
-        <setoption name="repESMaps" choice="1"/>
-        <setoption name="repTavgMaps" choice="1"/>
+        <setoption name="repESMaps" choice="0"/>
+        <setoption name="repTavgMaps" choice="0"/>
         <setoption name="EFAS" choice="0"/>
-        <setoption name="CORDEX" choice="1"/>
-        <setoption name="useTavg" choice="0" />
+        <setoption name="CORDEX" choice="0"/>
+        <setoption name="GLOFAS" choice="1"/>
+        <setoption name="useTavg" choice="0"/>
+        <setoption name="useRgdMaps" choice="1"/>
+        <setoption name="usePenmanET" choice="1"/>
+        <setoption name="useEActMaps" choice="0"/>
+        <setoption name="useTDewMaps" choice="1"/>
+        <setoption name="useWindMaps" choice="0"/>
+        <setoption name="useWindUVMaps" choice="1"/>
+        <setoption name="useRNMaps" choice="1"/>
+        <setoption name="useTavg" choice="1"/>
+        <setoption name="repAvTimeseries" choice="0"/>
     </lfoptions>
 
 
@@ -349,6 +319,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
         </group>
 
+
         <group>
             <comment>
                 **************************************************************
@@ -356,59 +327,55 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 **************************************************************
             </comment>
 
-            <textvar name="TMaxMaps" value="$(PathMeteoIn)/tmax_1_15">
+<!--            <textvar name="TMaxMaps" value="$(PathMeteoIn)/$(PrefixTMax)">-->
+<!--                <comment>-->
+<!--                    Maximum daily temperature [C or K]-->
+<!--                </comment>-->
+<!--            </textvar>-->
+
+<!--            <textvar name="TMinMaps" value="$(PathMeteoIn)/$(PrefixTMin)">-->
+<!--                <comment>-->
+<!--                    Minimum daily temperature [C or K]-->
+<!--                </comment>-->
+<!--            </textvar>-->
+
+            <textvar name="TDewMaps" value="$(PathMeteoIn)/$(PrefixTDew)">
                 <comment>
-                    Maximum daily temperature [K]
+                    Dewpoint temperature [C or K]
                 </comment>
             </textvar>
 
-            <textvar name="TMinMaps" value="$(PathMeteoIn)/tmin_1_15">
+            <textvar name="TAvgMaps" value="$(PathMeteoIn)/$(PrefixTAvg)">
                 <comment>
-                    Minimum daily temperature [K]
+                    Average daily temperature [C or K]
                 </comment>
             </textvar>
 
-            <textvar name="PSurfMaps" value="$(PathMeteoIn)/ps_1_15">
+            <textvar name="WindUMaps" value="$(PathMeteoIn)/$(PrefixWindU)">
                 <comment>
-                    Instantaneous sea level pressure [Pa]
+                    Windspeed U component at 10 m altitude [m/s]
                 </comment>
             </textvar>
 
-            <textvar name="QAirMaps" value="$(PathMeteoIn)/huss_1_15">
+            <textvar name="WindVMaps" value="$(PathMeteoIn)/$(PrefixWindV)">
                 <comment>
-                    2 m instantaneous specific humidity [kg/kg]
+                    Windspeed V component at 10 m altitude [m/s]
                 </comment>
             </textvar>
 
-            <textvar name="WindMaps" value="$(PathMeteoIn)/sfcWind_1_15">
+            <textvar name="RgdMaps" value="$(PathMeteoIn)/$(PrefixRgd)">
                 <comment>
-                    Wind speed at 10 m from surface [m/s]
+                    Downward surface solar radiation [J/m2/d]
                 </comment>
             </textvar>
 
-            <textvar name="RdsMaps" value="$(PathMeteoIn)/rsds_1_15">
+            <textvar name="RNMaps" value="$(PathMeteoIn)/$(PrefixRN)">
                 <comment>
-                    rds - Downward short wave radiation [W/m2]
+                    Net thermal radiation [J/m2/d]
+                    Note: values should always be negative (in ERA40 net outgoing flux is taken as a negative number)
                 </comment>
             </textvar>
 
-            <textvar name="RdlMaps" value="$(PathMeteoIn)/rlds_1_15">
-                <comment>
-                    rdl - Down long wave radiation [W/m2]
-                </comment>
-            </textvar>
-
-            <textvar name="RusMaps" value="$(PathMeteoIn)/rsus_1_15">
-                <comment>
-                    rus - up short wave radiation [W/m2]
-                </comment>
-            </textvar>
-
-            <textvar name="RulMaps" value="$(PathMeteoIn)/rlus_1_15">
-                <comment>
-                    rul - up long wave radiation [W/m2]
-                </comment>
-            </textvar>
 
         </group>
 
@@ -425,23 +392,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 </comment>
             </textvar>
 
-            <textvar name="ES0Maps" value="$(PathOut)/$(PrefixES0)">
-                <comment>
-                    daily reference evaporation (soil) [mm/day]
-                </comment>
-            </textvar>
-
-            <textvar name="ET0Maps" value="$(PathOut)/$(PrefixET0)">
-                <comment>
-                    daily reference evapotranspiration (crop) [mm/day]
-                </comment>
-            </textvar>
-            <textvar name="TAvgMaps" value="$(PathOut)/$(PrefixTAvg)">
-                <comment>
-                    daily average temperature [deg C]
-                </comment>
-            </textvar>
-
         </group>
 
         <group>
@@ -451,27 +401,9 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 **************************************************************
             </comment>
 
-            <textvar name="TAvgTS" value="$(PathOut)/tAvg.tss">
-                <comment>
-                    Average temperature [deg C]
-                </comment>
-            </textvar>
-
-            <textvar name="ET0TS" value="$(PathOut)/et0.tss">
-                <comment>
-                    Potential reference evapotranspiration rate [mm/day]
-                </comment>
-            </textvar>
-
             <textvar name="E0TS" value="$(PathOut)/e0.tss">
                 <comment>
                     Potential evaporation rate of a free water surface [mm/day]
-                </comment>
-            </textvar>
-
-            <textvar name="ES0TS" value="$(PathOut)/es0.tss">
-                <comment>
-                    Potential evaporation rate from a bare soil surface [mm/day]
                 </comment>
             </textvar>
 

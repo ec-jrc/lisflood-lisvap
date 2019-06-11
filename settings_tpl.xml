@@ -273,7 +273,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                     Used when the "GLOFAS" option is switched on.
                     
                 </comment>
-            
+            </textvar>
 
             <textvar name="EActMaps" value="$(PathMeteoIn)/EMO-5-pd_1990_2017">
                 <comment>

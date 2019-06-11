@@ -237,11 +237,11 @@ class LisvapModelDyn(DynamicModel):
             Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
 
             # difference between daily maximum and minimum temperature [deg C]
-            #DeltaT = operations.max(self.TMax - self.TMin, 0.0)
             DeltaT = 0
             # empirical constant in windspeed formula
             # if DeltaT is less than 12 degrees, BU=0.54
-            BU = operations.max(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
+            # BU = operations.max(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
+            BU = 0.54
 
             # Vapour pressure deficit [mbar]
             VapPressDef = operations.max(ESat - self.EAct, 0.0)
@@ -259,38 +259,38 @@ class LisvapModelDyn(DynamicModel):
             # ***** ANGOT RADIATION **************************************
             # ************************************************************
 
-            sin = operations.sin
-            cos = operations.cos
-            tan = operations.tan
-            asin = operations.asin
-            scalar = operations.scalar
-            sqrt = operations.sqrt
-            sqr = operations.sqr
-            cover = operations.cover
+            # sin = operations.sin
+            # cos = operations.cos
+            # tan = operations.tan
+            # asin = operations.asin
+            # scalar = operations.scalar
+            # sqrt = operations.sqrt
+            # sqr = operations.sqr
+            # cover = operations.cover
 
             # solar declination [degrees]
-            declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
+            # declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
 
             # solar constant at top of the atmosphere [J/m2/s]
-            solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.calendar_day / 365.)))
+            # solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.calendar_day / 365.)))
 
-            tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat))/(cos(declin) * cos(self.Lat))
-            tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
+            # tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat))/(cos(declin) * cos(self.Lat))
+            # tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
             # daylength [hour]
-            day_length = 12. + (24. / 180.) * tmp2
-            day_length = cover(day_length, 0.0)
+            # day_length = 12. + (24. / 180.) * tmp2
+            # day_length = cover(day_length, 0.0)
             # Daylength equation can produce MV at high latitudes,
             # this statements sets day length to 0 in that case  
  
-            int_solar_height = 3600. * (day_length * sin(declin) * sin(self.Lat) + (24./self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
+            # int_solar_height = 3600. * (day_length * sin(declin) * sin(self.Lat) + (24./self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
             # integral of solar height [s] over the day
 
-            int_solar_height = operations.max(int_solar_height, 0.0)
+            # int_solar_height = operations.max(int_solar_height, 0.0)
             # Integral of solar height cannot be negative,
             # so truncate at 0
-            int_solar_height = cover(int_solar_height, 0.0)
+            # int_solar_height = cover(int_solar_height, 0.0)
 
-            RadiationAngot = int_solar_height * solar_constant
+            # RadiationAngot = int_solar_height * solar_constant
             # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
 
             # ************************************************************
@@ -360,7 +360,7 @@ class LisvapModelDyn(DynamicModel):
             # empirical constant in windspeed formula
             # if DeltaT is less than 12 degrees, BU=0.54
 
-            ESat = 6.10588 * operations.exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
+            ESat = 6.10588 * operations.exp((17.32491 * self.TDew) / (self.TDew + 238.102))
             # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102)) #the formula above returns value in pascal, not mbar
             # Goudriaan equation (1977)
             # saturated vapour pressure [mbar]
