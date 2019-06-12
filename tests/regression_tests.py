@@ -87,6 +87,7 @@ current_dir = os.path.dirname(__file__)
 #         pass
 #
 
+
 class TestGLOFAS(object):
     domain = 'glofas'
     settings_path = os.path.join(current_dir, 'data/tests_glofas.xml')
