@@ -209,19 +209,20 @@ class LisvapModelDyn(DynamicModel):
             # G (SoilHeat Flux), in MJm-2d-1
             # we assume: RNA = Qnet - G
             Psychro0 = 0.00163 * (self.Press0 / LatHeatVap)
-            report(Psychro0, 'psy0')
+            # report(Psychro0, 'psy0')
             # psychrometric constant at sea level [mbar/deg C]
             # Corrected constant, was wrong originally
             # Psychro0 should be around 0.67 mbar/ deg C
 
             Psychro = Psychro0 * ((293 - 0.0065 * self.Dem) / 293) ** 5.26
-            report(Psychro, 'psy')
+            # report(Psychro, 'psy')
             # Correction for altitude (FAO, http://www.fao.org/docrep/X0490E/x0490e00.htm )
             # Note that previously some equation from Supit et al was used,
             # but this produced complete rubbish!
 
             Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
-            report(Delta, 'dt')
+            # report(Delta, 'dt')
+            report(RNA, 'rna_efas')
 
             # slope of saturated vapour pressure curve [mbar/deg C]
         elif settings.options['GLOFAS']:
@@ -256,51 +257,13 @@ class LisvapModelDyn(DynamicModel):
             EAWater = 0.26 * VapPressDef * (self.FactorWater + BU * Windspeed2)
 
             # ************************************************************
-            # ***** ANGOT RADIATION **************************************
-            # ************************************************************
-
-            # sin = operations.sin
-            # cos = operations.cos
-            # tan = operations.tan
-            # asin = operations.asin
-            # scalar = operations.scalar
-            # sqrt = operations.sqrt
-            # sqr = operations.sqr
-            # cover = operations.cover
-
-            # solar declination [degrees]
-            # declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
-
-            # solar constant at top of the atmosphere [J/m2/s]
-            # solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.calendar_day / 365.)))
-
-            # tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat))/(cos(declin) * cos(self.Lat))
-            # tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
-            # daylength [hour]
-            # day_length = 12. + (24. / 180.) * tmp2
-            # day_length = cover(day_length, 0.0)
-            # Daylength equation can produce MV at high latitudes,
-            # this statements sets day length to 0 in that case  
- 
-            # int_solar_height = 3600. * (day_length * sin(declin) * sin(self.Lat) + (24./self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
-            # integral of solar height [s] over the day
-
-            # int_solar_height = operations.max(int_solar_height, 0.0)
-            # Integral of solar height cannot be negative,
-            # so truncate at 0
-            # int_solar_height = cover(int_solar_height, 0.0)
-
-            # RadiationAngot = int_solar_height * solar_constant
-            # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
-
-            # ************************************************************
             # ***** NET ABSORBED RADIATION *******************************
             # ************************************************************
 
             # Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
             # slope of saturated vapour pressure curve [mbar/deg C]
             LatHeatVap = (2501 - 2.375 * self.TAvg) / 1000
-            report(LatHeatVap, 'LatHeatVap')
+            # report(LatHeatVap, 'LatHeatVap')
             # latent heat of vaporization [MJ/kg]
             # TAvg in Celsius
             # Note: Mega Joule (10^6)
@@ -320,33 +283,84 @@ class LisvapModelDyn(DynamicModel):
             # 1. Reference vegetation canopy
             # 2. Bare soil surface
             # 3. Open water surface
+            # Net emissivity
+            # solar declination [degrees]
 
-            RNA = operations.max(((1 - self.AlbedoCanopy) * self.Rgd - self.Rnl) / (1E6 * LatHeatVap), 0.0)
+            # ************************************************************
+            # ***** ANGOT RADIATION **************************************
+            # ************************************************************
+
+            declin = -23.45 * operations.cos((360. * (self.calendar_day + 10)) / 365.)
+
+            # solar constant at top of the atmosphere [J/m2/s]
+            solar_constant = self.AvSolarConst * (1 + (0.033 * np.cos(2 * self.Pi * self.calendar_day / 365.)))
+
+            tmp1 = ((-operations.sin(self.PD / self.Pi)) + operations.sin(declin) * operations.sin(self.Lat)) / (operations.cos(declin) * operations.cos(self.Lat))
+            tmp2 = operations.ifthenelse(tmp1 < 0, operations.scalar(operations.asin(tmp1)) - 360., operations.scalar(operations.asin(tmp1)))
+            # daylength [hour]
+            day_length = 12. + (24. / 180.) * tmp2
+            day_length = operations.cover(day_length, 0.0)
+            # Daylength equation can produce MV at high latitudes,
+            # this statements sets day length to 0 in that case
+
+            int_solar_height = 3600. * (day_length * operations.sin(declin) * operations.sin(self.Lat) + (24. / self.Pi) * operations.cos(declin) * operations.cos(self.Lat) * operations.sqrt(
+                1 - operations.sqr(operations.tan(declin) * operations.tan(self.Lat))))
+            # integral of solar height [s] over the day
+
+            int_solar_height = operations.max(int_solar_height, 0.0)
+            # Integral of solar height cannot be negative,
+            # so truncate at 0
+            int_solar_height = operations.cover(int_solar_height, 0.0)
+
+            RadiationAngot = int_solar_height * solar_constant
+            EmNet = (0.56 - 0.079 * operations.sqrt(self.EAct))
+            Rgd = self.Rgd
+            Rso = RadiationAngot * (0.75 + (2 * 10 ** -5 * self.Dem))
+            TransAtm_Allen = Rgd / Rso
+            TransAtm_Allen = operations.cover(TransAtm_Allen, 0)
+            AdjCC = 1.8 * TransAtm_Allen - 0.35
+            AdjCC = operations.ifthenelse(AdjCC < 0, 0.05, AdjCC)
+            AdjCC = operations.ifthenelse(AdjCC > 1, 1, AdjCC)
+            Rnl = self.StefBolt * ((self.TAvg + 273) ** 4) * EmNet * AdjCC
+
+            # RNA = operations.max(((1 - self.AlbedoCanopy) * self.Rgd - self.Rnl) / (1E6 * LatHeatVap), 0.0)
+            # # net absorbed radiation of reference vegetation canopy [mm/d]
+            # RNASoil = operations.max(((1 - self.AlbedoSoil) * self.Rgd - self.Rnl) / (1E6 * LatHeatVap), 0.0)
+            # # net absorbed radiation of bare soil surface
+            # RNAWater = operations.max(((1 - self.AlbedoWater) * self.Rgd - self.Rnl) / (1E6 * LatHeatVap), 0.0)
+
+            RNA = operations.max(((1 - self.AlbedoCanopy) * self.Rgd - Rnl) / (1E6 * LatHeatVap), 0.0)
             # net absorbed radiation of reference vegetation canopy [mm/d]
-            RNASoil = operations.max(((1 - self.AlbedoSoil) * self.Rgd - self.Rnl) / (1E6 * LatHeatVap), 0.0)
+            RNASoil = operations.max(((1 - self.AlbedoSoil) * self.Rgd - Rnl) / (1E6 * LatHeatVap), 0.0)
             # net absorbed radiation of bare soil surface
-            RNAWater = operations.max(((1 - self.AlbedoWater) * self.Rgd - self.Rnl) / (1E6 * LatHeatVap), 0.0)
+            RNAWater = operations.max(((1 - self.AlbedoWater) * self.Rgd - Rnl) / (1E6 * LatHeatVap), 0.0)
 
             # net absorbed radiation of water surface
             # Qnet (NetRadiation), in MJm-2d-1
             # G (SoilHeat Flux), in MJm-2d-1
             # we assume: RNA = Qnet - G
             Psychro0 = 0.00163 * (self.Press0 / LatHeatVap)
-            report(Psychro0, 'psy0')
+            # report(Psychro0, 'psy0')
             # psychrometric constant at sea level [mbar/deg C]
             # Corrected constant, was wrong originally
             # Psychro0 should be around 0.67 mbar/ deg C
 
             Psychro = Psychro0 * ((293 - 0.0065 * self.Dem) / 293) ** 5.26
-            report(Psychro, 'psy')
+            # report(Psychro, 'psy')
             # Correction for altitude (FAO, http://www.fao.org/docrep/X0490E/x0490e00.htm )
             # Note that previously some equation from Supit et al was used,
             # but this produced complete rubbish!
 
             Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
-            report(Delta, 'dt')
+            # report(Delta, 'dt')
 
             # slope of saturated vapour pressure curve [mbar/deg C]
+
+            # report(ESat, 'esat')
+            # report(self.EAct, 'eact')
+            # report(self.Rnl, 'rnl')
+            # report(self.Rgd, 'rgd')
+            report(RNA, 'rna_glofas')
 
         elif settings.options['CORDEX']:
 

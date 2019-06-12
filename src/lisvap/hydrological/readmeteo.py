@@ -98,22 +98,15 @@ class ReadMeteo(object):
             elif self.settings.options['GLOFAS']:
                 # set of forcings (rg, rn, ta, td, wu, wv)
                 
-                #self.var.TMin = readnetcdf(binding['TMinMaps'], self.var.currentTimeStep())
-                # Minimum daily temperature (C)
-                #self.var.TMax = readnetcdf(binding['TMaxMaps'], self.var.currentTimeStep())
-                # Maximum daily temperature (C)
-                #self.var.TAvg = (self.var.TMin + self.var.TMax) / 2.0
-                # Average daily temperature (C)
                 self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep())
                 # Average daily temperature (C)
 
                 self.var.Tdew = readnetcdf(self.settings.binding['TDewMaps'], self.var.currentTimeStep())
-                
                 # Synoptic weather stations often do not supply vapour pressure data,
                 # but provided dew point temperature instead.
                 # In that case Eact can be calculatet using Goudriaan Formula(1977)
                 #
-                self.var.EAct = 6.10588 * operations.exp((17.32491 * self.var.Tdew) / (self.var.Tdew * 238.102))
+                self.var.EAct = 6.10588 * operations.exp((17.32491 * self.var.Tdew) / (self.var.Tdew + 238.102))
                 
                 # actual vapor pressure; has to be in mbar = hPa
                 # self.var.EAct = self.var.EAct / 10
@@ -132,12 +125,12 @@ class ReadMeteo(object):
                 # Typical input values 0-15 m/s (wind at 10m)
                 self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep())
                 # Net long wave radiation [J/m2/day]
-                self.var.Rnl = self.var.Rnl * 86400
+                self.var.Rnl = self.var.Rnl  # * 86400
                 self.var.Rgd = readnetcdf(self.settings.binding['RgdMaps'], self.var.currentTimeStep())
                 # calculated radiation [J/m2/day]
                 # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
                 # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
-                self.var.Rgd = self.var.Rgd * 86400
+                self.var.Rgd = self.var.Rgd  # * 86400
 
         if self.settings.options['TemperatureInKelvinFlag']:  # self.var.TemperatureInKelvinFlag:
             self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
