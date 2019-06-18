@@ -161,7 +161,6 @@ class LisvapModelDyn(DynamicModel):
             # Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
             # slope of saturated vapour pressure curve [mbar/deg C]
             LatHeatVap = (2501 - 2.375 * self.TAvg) / 1000
-            report(LatHeatVap, 'LatHeatVap')
             # latent heat of vaporization [MJ/kg]
             # TAvg in Celsius
             # Note: Mega Joule (10^6)
@@ -209,20 +208,16 @@ class LisvapModelDyn(DynamicModel):
             # G (SoilHeat Flux), in MJm-2d-1
             # we assume: RNA = Qnet - G
             Psychro0 = 0.00163 * (self.Press0 / LatHeatVap)
-            # report(Psychro0, 'psy0')
             # psychrometric constant at sea level [mbar/deg C]
             # Corrected constant, was wrong originally
             # Psychro0 should be around 0.67 mbar/ deg C
 
             Psychro = Psychro0 * ((293 - 0.0065 * self.Dem) / 293) ** 5.26
-            # report(Psychro, 'psy')
             # Correction for altitude (FAO, http://www.fao.org/docrep/X0490E/x0490e00.htm )
             # Note that previously some equation from Supit et al was used,
             # but this produced complete rubbish!
 
             Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
-            # report(Delta, 'dt')
-            report(RNA, 'rna_efas')
 
             # slope of saturated vapour pressure curve [mbar/deg C]
         elif settings.options['GLOFAS']:
@@ -263,7 +258,6 @@ class LisvapModelDyn(DynamicModel):
             # Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
             # slope of saturated vapour pressure curve [mbar/deg C]
             LatHeatVap = (2501 - 2.375 * self.TAvg) / 1000
-            # report(LatHeatVap, 'LatHeatVap')
             # latent heat of vaporization [MJ/kg]
             # TAvg in Celsius
             # Note: Mega Joule (10^6)
@@ -340,31 +334,21 @@ class LisvapModelDyn(DynamicModel):
             # G (SoilHeat Flux), in MJm-2d-1
             # we assume: RNA = Qnet - G
             Psychro0 = 0.00163 * (self.Press0 / LatHeatVap)
-            # report(Psychro0, 'psy0')
             # psychrometric constant at sea level [mbar/deg C]
             # Corrected constant, was wrong originally
             # Psychro0 should be around 0.67 mbar/ deg C
 
             Psychro = Psychro0 * ((293 - 0.0065 * self.Dem) / 293) ** 5.26
-            # report(Psychro, 'psy')
             # Correction for altitude (FAO, http://www.fao.org/docrep/X0490E/x0490e00.htm )
             # Note that previously some equation from Supit et al was used,
             # but this produced complete rubbish!
 
             Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
-            # report(Delta, 'dt')
 
             # slope of saturated vapour pressure curve [mbar/deg C]
 
-            # report(ESat, 'esat')
-            # report(self.EAct, 'eact')
-            # report(self.Rnl, 'rnl')
-            # report(self.Rgd, 'rgd')
-            report(RNA, 'rna_glofas')
-
         elif settings.options['CORDEX']:
 
-            # Windspeed2 = self.Wind*0.749
             Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
 
             DeltaT = operations.max(self.TMax - self.TMin, 0.0)
@@ -374,8 +358,7 @@ class LisvapModelDyn(DynamicModel):
             # empirical constant in windspeed formula
             # if DeltaT is less than 12 degrees, BU=0.54
 
-            ESat = 6.10588 * operations.exp((17.32491 * self.TDew) / (self.TDew + 238.102))
-            # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102)) #the formula above returns value in pascal, not mbar
+            ESat = 6.10588 * operations.exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
             # Goudriaan equation (1977)
             # saturated vapour pressure [mbar]
             # TAvg [deg Celsius]
@@ -423,6 +406,8 @@ class LisvapModelDyn(DynamicModel):
             scalar = operations.scalar
             sqr = operations.sqr
             sqrt = operations.sqrt
+            cover = operations.cover
+            ifthenelse = operations.ifthenelse
 
             Declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
             # solar declination [degrees]
@@ -431,7 +416,7 @@ class LisvapModelDyn(DynamicModel):
             # solar constant at top of the atmosphere [J/m2/s]
 
             tmp1 = ((-sin(self.PD / self.Pi)) + sin(Declin) * sin(self.Lat)) / (cos(Declin) * cos(self.Lat))
-            tmp2 = operations.ifthenelse(tmp1 < 0, scalar(asin(tmp1)) - 360., scalar(asin(tmp1)))
+            tmp2 = ifthenelse(tmp1 < 0, scalar(asin(tmp1)) - 360., scalar(asin(tmp1)))
             DayLength = 12. + (24. / 180.) * tmp2
             # daylength [hour]
 
@@ -445,7 +430,7 @@ class LisvapModelDyn(DynamicModel):
             IntSolarHeight = operations.max(IntSolarHeight, 0.0)
             # Integral of solar height cannot be negative,
             # so truncate at 0
-            IntSolarHeight = operations.cover(IntSolarHeight, 0.0)
+            IntSolarHeight = cover(IntSolarHeight, 0.0)
 
             RadiationAngot = IntSolarHeight * SolarConstant
             # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
@@ -463,10 +448,10 @@ class LisvapModelDyn(DynamicModel):
             TransAtm_Allen = Rds/Rso
             TransAtm_Allen = operations.cover(TransAtm_Allen, 0)
             AdjCC = 1.8 * TransAtm_Allen - 0.35
-            AdjCC = operations.ifthenelse(AdjCC < 0, 0.05, AdjCC)
-            AdjCC = operations.ifthenelse(AdjCC > 1, 1, AdjCC)
+            AdjCC = ifthenelse(AdjCC < 0, 0.05, AdjCC)
+            AdjCC = ifthenelse(AdjCC > 1, 1, AdjCC)
 
-            EmNet = (0.56 - 0.079 * operations.sqrt(self.EAct))
+            EmNet = (0.56 - 0.079 * sqrt(self.EAct))
             # Net emissivity
             RN = self.StefBolt * ((self.TAvg + 273) ** 4) * EmNet * AdjCC
             # net  longwave radiation [J/m2/day]
