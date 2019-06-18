@@ -18,7 +18,10 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 
 import datetime
 
-from pcraster.operations import scalar, cover
+try:
+    from pcraster.multicore._operations import scalar, cover
+except ImportError:
+    from pcraster.operations import scalar, cover
 
 from ..utils.readers import loadmap
 from ..utils.tools import calendar

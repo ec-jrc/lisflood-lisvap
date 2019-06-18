@@ -343,6 +343,18 @@ class MaskMapMetadata(with_metaclass(Singleton)):
     def __contains__(self, k):
         return k in self._metadata
 
+    def __str__(self):
+        res = """
+        x - west: {west}
+        y - north: {north}
+        cell size: {cell_size}
+        num_rows: {num_rows}
+        num_cols: {num_cols}
+        """.format(west=self._metadata['x'], north=self._metadata['y'],
+                   cell_size=self._metadata['cell'], num_rows=self._metadata['row'],
+                   num_cols=self._metadata['col'])
+        return res
+
 
 class CutMap(tuple, with_metaclass(Singleton)):
 
@@ -359,9 +371,6 @@ class CutMap(tuple, with_metaclass(Singleton)):
         settings = LisSettings.instance()
         filename = '{}.{}'.format(os.path.splitext(in_file)[0], 'nc')
         nf1 = Dataset(filename, 'r')
-        # original code
-        # x1, x2, y1, y2 = [round(nf1.variables.values()[var_ix][j], 5) for var_ix in range(2) for j in range(2)]
-        # new safer code that doesn't rely on a specific variable order in netCDF file (R.COUGHLAN & D.DECREMER)
         if 'lon' in nf1.variables.keys():
             x1 = nf1.variables['lon'][0]
             x2 = nf1.variables['lon'][1]

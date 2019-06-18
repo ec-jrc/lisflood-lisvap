@@ -16,7 +16,10 @@ See the Licence for the specific language governing permissions and limitations 
 """
 from __future__ import (absolute_import, print_function, unicode_literals)
 
-from pcraster import operations
+try:
+    from pcraster.multicore import _operations as operations
+except (ImportError, NameError):
+    from pcraster import operations
 
 from ..utils.readers import readnetcdf
 

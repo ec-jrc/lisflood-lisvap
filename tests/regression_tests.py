@@ -17,8 +17,6 @@ See the Licence for the specific language governing permissions and limitations 
 
 import os
 
-from lisvap.utils import LisSettings, cdf_flags
-from lisvap1 import lisvapexe
 from tests import TestLis
 
 current_dir = os.path.dirname(__file__)
@@ -27,22 +25,6 @@ current_dir = os.path.dirname(__file__)
 class TestEFAS(TestLis):
     domain = 'efas'
     settings_path = os.path.join(current_dir, 'data/tests_efas.xml')
-
-    @classmethod
-    def setup_class(cls):
-        settings = LisSettings(cls.settings_path)
-        output_path = settings.binding['PathOut']
-        for var in cls.reference_files:
-            output_nc = os.path.join(output_path, var) + '.nc'
-            if os.path.exists(output_nc):
-                os.remove(output_nc)
-        lisvapexe(settings)
-
-    @classmethod
-    def teardown_class(cls):
-        cdf_flags['all'] = 0
-        cdf_flags['steps'] = 0
-        cdf_flags['end'] = 0
 
     def test_e0(self):
         return self.listest('e0')
@@ -58,22 +40,6 @@ class TestCORDEX(TestLis):
     domain = 'cordex'
     settings_path = os.path.join(current_dir, 'data/tests_cordex.xml')
 
-    @classmethod
-    def setup_class(cls):
-        settings = LisSettings(cls.settings_path)
-        output_path = settings.binding['PathOut']
-        for var in cls.reference_files:
-            output_nc = os.path.join(output_path, var) + '.nc'
-            if os.path.exists(output_nc):
-                os.remove(output_nc)
-        lisvapexe(settings)
-
-    @classmethod
-    def teardown_class(cls):
-        cdf_flags['all'] = 0
-        cdf_flags['steps'] = 0
-        cdf_flags['end'] = 0
-
     def test_e0(self):
         return self.listest('e0')
 
@@ -81,26 +47,10 @@ class TestCORDEX(TestLis):
         return self.listest('et')
 
 
-# class TestGLOFAS(object):
+# TODO pcraster setclone does not work unless we restart interpreter....
+# class TestGLOFAS(TestLis):
 #     domain = 'glofas'
 #     settings_path = os.path.join(current_dir, 'data/tests_glofas.xml')
 #
-#     @classmethod
-#     def setup_class(cls):
-#         settings = LisSettings(cls.settings_path)
-#         output_path = settings.binding['PathOut']
-#         for var in reference_files:
-#             output_nc = os.path.join(output_path, var) + '.nc'
-#             if os.path.exists(output_nc):
-#                 os.remove(output_nc)
-#         lisvapexe(settings)
-#
-#     @classmethod
-#     def teardown_class(cls):
-#         cdf_flags['all'] = 0
-#         cdf_flags['steps'] = 0
-#         cdf_flags['end'] = 0
-#
-#     @listest(domain, 'e0')
 #     def test_e0(self):
-#         pass
+#         return self.listest('e0')
