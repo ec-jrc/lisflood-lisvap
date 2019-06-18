@@ -13,23 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 ---------------------------------------------------------------------------------------------------------------------------------------
-Use python setup.y upload to publish versioned tags and pypi package
+Use python setup.py upload to publish versioned tags and pypi package
 
 Manually step by step:
 
 1. python setup.py sdist
 
+
+2. python setup.py upload
+
+
+3. In prod:
+pip install lisflood-lisvap
+
+# Test package
+
 2a. To upload new package on PyPi Test:
 twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-
-2b. To upload new package on PyPi:
-twine upload dist/*
 
 3a. Test package install
 pip install --index-url https://test.pypi.org/simple/ lisflood-lisvap==0.3.4
 
-3b. In prod:
-pip install lisflood-lisvap
+
 """
 
 
@@ -85,6 +90,7 @@ class UploadCommand(Command):
         os.system('git push --tags')
 
         sys.exit()
+
 
 setup(
     name='lisflood-lisvap',

@@ -21,7 +21,6 @@ from nine import range
 
 import os
 import sys
-from functools import wraps
 
 from pyexpat import *
 import numpy as np
@@ -36,76 +35,77 @@ from lisvap.utils import LisSettings
 from lisvap.utils.readers import readnetcdf, iter_open_netcdf
 
 
-reference_files = {
-    'efas': {
-        'e0': os.path.join(current_dir, 'data/reference/efas/e0_1_15'),
-        'es': os.path.join(current_dir, 'data/reference/efas/es_1_15'),
-        'et': os.path.join(current_dir, 'data/reference/efas/et_1_15'),
-    },
-    'cordex': {
-        'e0': os.path.join(current_dir, 'data/reference/cordex/e0_1_15'),
-        'et': os.path.join(current_dir, 'data/reference/cordex/et_1_15'),
-    },
-    'glofas': {
-        'e0': os.path.join(current_dir, 'data/reference/glofas/e0_1_15'),
-    },
-}
-atol = 0.01
+class TestLis(object):
+    reference_files = {
+        'efas': {
+            'e0': os.path.join(current_dir, 'data/reference/efas/e0_1_15'),
+            'es': os.path.join(current_dir, 'data/reference/efas/es_1_15'),
+            'et': os.path.join(current_dir, 'data/reference/efas/et_1_15'),
+        },
+        'cordex': {
+            'e0': os.path.join(current_dir, 'data/reference/cordex/e0_1_15'),
+            'et': os.path.join(current_dir, 'data/reference/cordex/et_1_15'),
+        },
+        'glofas': {
+            'e0': os.path.join(current_dir, 'data/reference/glofas/e0_1_15'),
+        },
+    }
+    domain = None
+    atol = 0.01
+    max_perc_wrong_large_diff = 0.01
+    max_perc_wrong = 0.05
+    large_diff_th = atol * 10
 
+    @classmethod
+    def check_var_step(cls, var, step):
+        settings = LisSettings.instance()
+        output_path = settings.binding['PathOut']
+        output_nc = os.path.join(output_path, var)
+        reference = pcr2numpy(readnetcdf(cls.reference_files[cls.domain][var], step, variable_name=var), -9999)
+        current_output = pcr2numpy(readnetcdf(output_nc, step, variable_name=var), -9999)
+        same_size = reference.size == current_output.size
+        diff_values = np.abs(reference - current_output)
 
-def netcdf_steps(netfile):
-    """
-    :param netfile: path to netcdf file
-    :return: int , num of steps
-    """
-    netfile = '{}.{}'.format(netfile, 'nc') if not netfile.endswith('.nc') else netfile
-    nf1 = iter_open_netcdf(netfile, 'r')
-    t_steps = nf1.variables['time'][:]
-    return len(t_steps)
+        same_values = np.allclose(diff_values, np.zeros(diff_values.shape), atol=cls.atol)
+        all_ok = same_size and same_values
 
+        array_ok = np.isclose(diff_values, np.zeros(diff_values.shape), atol=cls.atol)
+        wrong_values_size = array_ok[~array_ok].size
 
-def check_var_step(domain, var, step):
-    settings = LisSettings.instance()
-    output_path = settings.binding['PathOut']
-    output_nc = os.path.join(output_path, var)
-    reference = pcr2numpy(readnetcdf(reference_files[domain][var], step, variable_name=var), -9999)
-    current_output = pcr2numpy(readnetcdf(output_nc, step, variable_name=var), -9999)
-    same_size = reference.size == current_output.size
-    diff_values = np.abs(reference - current_output)
-    same_values = np.allclose(diff_values, np.zeros(diff_values.shape), atol=atol)
-    all_ok = same_size and same_values
-    array_ok = np.isclose(diff_values, np.zeros(diff_values.shape), atol=atol)
-    wrong_values_size = array_ok[~array_ok].size
-
-    if not all_ok and wrong_values_size > 0:
-        max_diff = np.max(diff_values)
-        large_diff = max_diff > atol
-        perc_wrong = float(wrong_values_size * 100) / float(diff_values.size)
-        if perc_wrong >= 0.05 or perc_wrong >= 0.01 and large_diff:
-            print('[ERROR]')
-            print('Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff))
-            return False
+        if not all_ok and wrong_values_size > 0:
+            max_diff = np.max(diff_values)
+            large_diff = max_diff > cls.large_diff_th
+            perc_wrong = float(wrong_values_size * 100) / float(diff_values.size)
+            if perc_wrong >= cls.max_perc_wrong or perc_wrong >= cls.max_perc_wrong_large_diff and large_diff:
+                print('[ERROR]')
+                print('Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff))
+                return False
+            else:
+                print('[OK] {} {}'.format(var, step))
+                return True
         else:
             print('[OK] {} {}'.format(var, step))
             return True
-    else:
-        print('[OK] {} {}'.format(var, step))
-        return True
 
+    @classmethod
+    def netcdf_steps(cls, netfile):
+        """
+        :param netfile: path to netcdf file
+        :return: int , num of steps
+        """
+        netfile = '{}.{}'.format(netfile, 'nc') if not netfile.endswith('.nc') else netfile
+        nf1 = iter_open_netcdf(netfile, 'r')
+        t_steps = nf1.variables['time'][:]
+        return len(t_steps)
 
-def listest(domain, variable):
-    def decorator(f):
-        @wraps(f)
-        def wrapper(*args, **kwds):
-            settings = LisSettings.instance()
-            output_path = settings.binding['PathOut']
-            output_nc = os.path.join(output_path, variable)
-            print('>>> Reference: {} - Current Output: {}'.format(reference_files[domain][variable], output_nc))
-            results = []
-            numsteps = netcdf_steps(reference_files[domain][variable])
-            for step in range(0, numsteps):
-                results.append(check_var_step(domain, variable, step))
-            assert all(results)
-            return f(*args, **kwds)
-        return wrapper
-    return decorator
+    @classmethod
+    def listest(cls, variable):
+        settings = LisSettings.instance()
+        output_path = settings.binding['PathOut']
+        output_nc = os.path.join(output_path, variable)
+        print('>>> Reference: {} - Current Output: {}'.format(cls.reference_files[cls.domain][variable], output_nc))
+        results = []
+        numsteps = cls.netcdf_steps(cls.reference_files[cls.domain][variable])
+        for step in range(0, numsteps):
+            results.append(cls.check_var_step(variable, step))
+        assert all(results)
