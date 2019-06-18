@@ -11,7 +11,12 @@ import warnings
 import numpy as np
 import pcraster
 from netCDF4 import Dataset, num2date, date2num
-from pcraster import numpy_operations, operations, Boolean, Nominal, Scalar
+from pcraster import numpy_operations, Boolean, Nominal, Scalar
+
+try:
+    from pcraster.multicore import _operations as operations
+except ImportError:
+    from pcraster import operations
 
 from . import LisSettings, LisfloodError, MaskMapMetadata, CutMap
 from .tools import take_closest, calendar, checkmap
@@ -55,13 +60,7 @@ def loadsetclone(name):
             filename = '{}.{}'.format(os.path.splitext(settings.binding[name])[0], 'nc')
             nf1 = iter_open_netcdf(filename, 'r')
             value = listitems(nf1.variables)[-1][0]  # get the last variable name
-            # original code
-            # x1 = nf1.variables.values()[0][0]
-            # x2 = nf1.variables.values()[0][1]
-            # xlast = nf1.variables.values()[0][-1]
-            # y1 = nf1.variables.values()[1][0]
-            # ylast = nf1.variables.values()[1][-1]
-            # new safer code that doesn't rely on a specific variable order in netCDF file (R.COUGHLAN & D.DECREMER)
+
             if 'lon' in nf1.variables.keys():
                 x1 = nf1.variables['lon'][0]
                 x2 = nf1.variables['lon'][1]
@@ -80,14 +79,19 @@ def loadsetclone(name):
             cellSize = round(np.abs(x2 - x1), 4)
             nrRows = int(0.5 + np.abs(ylast - y1) / cellSize + 1)
             nrCols = int(0.5 + np.abs(xlast - x1) / cellSize + 1)
-            x = x1 - cellSize / 2
-            y = y1 + cellSize / 2
+            x = x1 - cellSize / 2  # Coordinate of west side of raster
+            y = y1 + cellSize / 2  # Coordinate of north side of raster
             mapnp = np.array(nf1.variables[value][0:nrRows, 0:nrCols])
             nf1.close()
             # setclone  row col cellsize xupleft yupleft
             pcraster.setclone(nrRows, nrCols, cellSize, x, y)
+            # print('SET CLONE x {} y {} cols {} rows {} cell size{}'.format(x, y, nrCols, nrRows, cellSize))
+            # print(str({'x': pcraster.clone().west(), 'y': pcraster.clone().north(),
+            #         'col': pcraster.clone().nrCols(),
+            #         'row': pcraster.clone().nrRows(),
+            #         'cell': pcraster.clone().cellSize()}))
+
             res = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
-            # map = boolean(map)
             flagmap = True
         if settings.flags['checkfiles']:
             checkmap(name, filename, res, flagmap, 0)

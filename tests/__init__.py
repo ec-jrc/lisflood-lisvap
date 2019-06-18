@@ -31,7 +31,8 @@ src_dir = os.path.join(current_dir, '../src/')
 if os.path.exists(src_dir):
     sys.path.append(os.path.join(current_dir, '../src/'))
 
-from lisvap.utils import LisSettings
+from lisvap.utils import LisSettings, cdf_flags
+from lisvap1 import lisvapexe
 from lisvap.utils.readers import readnetcdf, iter_open_netcdf
 
 
@@ -51,10 +52,27 @@ class TestLis(object):
         },
     }
     domain = None
+    settings_path = None
     atol = 0.01
     max_perc_wrong_large_diff = 0.01
     max_perc_wrong = 0.05
     large_diff_th = atol * 10
+
+    @classmethod
+    def setup_class(cls):
+        settings = LisSettings(cls.settings_path)
+        output_path = settings.binding['PathOut']
+        for var in cls.reference_files:
+            output_nc = os.path.join(output_path, var) + '.nc'
+            if os.path.exists(output_nc):
+                os.remove(output_nc)
+        lisvapexe(settings)
+
+    @classmethod
+    def teardown_class(cls):
+        cdf_flags['all'] = 0
+        cdf_flags['steps'] = 0
+        cdf_flags['end'] = 0
 
     @classmethod
     def check_var_step(cls, var, step):

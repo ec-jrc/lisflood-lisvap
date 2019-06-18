@@ -23,8 +23,14 @@ import sys
 import datetime
 
 import numpy as np
-from pcraster import operations
-from pcraster.framework import DynamicModel, report
+from pcraster.framework import DynamicModel
+from pcraster.operations import exp
+
+try:
+    from pcraster.multicore import _operations as operations
+except (ImportError, NameError):
+    from pcraster import operations
+
 
 from .utils import LisSettings, TimeProfiler
 
@@ -92,7 +98,7 @@ class LisvapModelDyn(DynamicModel):
             # saturated vapour pressure [mbar]
             # TAvg [deg Celsius]
             # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
-            ESat = 6.10588 * operations.exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
+            ESat = 6.10588 * exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
 
             # Windspeed2 = self.Wind*0.749
             Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
@@ -227,7 +233,7 @@ class LisvapModelDyn(DynamicModel):
             # saturated vapour pressure [mbar]
             # TAvg [deg Celsius]
             # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
-            ESat = 6.10588 * operations.exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
+            ESat = 6.10588 * exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
 
             # Windspeed2 = self.Wind*0.749
             Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
@@ -358,7 +364,7 @@ class LisvapModelDyn(DynamicModel):
             # empirical constant in windspeed formula
             # if DeltaT is less than 12 degrees, BU=0.54
 
-            ESat = 6.10588 * operations.exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
+            ESat = 6.10588 * exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
             # Goudriaan equation (1977)
             # saturated vapour pressure [mbar]
             # TAvg [deg Celsius]
