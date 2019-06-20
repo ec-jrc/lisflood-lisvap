@@ -15,7 +15,7 @@ See the Licence for the specific language governing permissions and limitations 
 
 """
 from __future__ import (absolute_import, print_function, unicode_literals)
-
+from pcraster.operations import exp
 try:
     from pcraster.multicore import _operations as operations
 except (ImportError, NameError):
@@ -109,7 +109,7 @@ class ReadMeteo(object):
                 # but provided dew point temperature instead.
                 # In that case Eact can be calculatet using Goudriaan Formula(1977)
                 #
-                self.var.EAct = 6.10588 * operations.exp((17.32491 * self.var.Tdew) / (self.var.Tdew + 238.102))
+                self.var.EAct = 6.10588 * exp((17.32491 * self.var.Tdew) / (self.var.Tdew + 238.102))
                 
                 # actual vapor pressure; has to be in mbar = hPa
                 # self.var.EAct = self.var.EAct / 10

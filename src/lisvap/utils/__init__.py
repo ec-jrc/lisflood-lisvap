@@ -310,10 +310,11 @@ class NetcdfMetadata(with_metaclass(Singleton)):
 class MaskMapMetadata(with_metaclass(Singleton)):
 
     @classmethod
-    def register(cls):
-        return cls()
+    def register(cls, maskmap):
+        return cls(maskmap)
 
-    def __init__(self):
+    def __init__(self, maskmap):
+        self.maskmap = maskmap
         self._metadata = self._pcr_clone_metadata()
 
     @staticmethod
