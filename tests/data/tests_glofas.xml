@@ -327,17 +327,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 **************************************************************
             </comment>
 
-<!--            <textvar name="TMaxMaps" value="$(PathMeteoIn)/$(PrefixTMax)">-->
-<!--                <comment>-->
-<!--                    Maximum daily temperature [C or K]-->
-<!--                </comment>-->
-<!--            </textvar>-->
-
-<!--            <textvar name="TMinMaps" value="$(PathMeteoIn)/$(PrefixTMin)">-->
-<!--                <comment>-->
-<!--                    Minimum daily temperature [C or K]-->
-<!--                </comment>-->
-<!--            </textvar>-->
 
             <textvar name="TDewMaps" value="$(PathMeteoIn)/$(PrefixTDew)">
                 <comment>
