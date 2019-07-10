@@ -56,10 +56,11 @@ class TestLis(object):
     atol = 0.01
     max_perc_wrong_large_diff = 0.01
     max_perc_wrong = 0.05
-    large_diff_th = atol * 10
+    large_diff_th = atol * 100
 
     @classmethod
     def setup_class(cls):
+        print('\n\n================ Running {} tests ================\n\n'.format(cls.domain.upper()))
         settings = LisSettings(cls.settings_path)
         output_path = settings.binding['PathOut']
         for var in cls.reference_files:
