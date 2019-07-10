@@ -47,10 +47,9 @@ class TestCORDEX(TestLis):
         return self.listest('et')
 
 
-# TODO pcraster setclone does not work unless we restart interpreter....
-# class TestGLOFAS(TestLis):
-#     domain = 'glofas'
-#     settings_path = os.path.join(current_dir, 'data/tests_glofas.xml')
-#
-#     def test_e0(self):
-#         return self.listest('e0')
+class TestGLOFAS(TestLis):
+    domain = 'glofas'
+    settings_path = os.path.join(current_dir, 'data/tests_glofas.xml')
+
+    def test_e0(self):
+        return self.listest('e0')

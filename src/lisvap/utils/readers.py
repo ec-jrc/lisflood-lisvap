@@ -101,7 +101,7 @@ def loadsetclone(name):
 
     # Definition of cellsize, coordinates of the meteomaps and maskmap
     # Get the current PCRaster clone map and it save metadata
-    MaskMapMetadata.register()
+    MaskMapMetadata.register(filename)
     return res
 
 
