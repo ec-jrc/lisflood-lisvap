@@ -102,19 +102,12 @@ class ReadMeteo(object):
                 # but provided dew point temperature instead.
                 # In that case Eact can be calculatet using Goudriaan Formula(1977)
                 #
-                self.var.EAct = 6.10588 * exp((17.32491 * self.var.Tdew) / (self.var.Tdew + 238.102))
-                
-                # actual vapor pressure; has to be in mbar = hPa
-                # self.var.EAct = self.var.EAct / 10
-                # from hPa tp kPa
-                # actual vapour pressure (pd maps): typical value 0-70 hPa = 0-7 kPa
-                
                 self.var.WindU = readnetcdf(self.settings.binding['WindUMaps'], self.var.currentTimeStep())
                 self.var.WindV = readnetcdf(self.settings.binding['WindVMaps'], self.var.currentTimeStep())
 
-                self.var.Wind = sqrt(sqr(self.var.WindU) + sqr(self.var.WindU))
+                self.var.Wind = sqrt(sqr(self.var.WindV) + sqr(self.var.WindU))
                 # near surface windspeed at 10 m
-                self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep())
+                self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep()) * -1
                 # Net long wave radiation [J/m2/day]
                 self.var.Rgd = readnetcdf(self.settings.binding['RgdMaps'], self.var.currentTimeStep())
                 # calculated radiation [J/m2/day]
@@ -136,6 +129,7 @@ class ReadMeteo(object):
             self.var.Rul = self.var.Rul * 86400
             self.var.EAct = (self.var.Psurf * self.var.Qair) / 62.2
             # [KPA] * [kg/kg] = KPa
+
         # wind correction from 10m to 2m
         self.var.Wind = self.var.Wind * 0.749
         # Adjust wind speed for measurement height: wind speed measured at

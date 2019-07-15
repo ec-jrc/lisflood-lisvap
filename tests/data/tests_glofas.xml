@@ -47,13 +47,13 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 </comment>
             </textvar>
 
-            <textvar name="StepEnd" value="16/01/1999 00:00">
+            <textvar name="StepEnd" value="01/02/1999 00:00">
                 <comment>
                     Number of last time step
                 </comment>
             </textvar>
 
-            <textvar name="ReportSteps" value="1..15">
+            <textvar name="ReportSteps" value="1..31">
                 <comment>
                 </comment>
             </textvar>
