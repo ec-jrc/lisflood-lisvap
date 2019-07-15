@@ -158,13 +158,6 @@ class LisvapModelDyn(DynamicModel):
             # Note: Mega Joule (10^6)
             # source: STOWA 2010-37 p.9 eq 5.
 
-            # Delta = (7.5 * 237.3 * 2.302585 * ESat) / ((self.TAvg + 237.3) ** 2)
-            # slope of the saturated vapour pressure curve (kPaC-1)
-            # ln10=2.302585
-            # 7.5*237.3*2.302585=4098
-            # Tavg in Celsius
-            # source: STOWA 2010-37 p.11 eq 11.
-
             # Net absorbed radiation is calculated for three reference surfaces:
             #
             # 1. Reference vegetation canopy
@@ -258,7 +251,6 @@ class LisvapModelDyn(DynamicModel):
             # Qnet (NetRadiation), in MJm-2d-1
             # G (SoilHeat Flux), in MJm-2d-1
             # we assume: RNA = Qnet - G
-
             Psychro0 = 0.00163 * (self.Press0 / LatHeatVap)
             # psychrometric constant at sea level [mbar/deg C]
             # Corrected constant, was wrong originally

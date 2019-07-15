@@ -48,7 +48,11 @@ class TestLis(object):
             'et': os.path.join(current_dir, 'data/reference/cordex/et_1_15'),
         },
         'glofas': {
+<<<<<<< HEAD
             'e0': os.path.join(current_dir, 'data/reference/glofas/e0'),
+=======
+            'e0': os.path.join(current_dir, 'data/reference/glofas/e0_1_15'),
+>>>>>>> 648120c7abd0a9160e4ac5b38753f2b8149f27c3
         },
     }
     domain = None
@@ -122,7 +126,11 @@ class TestLis(object):
         settings = LisSettings.instance()
         output_path = settings.binding['PathOut']
         output_nc = os.path.join(output_path, variable)
+<<<<<<< HEAD
         print('\n\n>>> Reference: {} - Current Output: {}'.format(cls.reference_files[cls.domain][variable], output_nc))
+=======
+        print('>>> Reference: {} - Current Output: {}'.format(cls.reference_files[cls.domain][variable], output_nc))
+>>>>>>> 648120c7abd0a9160e4ac5b38753f2b8149f27c3
         results = []
         numsteps = cls.netcdf_steps(cls.reference_files[cls.domain][variable])
         for step in range(0, numsteps):
