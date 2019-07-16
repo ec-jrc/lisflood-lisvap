@@ -28,7 +28,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 **************************************************************
             </comment>
 
-            <textvar name="CalendarDayStart" value="02/01/1999 00:00">
+            <textvar name="CalendarDayStart" value="11/01/1999 00:00">
                 <comment>
                     calendar day number of 1st day in model run
                     e.g. 1st of January: 1; 1st of June: 151 (or 152 in leap year)
@@ -41,19 +41,19 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 </comment>
             </textvar>
 
-            <textvar name="StepStart" value="02/01/1999 00:00">
+            <textvar name="StepStart" value="11/01/1999 00:00">
                 <comment>
                     Number of first time step in simulation
                 </comment>
             </textvar>
 
-            <textvar name="StepEnd" value="16/01/1999 00:00">
+            <textvar name="StepEnd" value="27/01/1999 00:00">
                 <comment>
                     Number of last time step
                 </comment>
             </textvar>
 
-            <textvar name="ReportSteps" value="1..15">
+            <textvar name="ReportSteps" value="10..26">
                 <comment>
                 </comment>
             </textvar>
@@ -327,17 +327,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 **************************************************************
             </comment>
 
-<!--            <textvar name="TMaxMaps" value="$(PathMeteoIn)/$(PrefixTMax)">-->
-<!--                <comment>-->
-<!--                    Maximum daily temperature [C or K]-->
-<!--                </comment>-->
-<!--            </textvar>-->
-
-<!--            <textvar name="TMinMaps" value="$(PathMeteoIn)/$(PrefixTMin)">-->
-<!--                <comment>-->
-<!--                    Minimum daily temperature [C or K]-->
-<!--                </comment>-->
-<!--            </textvar>-->
 
             <textvar name="TDewMaps" value="$(PathMeteoIn)/$(PrefixTDew)">
                 <comment>

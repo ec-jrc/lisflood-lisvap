@@ -48,7 +48,7 @@ class TestLis(object):
             'et': os.path.join(current_dir, 'data/reference/cordex/et_1_15'),
         },
         'glofas': {
-            'e0': os.path.join(current_dir, 'data/reference/glofas/e0_1_15'),
+            'e0': os.path.join(current_dir, 'data/reference/glofas/e0'),
         },
     }
     domain = None
@@ -56,10 +56,11 @@ class TestLis(object):
     atol = 0.01
     max_perc_wrong_large_diff = 0.01
     max_perc_wrong = 0.05
-    large_diff_th = atol * 10
+    large_diff_th = atol * 100
 
     @classmethod
     def setup_class(cls):
+        print('\n\n================ Running {} tests ================\n\n'.format(cls.domain.upper()))
         settings = LisSettings(cls.settings_path)
         output_path = settings.binding['PathOut']
         for var in cls.reference_files:
@@ -121,7 +122,7 @@ class TestLis(object):
         settings = LisSettings.instance()
         output_path = settings.binding['PathOut']
         output_nc = os.path.join(output_path, variable)
-        print('>>> Reference: {} - Current Output: {}'.format(cls.reference_files[cls.domain][variable], output_nc))
+        print('\n\n>>> Reference: {} - Current Output: {}'.format(cls.reference_files[cls.domain][variable], output_nc))
         results = []
         numsteps = cls.netcdf_steps(cls.reference_files[cls.domain][variable])
         for step in range(0, numsteps):
