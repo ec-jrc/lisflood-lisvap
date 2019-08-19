@@ -35,6 +35,7 @@ import numpy as np
 from netCDF4 import Dataset
 from pcraster import pcraster
 
+from .. import __version__, __date__, __status__, __authors__, __maintainers__
 from .defaults_options import defaults
 from .decorators import cached
 
@@ -224,8 +225,6 @@ report_maps_end: {report_maps_end}
         """ read flags - according to the flags the output is adjusted
             quiet, veryquiet, loud, checkfiles, noheader, printtime
         """
-        flag_names = ['quiet', 'veryquiet', 'loud',
-                      'checkfiles', 'noheader', 'printtime']
         flags = {'quiet': False, 'veryquiet': False, 'loud': False,
                  'checkfiles': False, 'noheader': False, 'printtime': False}
 
@@ -233,13 +232,15 @@ report_maps_end: {report_maps_end}
         def _flags(argz):
 
             try:
-                opts, arguments = getopt.getopt(argz, 'qvlcht', flag_names)
-            except getopt.GetoptError as e:
-                from lisvap1 import usage
+                opts, arguments = getopt.getopt(argz, 'qvlcht', list(flags.keys()))
+            except getopt.GetoptError:
                 usage()
+                sys.exit(1)
             else:
                 for o, a in opts:
-                    for opt in (('-q', '--quiet'), ('-v', '--veryquiet'), ('-l', '--loud'), ('-c', '--checkfiles'), ('-h', '--noheader'), ('-t', '--printtime')):
+                    for opt in (('-q', '--quiet'), ('-v', '--veryquiet'),
+                                ('-l', '--loud'), ('-c', '--checkfiles'),
+                                ('-h', '--noheader'), ('-t', '--printtime')):
                         if o in opt:
                             flags[opt[1].lstrip('--')] = True
                             break
@@ -431,3 +432,31 @@ class TimeProfiler(with_metaclass(Singleton)):
 
 
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})
+
+
+def usage():
+    """ prints some lines describing how to use this program
+        which arguments and parameters it accepts, etc
+    """
+    print(
+        """\n\n
+LisvapPy - Lisvap (Global) using pcraster Python framework
+
+    Version      : {version}
+    Last updated : {date}
+    Status       : {status}
+    Authors      : {authors}
+    Maintainers  : {maintainers}
+
+    Arguments list:
+
+    settings.xml     settings file
+
+    -q --quiet       output progression given as .
+    -v --veryquiet   no output progression is given
+    -l --loud        output progression given as time step, date and discharge
+    -c --checkfiles  input maps and stack maps are checked, output for each input map BUT no model run
+    -h --noheader    .tss file have no header and start immediately with the time series
+    -t --printtime   the computation time for hydrological modules are printed\n
+    """.format(version=__version__, date=__date__, status=__status__, authors=__authors__, maintainers=__maintainers__)
+    )

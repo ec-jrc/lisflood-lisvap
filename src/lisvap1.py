@@ -33,10 +33,8 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 import datetime
 import sys
 
-from pyexpat import *
-
-from lisvap import __status__, __date__, __version__, __maintainers__, __authors__
-from lisvap.utils import LisSettings, TimeProfiler
+from lisvap import __date__, __version__
+from lisvap.utils import LisSettings, TimeProfiler, usage
 from lisvap.utils.tools import checkdate, DynamicFrame
 from lisvap.lisvapdynamic import LisvapModelDyn
 from lisvap.lisvapinitial import LisvapModelIni
@@ -70,35 +68,6 @@ def lisvapexe(settings):
         tp.report()
 
 
-def usage():
-    """ prints some lines describing how to use this program
-        which arguments and parameters it accepts, etc
-    """
-    print(
-        """\n\n
-LisvapPy - Lisvap (Global) using pcraster Python framework
-
-    Version      : {version}
-    Last updated : {date}
-    Status       : {status}
-    Authors      : {authors}
-    Maintainers  : {maintainers}
-
-    Arguments list:
-
-    settings.xml     settings file
-
-    -q --quiet       output progression given as .
-    -v --veryquiet   no output progression is given
-    -l --loud        output progression given as time step, date and discharge
-    -c --checkfiles  input maps and stack maps are checked, output for each input map BUT no model run
-    -h --noheader    .tss file have no header and start immediately with the time series
-    -t --printtime   the computation time for hydrological modules are printed\n
-    """.format(version=__version__, date=__date__, status=__status__, authors=__authors__, maintainers=__maintainers__)
-    )
-    sys.exit(1)
-
-
 def headerinfo():
     print('Lisvap ', __version__, ' ', __date__,)
     print("""
@@ -112,6 +81,7 @@ def headerinfo():
 def main():
     if len(sys.argv) < 2:
         usage()
+        sys.exit(1)
     settingsxml = sys.argv[1]  # setting.xml file
     lissettings = LisSettings(settingsxml)
     # setting of global flag e.g checking input maps, producing more output information

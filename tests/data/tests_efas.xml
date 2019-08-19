@@ -177,6 +177,8 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="writeNetcdfStack" choice="1" />
         <setoption name="TemperatureInKelvinFlag" choice="0" />
         <setoption name="repE0Maps" choice="1" />
+        <setoption name="repES0Maps" choice="1" />
+        <setoption name="repET0Maps" choice="1" />
         <setoption name="repTavgMaps" choice="1"/>
 
         <setoption name="EFAS" choice="1" />

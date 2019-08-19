@@ -150,10 +150,8 @@ def checkdate(start, end):
 
     :param start: start date for model run (# or date as string)
     :param end: end date for model run (# or date as string)
-    :returns: modelSteps (modelSteps[0] = intStart
-    modelSteps.append(intEnd)
     """
-    from lisvap.utils import LisSettings
+    from . import LisSettings
     settings = LisSettings.instance()
     binding = settings.binding
     # CM: calendar date start (CalendarDayStart)
