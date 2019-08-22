@@ -360,19 +360,14 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                     Used when the "CORDEX" option is switched on.
                     If the "EFAS" option is on, "RgdMaps" is used instead.
                 </comment>
+            </textvar>
                 
             <textvar name="RnlMaps" value="$(PathMeteoIn)/rlus_1_15">
                 <comment>
                     rnl - net long wave radiation [W/m2]
                     Used when the "GLOFAS" option is switched on.
-                    
                 </comment>
-            
-                
             </textvar>
-
-
-
         </group>
 
         <group>
