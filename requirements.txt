@@ -6,7 +6,7 @@ python-dateutil
 docopt
 
 # pathlib for python2.7 (this module is included in python3.6)
-pathlib
+pathlib2
 
 # packages for python2/python3 compatibility
 future

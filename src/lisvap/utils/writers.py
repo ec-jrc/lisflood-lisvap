@@ -16,10 +16,10 @@ See the Licence for the specific language governing permissions and limitations 
 
 """
 from __future__ import (absolute_import, division, print_function, unicode_literals)
+from nine import IS_PYTHON2
 
 import os
 import time as xtime
-from pathlib import Path
 
 import numpy as np
 from netCDF4 import Dataset
@@ -28,6 +28,11 @@ from pcraster import numpy_operations
 
 
 from . import CutMap, NetcdfMetadata
+
+if IS_PYTHON2:
+    from pathlib2 import Path
+else:
+    from pathlib import Path
 
 
 def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flag_time=True):
