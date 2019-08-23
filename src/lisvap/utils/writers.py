@@ -17,12 +17,15 @@ See the Licence for the specific language governing permissions and limitations 
 """
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
+import os
 import time as xtime
+from pathlib import Path
 
 import numpy as np
 from netCDF4 import Dataset
 import pcraster
 from pcraster import numpy_operations
+
 
 from . import CutMap, NetcdfMetadata
 
@@ -35,8 +38,10 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
     netfile: output netcdf filename
     timestep:
     """
-    prefix = netfile.split('/')[-1].split('\\')[-1].split('.')[0]
-    netfile = netfile.split('.')[0] + '.nc'
+    p = Path(netfile)
+    netfile = Path(p.parent) / Path('{}.nc'.format(p.name) if not p.name.endswith('.nc') else p.name)
+    prefix = os.path.splitext(netfile.name)[0]
+
     cutmap = CutMap.instance()
     row = np.abs(cutmap.cuts[3] - cutmap.cuts[2])
     col = np.abs(cutmap.cuts[1] - cutmap.cuts[0])

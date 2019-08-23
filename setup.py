@@ -108,7 +108,7 @@ setup(
     license='EUPL 1.2',
     url='https://github.com/ec-jrc/lisflood-lisvap',
     setup_requires=['future', 'nine'],
-    install_requires=['numpy>=1.15', 'netCDF4', 'python-dateutil', 'future', 'nine'],
+    install_requires=['numpy>=1.15', 'netCDF4', 'python-dateutil', 'future', 'nine', 'pathlib'],
     python_requires=">=2.7,!=3.0.*,!=3.1.*",
     scripts=['bin/lisvap'],
     zip_safe=True,
