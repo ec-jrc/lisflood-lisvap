@@ -22,19 +22,19 @@ RUN apt-get install -y --no-install-recommends gcc g++ git cmake \
 WORKDIR /opt
 RUN wget -q http://pcraster.geo.uu.nl/pcraster/4.2.1/pcraster-4.2.1.tar.bz2 && tar xf pcraster-4.2.1.tar.bz2 && rm pcraster-4.2.1.tar.bz2 && cd pcraster-4.2.1 && mkdir build
 
-RUN cd /usr/lib/x86_64-linux-gnu/ && ln -s libboost_python-py35.so libboost_python3.so
-WORKDIR /opt/pcraster-4.2.1/build
-RUN cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=/opt/pcraster -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3.5 .. \
-   && cmake --build . && make install
-
-WORKDIR /
 COPY requirements.txt /
-RUN pip install -r /requirements.txt
+RUN pip3 install -U pip && pip3 install -r /requirements.txt \
+ && cd /usr/lib/x86_64-linux-gnu/ && ln -s libboost_python-py35.so libboost_python3.so
+
+WORKDIR /opt/pcraster-4.2.1/build
+RUN cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=/opt/pcraster -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3.5 ../ \
+   && cmake --build ./ && make install
+
 COPY tests/. /tests/
 COPY basemaps/. /basemaps/
 COPY src/. /
 COPY LICENSE /
 COPY settings_tpl.xml /
 COPY docker-entrypoint.sh /
-
+RUN pytest /tests/regression_tests.py -s
 ENTRYPOINT ["/docker-entrypoint.sh"]
