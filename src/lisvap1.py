@@ -32,6 +32,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 
 import datetime
 import sys
+from pyexpat import *
 
 from lisvap import __date__, __version__
 from lisvap.utils import LisSettings, TimeProfiler, usage
