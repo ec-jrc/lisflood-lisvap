@@ -7,7 +7,7 @@ defaults = {
     'useTavg': False,
     'readNetcdfStack': False, 'writeNetcdfStack': False, 'writeNetcdf': False,
     'repAvTimeseries': False,
-    'repET0Maps': False, 'repES0Maps': False, 'repE0Maps': True, 'repTAvgMaps': False,
+    'repET0Maps': True, 'repES0Maps': True, 'repE0Maps': True, 'repTAvgMaps': False,
     'EFAS': True, 'CORDEX': False, 'GLOFAS': False,
     'timeseries': [
         TimeSeries(name='TAvgTS', output_var='TAvg', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
