@@ -1,7 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from future.utils import listitems
-from nine import (str, range)
+from nine import str
 
 import datetime
 import os
