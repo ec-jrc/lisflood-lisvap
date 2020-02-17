@@ -80,7 +80,7 @@ class UploadCommand(Command):
             pass
 
         self.print_console('Building Source and Wheel (universal) distribution...')
-        os.system('{0} setup.py sdist bdist_wheel'.format(sys.executable))
+        os.system('{0} setup.py sdist'.format(sys.executable))
 
         self.print_console('Uploading the package to PyPI via Twine...')
         os.system('twine upload dist/*')
@@ -137,5 +137,6 @@ setup(
     # setup.py publish to pypi.
     cmdclass={
         'upload': UploadCommand,
+        'publish': UploadCommand,
     },
 )
