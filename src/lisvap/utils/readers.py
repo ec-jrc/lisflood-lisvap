@@ -65,14 +65,12 @@ def loadsetclone(name):
                 x1 = nf1.variables['lon'][0]
                 x2 = nf1.variables['lon'][1]
                 y1 = nf1.variables['lat'][0]
-                # y2 = nf1.variables['lat'][1]
                 xlast = nf1.variables['lon'][-1]
                 ylast = nf1.variables['lat'][-1]
             else:
                 x1 = nf1.variables['x'][0]
                 x2 = nf1.variables['x'][1]
                 y1 = nf1.variables['y'][0]
-                # y2 = nf1.variables['y'][1]
                 xlast = nf1.variables['x'][-1]
                 ylast = nf1.variables['y'][-1]
 
@@ -85,11 +83,6 @@ def loadsetclone(name):
             nf1.close()
             # setclone  row col cellsize xupleft yupleft
             pcraster.setclone(nrRows, nrCols, cellSize, x, y)
-            # print('SET CLONE x {} y {} cols {} rows {} cell size{}'.format(x, y, nrCols, nrRows, cellSize))
-            # print(str({'x': pcraster.clone().west(), 'y': pcraster.clone().north(),
-            #         'col': pcraster.clone().nrCols(),
-            #         'row': pcraster.clone().nrRows(),
-            #         'cell': pcraster.clone().cellSize()}))
 
             res = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
             flagmap = True
@@ -194,16 +187,14 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     # original code
     # Attempt at checking if input files are not in the format we expect
     if not variable_name:
-        variables = listitems(nf1.variables)
-        var_names = [variables[it][0] for it in range(len(variables))]
-        skip_names = ('x', 'y', 'laea', 'lambert_azimuthal_equal_area', 'time', 'lat', 'lon')
-        targets = [it for it in var_names if it not in skip_names]
-        # Return warning if we have more than 1 non-coordinate-related variable
-        # (i.e. x, y, laea, time) OR if the last variable in the netCDF file is not the variable to get data for
-        if len(targets) > 1 or not str(variables[-1]).find(targets[0]) > -1:
-            warnings.warn('Wrong number of variables found in netCDF file %s' % filename)
-        else:
-            variable_name = targets[0]
+        # variables = listitems(nf1.variables)
+        # get the variable with 3 dimensions (variable order not relevant)
+        targets = [k for k in nf1.variables if len(nf1.variables[k].dimensions) == 3]
+        if len(targets) > 1:
+            warnings.warn('Wrong number of variables found in netCDF file {}}'.format(filename))
+        elif not targets:
+            raise LisfloodError('No 3 dimensions variable was found in mapstack {}'.format(filename))
+        variable_name = targets[0]
 
     current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep)
 
