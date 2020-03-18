@@ -195,14 +195,18 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
         elif not targets:
             raise LisfloodError('No 3 dimensions variable was found in mapstack {}'.format(filename))
         variable_name = targets[0]
-
+    
     current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep)
 
     cutmaps = CutMap.instance().slices
     mapnp = nf1.variables[variable_name][current_ncdf_index, cutmaps[0], cutmaps[1]]
     nf1.close()
-    mapnp[np.isnan(mapnp)] = -9999
-    mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
+    if variable_name=='rn':
+        mapnp[np.isnan(mapnp)] = -9999999
+        mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, -9999999)
+    else:
+        mapnp[np.isnan(mapnp)] = -9999
+        mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
     timename = os.path.basename(name) + str(timestep)
     settings = LisSettings.instance()
     if settings.flags['checkfiles']:
