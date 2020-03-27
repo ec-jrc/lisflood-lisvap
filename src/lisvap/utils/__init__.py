@@ -387,7 +387,10 @@ class CutMap(tuple, with_metaclass(Singleton)):
 
         maskmap_attrs = MaskMapMetadata.instance()
         if maskmap_attrs['cell'] != round(np.abs(x2 - x1), 5) or maskmap_attrs['cell'] != round(np.abs(y2 - y1), 5):
-            raise LisfloodError('Cell size different in maskmap {} and {}'.format(settings.binding['MaskMap'], filename))
+            raise LisfloodError('Cell size different in maskmap {} ({}) and {} (xinc {}, yinc {})'.format(
+                settings.binding['MaskMap'], maskmap_attrs['cell'],
+                filename, round(np.abs(x2 - x1), 5), round(np.abs(y2 - y1), 5))
+            )
 
         half_cell = maskmap_attrs['cell'] / 2
         x = x1 - half_cell  # |

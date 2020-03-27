@@ -74,7 +74,7 @@ def loadsetclone(name):
                 xlast = nf1.variables['x'][-1]
                 ylast = nf1.variables['y'][-1]
 
-            cellSize = round(np.abs(x2 - x1), 4)
+            cellSize = round(np.abs(x2 - x1), 5)
             nrRows = int(0.5 + np.abs(ylast - y1) / cellSize + 1)
             nrCols = int(0.5 + np.abs(xlast - x1) / cellSize + 1)
             x = x1 - cellSize / 2  # Coordinate of west side of raster
@@ -83,7 +83,6 @@ def loadsetclone(name):
             nf1.close()
             # setclone  row col cellsize xupleft yupleft
             pcraster.setclone(nrRows, nrCols, cellSize, x, y)
-
             res = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
             flagmap = True
         if settings.flags['checkfiles']:
