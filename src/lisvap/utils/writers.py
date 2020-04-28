@@ -50,6 +50,14 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
     cutmap = CutMap.instance()
     row = np.abs(cutmap.cuts[3] - cutmap.cuts[2])
     col = np.abs(cutmap.cuts[1] - cutmap.cuts[0])
+    # Used to pack variables into short
+    scale_factor = 0.1
+    add_offset = 0.0
+    nan_value = -9999
+#     if variable_name == 'rn':
+#         nan_value = -9999999
+#         scale_factor = 10000.0
+#         add_offset = 0.0
     if flag == 0:
         nf1 = Dataset(netfile, 'w', format='NETCDF4_CLASSIC')
 
@@ -65,7 +73,7 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         spatial_dims = tuple([c for c in ('y', 'lat', 'x', 'lon') if c in metadata_ncdf])
         for dim_name, dim_size in zip(spatial_dims, [row, col]):
             nf1.createDimension(dim_name, dim_size)
-            coord = nf1.createVariable(dim_name, 'f8', (dim_name, ))
+            coord = nf1.createVariable(dim_name, 'f4', (dim_name, ))
             for i in metadata_ncdf[dim_name]:
                 if i != '_FillValue':
                     # to avoid AttributeError ("_FillValue attribute must be set when variable is created") when writing output nc attributes
@@ -73,19 +81,23 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
 
         if flag_time:
             nf1.createDimension('time', None)
-            time = nf1.createVariable('time', 'f8', ('time',))
+            time = nf1.createVariable('time', 'f4', ('time',))
             time.standard_name = 'time'
             time.units = 'days since %s' % startdate.strftime('%Y-%m-%d %H:%M:%S.0')
             time.calendar = 'gregorian'
-            value = nf1.createVariable(prefix, fillval, ('time', ) + spatial_dims, zlib=True)
+            value = nf1.createVariable(prefix, fillval, ('time', ) + spatial_dims, zlib=True, complevel=4, fill_value=nan_value)
         else:
-            value = nf1.createVariable(prefix, fillval, spatial_dims, zlib=True)
+            value = nf1.createVariable(prefix, fillval, spatial_dims, zlib=True, complevel=4, fill_value=nan_value)
 
         value.standard_name = value_standard_name
         value.long_name = value_long_name
         value.units = value_unit
+        value.scale_factor = scale_factor
+        value.add_offset = add_offset
+        value.set_auto_maskandscale(True)
         # value.esri_pe_string='PROJCS["ETRS_1989_LAEA",GEOGCS["GCS_ETRS_1989",DATUM["D_ETRS_1989",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["false_easting",4321000.0],PARAMETER["false_northing",3210000.0],PARAMETER["central_meridian",10.0],PARAMETER["latitude_of_origin",52.0],UNIT["Meter",1.0]]'
         # projection
+        proj = None
         if 'laea' in metadata_ncdf:
             proj = nf1.createVariable('laea', 'i4')
             proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
@@ -103,6 +115,13 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             proj = nf1.createVariable('laea', 'i4')
             for i in metadata_ncdf['lambert_azimuthal_equal_area']:
                 setattr(proj, i, metadata_ncdf['lambert_azimuthal_equal_area'][i])
+
+        if 'wgs_1984' in metadata_ncdf:
+            proj = nf1.createVariable('wgs_1984', 'i4')
+            for k in metadata_ncdf['wgs_1984']:
+                setattr(proj, k, metadata_ncdf['wgs_1984'][k])
+
+        value.grid_mapping_name = proj.grid_mapping_name
 
         """
         EUROPE
@@ -137,6 +156,8 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         nf1 = Dataset(netfile, 'a')
 
     mapnp = numpy_operations.pcr2numpy(inputmap, np.nan)
+    # Pack NAN values into short
+    mapnp[np.isnan(mapnp)] = (nan_value - add_offset) * scale_factor
     if flag_time:
         nf1.variables['time'][flag] = timestep - 1
         nf1.variables[prefix][flag, :, :] = mapnp

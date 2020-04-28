@@ -114,7 +114,7 @@ class OutputTssMap(object):
                     if '.' in tail:
                         if self.settings.options['writeNetcdf']:
                             writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps].output_var,
-                                     self.settings.report_maps_end[maps].unit, 'f4', self.var.calendar_date, flag_time=False)
+                                     self.settings.report_maps_end[maps].unit, 'i2', self.var.calendar_date, flag_time=False)
                         else:
                             report(what, where)
                     else:
@@ -122,7 +122,7 @@ class OutputTssMap(object):
                             writenet(0, what, where, self.var.currentTimeStep(),
                                      maps, self.settings.report_maps_steps[maps].output_var,
                                      self.settings.report_maps_steps[maps].unit,
-                                     'f4', self.var.calendar_date)
+                                     'i2', self.var.calendar_date)
                         else:
                             self.var.report(what, where)
 
@@ -138,7 +138,7 @@ class OutputTssMap(object):
                                  self.var.currentTimeStep(), maps,
                                  self.settings.report_maps_steps[maps].output_var,
                                  self.settings.report_maps_steps[maps].unit,
-                                 'f4', self.var.calendar_date)
+                                 'i2', self.var.calendar_date)
                     else:
                         self.var.report(what, where)
 
@@ -154,7 +154,7 @@ class OutputTssMap(object):
                 if self.settings.options['writeNetcdfStack']:
                     writenet(cdf_flags['all'], what, where,
                              self.var.currentTimeStep(), maps, self.settings.report_maps_all[maps].output_var,
-                             self.settings.report_maps_all[maps].unit, 'f4', self.var.calendar_date)
+                             self.settings.report_maps_all[maps].unit, 'i2', self.var.calendar_date)
                 else:
                     self.var.report(what, where)
 

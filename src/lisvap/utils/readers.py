@@ -61,22 +61,31 @@ def loadsetclone(name):
             nf1 = iter_open_netcdf(filename, 'r')
             value = listitems(nf1.variables)[-1][0]  # get the last variable name
 
-            if 'lon' in nf1.variables.keys():
+            is_lat_lon = 'lon' in nf1.variables.keys()
+            if is_lat_lon:
                 x1 = nf1.variables['lon'][0]
                 x2 = nf1.variables['lon'][1]
                 y1 = nf1.variables['lat'][0]
                 xlast = nf1.variables['lon'][-1]
                 ylast = nf1.variables['lat'][-1]
+                xSize = len(nf1.variables['lon'])
+                ySize = len(nf1.variables['lat'])
             else:
                 x1 = nf1.variables['x'][0]
                 x2 = nf1.variables['x'][1]
                 y1 = nf1.variables['y'][0]
                 xlast = nf1.variables['x'][-1]
                 ylast = nf1.variables['y'][-1]
+                xSize = len(nf1.variables['x'])
+                ySize = len(nf1.variables['y'])
 
             cellSize = round(np.abs(x2 - x1), 5)
-            nrRows = int(0.5 + np.abs(ylast - y1) / cellSize + 1)
-            nrCols = int(0.5 + np.abs(xlast - x1) / cellSize + 1)
+            if is_lat_lon:
+                nrRows = ySize
+                nrCols = xSize
+            else:
+                nrRows = int(0.5 + np.abs(ylast - y1) / cellSize + 1)
+                nrCols = int(0.5 + np.abs(xlast - x1) / cellSize + 1)
             x = x1 - cellSize / 2  # Coordinate of west side of raster
             y = y1 + cellSize / 2  # Coordinate of north side of raster
             mapnp = np.array(nf1.variables[value][0:nrRows, 0:nrCols])
@@ -194,18 +203,17 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
         elif not targets:
             raise LisfloodError('No 3 dimensions variable was found in mapstack {}'.format(filename))
         variable_name = targets[0]
-    
+
     current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep)
 
     cutmaps = CutMap.instance().slices
     mapnp = nf1.variables[variable_name][current_ncdf_index, cutmaps[0], cutmaps[1]]
     nf1.close()
-    if variable_name=='rn':
-        mapnp[np.isnan(mapnp)] = -9999999
-        mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, -9999999)
-    else:
-        mapnp[np.isnan(mapnp)] = -9999
-        mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
+    nan_value = -9999
+    if variable_name == 'rn':
+        nan_value = -9999999
+    mapnp[np.isnan(mapnp)] = nan_value
+    mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, nan_value)
     timename = os.path.basename(name) + str(timestep)
     settings = LisSettings.instance()
     if settings.flags['checkfiles']:
