@@ -65,9 +65,9 @@ def loadsetclone(name):
             if is_lat_lon:
                 x1 = nf1.variables['lon'][0]
                 x2 = nf1.variables['lon'][1]
-                y1 = nf1.variables['lat'][0]
+                y1 = nf1.variables['lat'][-1]
                 xlast = nf1.variables['lon'][-1]
-                ylast = nf1.variables['lat'][-1]
+                ylast = nf1.variables['lat'][0]
                 xSize = len(nf1.variables['lon'])
                 ySize = len(nf1.variables['lat'])
             else:

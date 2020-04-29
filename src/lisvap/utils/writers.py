@@ -35,7 +35,8 @@ else:
     from pathlib import Path
 
 
-def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flag_time=True):
+def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flag_time=True,
+             nan_value=-9999, scale_factor=0.1, add_offset=0.0, value_min=0, value_max=-9999):
     """
     write a netcdf stack
     flag: integer. If 0 it means write a NEW file (!) FIXME omg
@@ -51,19 +52,12 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
     row = np.abs(cutmap.cuts[3] - cutmap.cuts[2])
     col = np.abs(cutmap.cuts[1] - cutmap.cuts[0])
     # Used to pack variables into short
-    scale_factor = 0.1
-    add_offset = 0.0
-    nan_value = -9999
-#     if variable_name == 'rn':
-#         nan_value = -9999999
-#         scale_factor = 10000.0
-#         add_offset = 0.0
     if flag == 0:
         nf1 = Dataset(netfile, 'w', format='NETCDF4_CLASSIC')
 
         # general Attributes
         nf1.history = 'Created ' + xtime.ctime(xtime.time())
-        nf1.Conventions = 'CF-1.4'
+        nf1.Conventions = 'CF-1.6'
         nf1.Source_Software = 'Lisvap'
         nf1.source = 'Lisvap output maps'
 
@@ -84,7 +78,8 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             time = nf1.createVariable('time', 'f4', ('time',))
             time.standard_name = 'time'
             time.units = 'days since %s' % startdate.strftime('%Y-%m-%d %H:%M:%S.0')
-            time.calendar = 'gregorian'
+            time.calendar = 'proleptic_gregorian'
+            time.frequency = 1
             value = nf1.createVariable(prefix, fillval, ('time', ) + spatial_dims, zlib=True, complevel=4, fill_value=nan_value)
         else:
             value = nf1.createVariable(prefix, fillval, spatial_dims, zlib=True, complevel=4, fill_value=nan_value)
@@ -92,8 +87,12 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         value.standard_name = value_standard_name
         value.long_name = value_long_name
         value.units = value_unit
+        value.valid_min = int(value_min / scale_factor)
+        if value_max != nan_value:
+            value.valid_max = int(value_max / scale_factor)
         value.scale_factor = scale_factor
         value.add_offset = add_offset
+        value.missing_value = nan_value
         value.set_auto_maskandscale(True)
         # value.esri_pe_string='PROJCS["ETRS_1989_LAEA",GEOGCS["GCS_ETRS_1989",DATUM["D_ETRS_1989",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["false_easting",4321000.0],PARAMETER["false_northing",3210000.0],PARAMETER["central_meridian",10.0],PARAMETER["latitude_of_origin",52.0],UNIT["Meter",1.0]]'
         # projection
@@ -121,7 +120,7 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             for k in metadata_ncdf['wgs_1984']:
                 setattr(proj, k, metadata_ncdf['wgs_1984'][k])
 
-        value.grid_mapping_name = proj.grid_mapping_name
+        value.grid_mapping = proj.grid_mapping_name
 
         """
         EUROPE
@@ -149,7 +148,9 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         nf1.variables[spatial_dims[0]][:] = lats
         nf1.variables[spatial_dims[1]][:] = lons
 
-        if 'pr' in metadata_ncdf and 'esri_pe_string' in metadata_ncdf['pr']:
+        if 'wgs_1984' in metadata_ncdf:
+            value.esri_pe_string = proj.spatial_ref
+        elif 'pr' in metadata_ncdf and 'esri_pe_string' in metadata_ncdf['pr']:
             value.esri_pe_string = metadata_ncdf['pr']['esri_pe_string']
 
     else:

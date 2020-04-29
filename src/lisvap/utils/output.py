@@ -113,16 +113,28 @@ class OutputTssMap(object):
                     head, tail = os.path.split(where)
                     if '.' in tail:
                         if self.settings.options['writeNetcdf']:
-                            writenet(0, what, where, self.var.currentTimeStep(), maps, self.settings.report_maps_end[maps].output_var,
-                                     self.settings.report_maps_end[maps].unit, 'i2', self.var.calendar_date, flag_time=False)
+                            writenet(0, what, where, self.var.currentTimeStep(),
+                                     self.settings.report_maps_end[maps].standard_name,
+                                     self.settings.report_maps_end[maps].output_var,
+                                     self.settings.report_maps_end[maps].unit, 'i2',
+                                     self.var.calendar_date, flag_time=False,
+                                     scale_factor = self.settings.report_maps_end[maps].scale_factor,
+                                     add_offset = self.settings.report_maps_end[maps].add_offset,
+                                     value_min = self.settings.report_maps_end[maps].value_min,
+                                     value_max = self.settings.report_maps_end[maps].value_max)
                         else:
                             report(what, where)
                     else:
                         if self.settings.options['writeNetcdfStack']:
                             writenet(0, what, where, self.var.currentTimeStep(),
-                                     maps, self.settings.report_maps_steps[maps].output_var,
+                                     self.settings.report_maps_steps[maps].standard_name,
+                                     self.settings.report_maps_steps[maps].output_var,
                                      self.settings.report_maps_steps[maps].unit,
-                                     'i2', self.var.calendar_date)
+                                     'i2', self.var.calendar_date,
+                                     scale_factor = self.settings.report_maps_steps[maps].scale_factor,
+                                     add_offset = self.settings.report_maps_steps[maps].add_offset,
+                                     value_min = self.settings.report_maps_steps[maps].value_min,
+                                     value_max = self.settings.report_maps_steps[maps].value_max)
                         else:
                             self.var.report(what, where)
 
@@ -135,10 +147,15 @@ class OutputTssMap(object):
                 if self.var.currentTimeStep() in self.var.ReportSteps:
                     if self.settings.options['writeNetcdfStack']:
                         writenet(cdf_flags['steps'], what, where,
-                                 self.var.currentTimeStep(), maps,
+                                 self.var.currentTimeStep(),
+                                 self.settings.report_maps_steps[maps].standard_name,
                                  self.settings.report_maps_steps[maps].output_var,
                                  self.settings.report_maps_steps[maps].unit,
-                                 'i2', self.var.calendar_date)
+                                 'i2', self.var.calendar_date,
+                                 scale_factor = self.settings.report_maps_steps[maps].scale_factor,
+                                 add_offset = self.settings.report_maps_steps[maps].add_offset,
+                                 value_min = self.settings.report_maps_steps[maps].value_min,
+                                 value_max = self.settings.report_maps_steps[maps].value_max)
                     else:
                         self.var.report(what, where)
 
@@ -153,8 +170,14 @@ class OutputTssMap(object):
 
                 if self.settings.options['writeNetcdfStack']:
                     writenet(cdf_flags['all'], what, where,
-                             self.var.currentTimeStep(), maps, self.settings.report_maps_all[maps].output_var,
-                             self.settings.report_maps_all[maps].unit, 'i2', self.var.calendar_date)
+                             self.var.currentTimeStep(),
+                             self.settings.report_maps_all[maps].standard_name,
+                             self.settings.report_maps_all[maps].output_var,
+                             self.settings.report_maps_all[maps].unit, 'i2', self.var.calendar_date,
+                             scale_factor=self.settings.report_maps_all[maps].scale_factor,
+                             add_offset=self.settings.report_maps_all[maps].add_offset,
+                             value_min=self.settings.report_maps_all[maps].value_min,
+                             value_max=self.settings.report_maps_all[maps].value_max)
                 else:
                     self.var.report(what, where)
 
