@@ -97,28 +97,20 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         # value.esri_pe_string='PROJCS["ETRS_1989_LAEA",GEOGCS["GCS_ETRS_1989",DATUM["D_ETRS_1989",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Lambert_Azimuthal_Equal_Area"],PARAMETER["false_easting",4321000.0],PARAMETER["false_northing",3210000.0],PARAMETER["central_meridian",10.0],PARAMETER["latitude_of_origin",52.0],UNIT["Meter",1.0]]'
         # projection
         proj = None
-        if 'laea' in metadata_ncdf:
-            proj = nf1.createVariable('laea', 'i4')
-            proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
-            # FIXME magic numbers
-            proj.false_easting = 4321000.0
-            proj.false_northing = 3210000.0
-            proj.longitude_of_projection_origin = 10.0
-            proj.latitude_of_projection_origin = 52.0
-            proj.semi_major_axis = 6378137.0
-            proj.inverse_flattening = 298.257223563
-            proj.proj4_params = "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
-            proj.EPSG_code = "EPSG:3035"
-
-        if 'lambert_azimuthal_equal_area' in metadata_ncdf:
-            proj = nf1.createVariable('laea', 'i4')
-            for i in metadata_ncdf['lambert_azimuthal_equal_area']:
-                setattr(proj, i, metadata_ncdf['lambert_azimuthal_equal_area'][i])
-
-        if 'wgs_1984' in metadata_ncdf:
-            proj = nf1.createVariable('wgs_1984', 'i4')
-            for k in metadata_ncdf['wgs_1984']:
-                setattr(proj, k, metadata_ncdf['wgs_1984'][k])
+        metadata_ncdf_projections = {
+            'laea' : 'laea',
+            'lambert_azimuthal_equal_area' : 'laea',
+             'wgs_1984' : 'wgs_1984'
+        }
+        for proj_key in metadata_ncdf_projections:
+            if proj_key in metadata_ncdf:
+                variable_name = metadata_ncdf_projections[proj_key]
+                proj = nf1.createVariable(variable_name, 'i4')
+                # Copy all other attributes
+                for i in metadata_ncdf[proj_key]:
+                    setattr(proj, i, metadata_ncdf[proj_key][i])
+                # if proj_key == 'laea':
+                #    proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
 
         value.grid_mapping = proj.grid_mapping_name
 
