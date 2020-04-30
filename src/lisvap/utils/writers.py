@@ -100,7 +100,8 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         metadata_ncdf_projections = {
             'laea' : 'laea',
             'lambert_azimuthal_equal_area' : 'laea',
-             'wgs_1984' : 'wgs_1984'
+             'wgs_1984' : 'wgs_1984',
+             'crs' : 'crs'
         }
         for proj_key in metadata_ncdf_projections:
             if proj_key in metadata_ncdf:
