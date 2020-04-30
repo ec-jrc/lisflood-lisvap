@@ -61,31 +61,22 @@ def loadsetclone(name):
             nf1 = iter_open_netcdf(filename, 'r')
             value = listitems(nf1.variables)[-1][0]  # get the last variable name
 
-            is_lat_lon = 'lon' in nf1.variables.keys()
-            if is_lat_lon:
+            if 'lon' in nf1.variables.keys():
                 x1 = nf1.variables['lon'][0]
                 x2 = nf1.variables['lon'][1]
                 y1 = nf1.variables['lat'][-1]
                 xlast = nf1.variables['lon'][-1]
                 ylast = nf1.variables['lat'][0]
-                xSize = len(nf1.variables['lon'])
-                ySize = len(nf1.variables['lat'])
             else:
                 x1 = nf1.variables['x'][0]
                 x2 = nf1.variables['x'][1]
                 y1 = nf1.variables['y'][0]
                 xlast = nf1.variables['x'][-1]
                 ylast = nf1.variables['y'][-1]
-                xSize = len(nf1.variables['x'])
-                ySize = len(nf1.variables['y'])
 
             cellSize = round(np.abs(x2 - x1), 5)
-            if is_lat_lon:
-                nrRows = ySize
-                nrCols = xSize
-            else:
-                nrRows = int(0.5 + np.abs(ylast - y1) / cellSize + 1)
-                nrCols = int(0.5 + np.abs(xlast - x1) / cellSize + 1)
+            nrRows = int(0.5 + np.abs(ylast - y1) / cellSize + 1)
+            nrCols = int(0.5 + np.abs(xlast - x1) / cellSize + 1)
             x = x1 - cellSize / 2  # Coordinate of west side of raster
             y = y1 + cellSize / 2  # Coordinate of north side of raster
             mapnp = np.array(nf1.variables[value][0:nrRows, 0:nrCols])
