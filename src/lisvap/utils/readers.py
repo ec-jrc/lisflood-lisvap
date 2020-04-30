@@ -74,7 +74,7 @@ def loadsetclone(name):
                 xlast = nf1.variables['x'][-1]
                 ylast = nf1.variables['y'][-1]
 
-            cellSize = round(np.abs(x2 - x1), 5)
+            cellSize = np.round(np.float64(np.abs(x2 - x1)), 5)
             nrRows = int(0.5 + np.abs(ylast - y1) / cellSize + 1)
             nrCols = int(0.5 + np.abs(xlast - x1) / cellSize + 1)
             x = x1 - cellSize / 2  # Coordinate of west side of raster

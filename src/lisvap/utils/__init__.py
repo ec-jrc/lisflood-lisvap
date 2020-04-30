@@ -375,7 +375,7 @@ class CutMap(tuple, with_metaclass(Singleton)):
         nf1 = Dataset(filename, 'r')
 
         maskmap_attrs = MaskMapMetadata.instance()
-        cell = maskmap_attrs['cell']
+        cellSize = np.round(np.float64(maskmap_attrs['cell']), 5)
         mask_x = maskmap_attrs['x']
         mask_y = maskmap_attrs['y']
 
@@ -383,13 +383,13 @@ class CutMap(tuple, with_metaclass(Singleton)):
             x1 = nf1.variables['lon'][0]
             x2 = nf1.variables['lon'][1]
             # Detect if the x axis is inverted
-            if int(mask_x + cell) != int(x1):
+            if int(mask_x + cellSize) != int(x1):
                 x1 = nf1.variables['lon'][-1]
                 x2 = nf1.variables['lon'][-2]
             y1 = nf1.variables['lat'][0]
             y2 = nf1.variables['lat'][1]
             # Detect if the y axis is inverted
-            if int(mask_y - cell) != int(y1):
+            if int(mask_y - cellSize) != int(y1):
                 y1 = nf1.variables['lat'][-1]
                 y2 = nf1.variables['lat'][-2]
         else:
@@ -399,20 +399,20 @@ class CutMap(tuple, with_metaclass(Singleton)):
             y2 = nf1.variables['y'][1]
         nf1.close()
 
-        round_x = float(str(round(np.abs(x2 - x1), 5)))
-        round_y = float(str(round(np.abs(y2 - y1), 5)))
+        round_x = np.round(np.float64(np.abs(x2 - x1)), 5)
+        round_y = np.round(np.float64(np.abs(y2 - y1)), 5)
 
-        if cell != round_x or cell != round_y:
+        if cellSize != round_x or cellSize != round_y:
             raise LisfloodError('Cell size different in maskmap {} ({}) and {} (xinc {}, yinc {})'.format(
                 settings.binding['MaskMap'], cell, filename, round_x, round_y)
             )
 
-        half_cell = cell / 2
+        half_cell = cellSize / 2
         x = x1 - half_cell  # |
         y = y1 + half_cell  # | coordinates of the upper left corner of the input file upper left pixel
-        cut0 = int(round(np.abs(mask_x - x) / cell, 5))
+        cut0 = int(np.round(np.abs(mask_x - x) / cellSize, 5))
         cut1 = cut0 + maskmap_attrs['col']
-        cut2 = int(round(np.abs(mask_y - y) / cell, 5))
+        cut2 = int(np.round(np.abs(mask_y - y) / cellSize, 5))
         cut3 = cut2 + maskmap_attrs['row']
         return cut0, cut1, cut2, cut3  # input data will be sliced using [cut2:cut3, cut0:cut1]
 
