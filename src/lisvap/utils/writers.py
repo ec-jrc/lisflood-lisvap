@@ -109,10 +109,9 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
                 # Copy all other attributes
                 for i in metadata_ncdf[proj_key]:
                     setattr(proj, i, metadata_ncdf[proj_key][i])
+                value.grid_mapping = proj.grid_mapping_name
                 # if proj_key == 'laea':
                 #    proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
-
-        value.grid_mapping = proj.grid_mapping_name
 
         """
         EUROPE
