@@ -111,6 +111,7 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
                 for i in metadata_ncdf[proj_key]:
                     setattr(proj, i, metadata_ncdf[proj_key][i])
                 value.grid_mapping = proj.grid_mapping_name
+                value.esri_pe_string = proj.spatial_ref
                 # if proj_key == 'laea':
                 #    proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
 
@@ -140,9 +141,7 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         nf1.variables[spatial_dims[0]][:] = lats
         nf1.variables[spatial_dims[1]][:] = lons
 
-        if 'wgs_1984' in metadata_ncdf:
-            value.esri_pe_string = proj.spatial_ref
-        elif 'pr' in metadata_ncdf and 'esri_pe_string' in metadata_ncdf['pr']:
+        if 'pr' in metadata_ncdf and 'esri_pe_string' in metadata_ncdf['pr']:
             value.esri_pe_string = metadata_ncdf['pr']['esri_pe_string']
 
     else:
