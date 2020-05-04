@@ -102,12 +102,9 @@ class ReadMeteo(object):
                 # but provided dew point temperature instead.
                 # In that case Eact can be calculatet using Goudriaan Formula(1977)
                 #
-                self.var.WindU = readnetcdf(self.settings.binding['WindUMaps'], self.var.currentTimeStep())
-                self.var.WindV = readnetcdf(self.settings.binding['WindVMaps'], self.var.currentTimeStep())
-
-                self.var.Wind = sqrt(sqr(self.var.WindV) + sqr(self.var.WindU))
+                self.var.Wind = readnetcdf(self.settings.binding['WindMaps'], self.var.currentTimeStep())
                 # near surface windspeed at 10 m
-                self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep()) * -1
+                self.var.Rnl = readnetcdf(self.settings.binding['RnlMaps'], self.var.currentTimeStep()) * -1
                 # Net long wave radiation [J/m2/day]
                 self.var.Rgd = readnetcdf(self.settings.binding['RgdMaps'], self.var.currentTimeStep())
                 # calculated radiation [J/m2/day]
