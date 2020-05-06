@@ -110,8 +110,10 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
                 # Copy all other attributes
                 for i in metadata_ncdf[proj_key]:
                     setattr(proj, i, metadata_ncdf[proj_key][i])
-                value.grid_mapping = proj.grid_mapping_name
-                value.esri_pe_string = proj.spatial_ref
+                if 'grid_mapping_name' in metadata_ncdf[proj_key]:
+                    value.grid_mapping = proj.grid_mapping_name
+                if 'spatial_ref' in metadata_ncdf[proj_key]:
+                    value.esri_pe_string = proj.spatial_ref
                 # if proj_key == 'laea':
                 #    proj.grid_mapping_name = 'lambert_azimuthal_equal_area'
 
