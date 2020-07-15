@@ -200,7 +200,7 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
         targets = [it for it in var_names if it not in skip_names]
         # Return warning if we have more than 1 non-coordinate-related variable
         # (i.e. x, y, laea, time) OR if the last variable in the netCDF file is not the variable to get data for
-        if len(targets) > 1 or not str(variables[-1]).find(targets[0]) > -1:
+        if len(targets) > 1:
             warnings.warn('Wrong number of variables found in netCDF file %s' % filename)
         else:
             variable_name = targets[0]
