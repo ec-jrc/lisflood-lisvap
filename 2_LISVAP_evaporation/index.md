@@ -9,24 +9,24 @@ ET_0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$ET_0$:&nbsp;&nbsp; Potential evapotranspiration rate from a closed vegetation canopy (reference crop) $[\frac{mm}{day}]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{na}$:&nbsp;&nbsp;	Net absorbed radiation $[\frac{mm}{day}]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$EA$:&nbsp;&nbsp;	Evaporative demand of the atmosphere $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$ET_0$:&nbsp;&nbsp; Potential evapotranspiration rate from reference vegetation canopy (closed vegetation canopy) $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{na}$:&nbsp;&nbsp;	Net absorbed radiation for reference vegetation canopy $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$EA$:&nbsp;&nbsp;	Evaporative demand of reference vegetation canopy $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\Delta$:&nbsp;&nbsp;		Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\gamma$:&nbsp;&nbsp;		Psychrometric constant $[\frac{mbar}{^\circ C}]$
 
-The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term, $R_{na}$). 
+The same equation is also used to estimate potential evaporation from a water surface and the evaporation from a (wet) bare soil surface (by using different values for the absorbed radiation term and for the evaporative demand). 
 
 **potential evaporation rate from a bare soil surface [mm/day]** 
 
 $$
-ES = \frac{\Delta R_{nasoil} + \gamma EA}{\Delta + \gamma}
+ES = \frac{\Delta R_{na,s} + \gamma EA_s}{\Delta + \gamma}
 $$
 
 **potential evaporation rate from water surface [mm/day]**
 
 $$
-EW = \frac{\Delta R_{nawater} + \gamma EA}{\Delta + \gamma}
+EW = \frac{\Delta R_{na,w} + \gamma EA_w}{\Delta + \gamma}
 $$
 
 
@@ -61,7 +61,7 @@ Calculating the net absorbed radiation term involves the following two steps:
 
  
 
-Some data sets (e.g. ERA5) provide pre-calculated values for both incoming solar radiation and net long-wave radiation. Because of this, LISVAP offers the possibility to use these values directly, in which case all radiation balance calculations (except for the Angot radiation) are bypassed.  
+Some data sets (e.g. ERA5) provide pre-calculated values for both incoming solar radiation and net long-wave radiation. When both the datasets are available, LISVAP offers the possibility to use these values directly. Conversely, the following protocol to compute the Angot radiaton is applied.  
 
 ### Step 1: Angot radiation
 
@@ -131,18 +131,17 @@ Net absorbed radiation is calculated for three reference surfaces:
 2. Bare soil surface
 3. Open water surface
 
-   
 The following equation is used to calculate the **net long-wave radiation**[[1\]](#_ftn1) (Maidment, 1993):
 
 $$
-R_{nl}= f \epsilon' \sigma (T_{av}+273)^4
+R_{nl}= f \epsilon \sigma (T_{av}+273)^4
 $$
 
 where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$R_{nl}$:&nbsp;&nbsp;		Net long-wave radiation $[{\frac{J}{m^2 \ day}}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\sigma$:&nbsp;&nbsp;			Stefan Boltzmann constant:  $4.9 \cdot 10^{-3}[{\frac{J}{m^2 \ K^4 \ day}}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$f$:&nbsp;&nbsp;			Adjustment factor for cloud cover<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$\epsilon'$:&nbsp;&nbsp;			Net emissivity between the atmosphere and the ground
+&nbsp;&nbsp;&nbsp;&nbsp;$\epsilon$:&nbsp;&nbsp;			Net emissivity between the atmosphere and the ground
 
 
 The **net emissivity** is calculated as:
@@ -155,15 +154,21 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$e_a$:&nbsp;&nbsp;			Actual vapour pressure $[mbar]$
 
 
-Synoptic weather stations often do not supply vapour pressure data, but provided dew point temperature instead. In that case the **actual vapour pressure** *ea* can be calculated from humidity:
+The **actual vapour pressure** *ea* can be provided as input data or computed as a function of the surface pressure and of the near-surface specific humidity:
 
 $$
 e_a = \frac{( P_{surf} \cdot Q_{air} )}{62.2}
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$P_{surf}$:&nbsp;&nbsp;		surface pressure $[pa]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$Q_{air}$:&nbsp;&nbsp;		near-surface specific humidity [-]
+&nbsp;&nbsp;&nbsp;&nbsp;$P_{surf}$:&nbsp;&nbsp;		instantaneous sea level pressure  $[pa]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$Q_{air}$:&nbsp;&nbsp;		2 m instantaneous specific humidity [-]
+
+Alternatively, when the weather station provide the dew point temperature $T_{dew}$, the actual vapour pressure can be computed using the Goudriaan formula (1977):
+
+$$
+e_s= 6.10588 \cdot e^{\frac{17.32491 \cdot T_{dew}}{T_{dew}+238.102}}
+$$
  
 
 The equation of Allen (1994) is used to estimate the **cloud cover factor**:
@@ -174,27 +179,18 @@ $$
 
 where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$f$:&nbsp;&nbsp; Cloud cover adjustment factor [-] in between [0,1]<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$Tran_{Atm}$:&nbsp;&nbsp; Atmospheric transition [-]
-
-Rso = R_{a,d} * (0.75 + (2 * 10**-5 * self.Dem))
-
+&nbsp;&nbsp;&nbsp;&nbsp;$Trans_{Atm}$:&nbsp;&nbsp; Atmospheric transition [-]
 
 $$
 Trans_{Atm}=\frac{R_{g,d}}{R_{so}}
 $$ 
 
-where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp; Daily-extra terrestrial radiation or down short wave radiation $R_{d,s}$ according to the meteo set available
+where $R_{g,d}$ is the daily-extra terrestrial radiation or the downward short wave radiation $R_{d,s}$, depending on the meteo set available. 
+$R_{so}$ is a function of the Angot Radiation $R_{a,d}$ and of the altitude $z$ (given by the Digital Elevation Model):
 
 $$
 R_{so}= R_{a,d} \cdot (0.75 + ( 2 \cdot 10^5 \cdot z ) )
 $$ 
-
-where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{a,d}$:&nbsp;&nbsp; Angot Radiation
-&nbsp;&nbsp;&nbsp;&nbsp;$z$:&nbsp;&nbsp; altitude according to Digital Elevation Model
-
-
 
 Finally, the **net absorbed radiation** [mm day-1] is calculated as:
 
@@ -202,7 +198,7 @@ $$
 R_{na}=\frac{(1- \alpha)R_{g,d}-R_{nl}}{L}
 $$
 
-where *α* is the albedo (reflection coefficient) of the surface, $R_{g,d}$ is Daily-extra terrestrial radiation or down short wave radiation $R_{d,s}$ and *L* is the latent heat of vaporization $[\frac{MJ}{kg}]$:&nbsp;&nbsp;
+where *α* is the albedo (reflection coefficient) of the surface, $R_{g,d}$ is the daily-extra terrestrial radiation or downward short wave radiation $R_{d,s}$ (depending on the available dataset), and *L* is the latent heat of vaporization $[\frac{MJ}{kg}]$:&nbsp;&nbsp;
 
 $$
 L=2.501-2.361 \cdot 10^{-3} \cdot T_{av}
