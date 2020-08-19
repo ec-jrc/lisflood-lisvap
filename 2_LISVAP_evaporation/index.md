@@ -188,8 +188,8 @@ where $R_{g,d}$ is the daily-extra terrestrial radiation or the downward short w
 $R_{so}$ is a function of the Angot Radiation $R_{a,d}$ and of the altitude $z$ (given by the Digital Elevation Model):
 
 $$
-R_{so}= R_{a,d} \cdot (0.75 + ( 2 \cdot 10^5 \cdot z ) )    
-$$ 
+R_{so}= R_{a,d} \cdot (0.75 + ( 2 \cdot 10^5 \cdot z))
+$$
 
 
 Finally, the **net absorbed radiation** [mm day-1] is calculated as:
@@ -199,10 +199,10 @@ R_{na}=\frac{(1- \alpha)R_{g,d}-R_{nl}}{L}
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$\alpha$:&nbsp;&nbsp; Albedo (reflection coefficient) of the surface, the values are: $\alpha=0.23$ for the reference vegetation canopy, $\alpha=0.15$ for bare soil surface, and $\alpha=0.05$ for an open water surface (as indicated in the table at the beginning of this page)
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp; Daily-extra terrestrial radiation or downward short wave radiation $R_{d,s}$ (depending on the available dataset)
-&nbsp;&nbsp;&nbsp;&nbsp;$R_{nl}$:&nbsp;&nbsp; Net long-wave radiation
-&nbsp;&nbsp;&nbsp;&nbsp;$L$:&nbsp;&nbsp; **Latent heat of vaporization** $[\frac{MJ}{kg}]$:&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;$\alpha$:&nbsp;&nbsp; Albedo (reflection coefficient) of the surface, the values are: $\alpha=0.23$ for the reference vegetation canopy, $\alpha=0.15$ for bare soil surface, and $\alpha=0.05$ for an open water surface (as indicated in the table at the beginning of this page)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{g,d}$:&nbsp;&nbsp; Daily-extra terrestrial radiation or downward short wave radiation $R_{d,s}$ (depending on the available dataset)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$R_{nl}$:&nbsp;&nbsp; Net long-wave radiation<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$L$:&nbsp;&nbsp; **Latent heat of vaporization** $[\frac{MJ}{kg}]$
 
 **$L$** is computed as follows:
 
@@ -211,6 +211,7 @@ L=2.501-2.361 \cdot 10^{-3} \cdot T_{av}
 $$
 
 The net absorbed radiation is calculated for three cases: the reference vegetation canopy ($\alpha=0.23$), a bare soil surface ($\alpha=0.15$), and an open water surface ($\alpha=0.05$).
+
 
 
 
@@ -226,7 +227,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$EA$:&nbsp;&nbsp;		Evaporative demand $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$e_s$:&nbsp;&nbsp;			Saturated vapour pressure $[mbar]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$e_a$:&nbsp;&nbsp;			Actual vapour pressure $[mbar]$<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$f_c$:&nbsp;&nbsp;			Empirical   constant $[-]$<br/>, the values are $fc =1.0$ for the reference vegetation canopy, $fc =0.75$ for a bare soil surface, and $fc =0.5$ for an open water surface (as indicated in the table at the beginning of this page)
+&nbsp;&nbsp;&nbsp;&nbsp;$f_c$:&nbsp;&nbsp;			Empirical   constant $[-]$, the values are $fc =1.0$ for the reference vegetation canopy, $fc =0.75$ for a bare soil surface, and $fc =0.5$ for an open water surface (as indicated in the table at the beginning of this page)<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$BU$:&nbsp;&nbsp;		Coefficient in wind function $[-]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$u(2)$:&nbsp;&nbsp;		Mean wind speed at 2 m height $[\frac{m}{s}]$
 
@@ -259,6 +260,7 @@ Similar to the calculation of the net absorbed radiation, the evaporative demand
 
 
 
+
 ## Psychrometric constant
 
 The psychrometric constant at sea level can be calculated as:
@@ -284,6 +286,7 @@ where<br/>
 
 
 
+
 ## Slope of the saturation vapour pressure curve
 
 The slope of the saturation vapour pressure curve is calculated as follows:
@@ -293,6 +296,7 @@ $$
 $$
 
 where $\Delta$ is in $[\frac{mbar}{^\circ C}]$.
+
 
 
 
