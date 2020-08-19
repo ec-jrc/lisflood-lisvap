@@ -2,21 +2,20 @@
 
 ## Introduction
 
-In LISVAP, all file and parameter specifications are defined in a XML settings file. 
+In LISVAP, all the file and parameter specifications are defined in a XML settings file. 
 The purpose of the settings file is to link variables and parameters in the model to in- and output files (maps, time series) and numerical values. 
 In addition, the settings file can be used to specify several *options*. 
 
-It's convenient to download the [XML template](https://raw.githubusercontent.com/ec-jrc/lisflood-lisvap/master/settings_tpl.xml) that comes with source code and start from there 
-instead of writing the settings file completely from scratch. 
+It's convenient to download the [XML template](https://raw.githubusercontent.com/ec-jrc/lisflood-lisvap/master/settings_tpl.xml) that comes with source code and start from there rather than writing the settings file completely from scratch. 
 
-In order to use the example, you should make sure the following requirements are met:
+In order to use the example, you should make sure that the following requirements are met:
  
 - All input maps are named according to default file names
 - All base maps are in one directory or in its subfolders
 - All meteo input is in one directory or in its subfolders
 - An (empty) directory where all output data can be written exists
  
-If this is all true, the settings file can be prepared very quickly by editing the items in the `lfuser` element. The following is a detailed description of the different sections of the ‘lfuser’ element. 
+If this is all true, the settings file can be prepared very quickly by editing the items in the `lfuser` element. This page presents a detailed description of the different sections of the ‘lfuser’ element. 
 
 ## Time-related constants
 
@@ -68,8 +67,8 @@ time step [seconds] ALWAYS USE 86400!!
 
 -  ***CalendarDayStart*** is the calendar day of the first time step in the model run; format is DD/MM/YYYY hh:mm
 -  ***DtSec*** is the simulation time interval in seconds. It has a value of 86400  for a daily time interval. Some of the simplifying assumptions made in LISVAP related to the radiation balance are not valid at time steps smaller than days. Therefore, it is advised to use LISVAP for daily time intervals only (i.e. *DtSec* should always be 86400)
--  ***StepStart*** Date of first time step; format is DD/MM/YYYY hh:mm
--  ***StepEnd*** Date of the last time step; format is DD/MM/YYYY hh:mm
+-  ***StepStart*** Date of first time step of the simulation; format is DD/MM/YYYY hh:mm
+-  ***StepEnd*** Date of the last time step of the simulation; format is DD/MM/YYYY hh:mm
 -  ***ReportSteps*** Interval of steps to be reported in output maps and tss; format is a..b, with a,b >= 1 and a, b integers.
 
 
@@ -108,8 +107,8 @@ Here you can specify paths of all in- and output.
  ```
 
 -  ***PathOut*** is the path where all output is written
--  ***PathBaseMapsIn*** is the path where all input base maps (Table 4.1) are located
--  ***PathMeteoIn*** is the path where all meteo input (Table 4.2) is stored
+-  ***PathBaseMapsIn*** is the path where all input [base maps](https://ec-jrc.github.io/lisflood-lisvap/3_1_LISVAP_setup/) are located
+-  ***PathMeteoIn*** is the path where all the [meteo input data](https://ec-jrc.github.io/lisflood-lisvap/3_1_LISVAP_setup/) are stored.
 
 **Note:** To refer to the folder where LISVAP project is running, you may use `$(ProjectPath)`, or its alias `$(ProjectDir)`.
 
@@ -120,7 +119,7 @@ Each variable is read as a stack of maps.
 Name of each map is made up of its prefix followed by .nc extension.
 
 Define in this section prefixes for all the meteorological **input** variables you would like let LISVAP run with.
-Below the prefix configuration of the meteorological input variables from the EFAS dataset as an example. 
+The prefix configuration of the meteorological input variables for the EFAS dataset is shown below as an example.
 
  ```xml
 <group>
@@ -201,9 +200,9 @@ Here you can define the prefix that is used for each meteorological **output** v
  ```
 
 -  ***PrefixTAvg*** prefix of the average temperature maps 
--  ***PrefixE0*** prefix of the potential open-water evaporation maps 
--  ***PrefixES0*** prefix of the potential bare-soil evaporation maps
--  ***PrefixET0*** prefix of the potential (reference) evapotranspiration maps
+-  ***PrefixE0*** prefix of the potential open-water evaporation maps ($EW0$)
+-  ***PrefixES0*** prefix of the potential bare-soil evaporation maps ($ES0$)
+-  ***PrefixET0*** prefix of the potential (reference) evapotranspiration maps ($ET0$)
 
 ## Constants
 
@@ -244,6 +243,7 @@ The table below lists all currently implemented options and their respective def
 | readNetcdfStack           | Input variables as netCDF mapstacks                                                | False   |
 | useTavg                   | Use $T_{avg}$ input map. If false, will be computed out of $T_{max}$ and $T_{min}$ | False   |
 | EFAS                      | Use *EFAS* setup                                                                   | True    |
+| GLOFAS                    | Use *GLOFAS* setup                                                                 | False   |
 | CORDEX[^1]                | Use *CORDEX* setup                                                                 | False   |
 | **Output**                |                                                                                    |         |
 | writeNetcdfStack          | Output variables as netCDF mapstacks                                               | False   |
@@ -254,9 +254,9 @@ The table below lists all currently implemented options and their respective def
 | repES0Maps                | Write output variable $ES_0$ map                                                   | True    |
 | repTAvgMaps               | Write output variable $T_{avg}$ map                                                | True    |
 
-[^1]: Keep in mind that EFAS and CORDEX are two mutually-exclusive flags. If both are true, EFAS flag has precedence.
+[^1]: Note that EFAS, GLOFAS and CORDEX are mutually-exclusive flags. If all the three flags are true, the EFAS flag has precedence; if both GLOFAS and CORDEX flags are true, the GLOFAS flag has the precedence.
 
-These options all act as switches (1= on,  0=off). Below an example of how to change the default settings by adding/changing the respective option parameter into the settings file:
+These options all act as switches (1= on,  0=off). The panel below shows an example of how to change the default settings by adding/changing the respective option parameter into the settings file. For instance, the EFAS flag has been switched off, while the GLOFAS flag has been switched on.
 
 ```xml
 
@@ -266,14 +266,17 @@ These options all act as switches (1= on,  0=off). Below an example of how to ch
         <setoption name="writeNetcdfStack" choice="1" />
         <setoption name="TemperatureInKelvinFlag" choice="0" />
         <setoption name="repE0Maps" choice="1" />
-        <setoption name="repTavgMaps" choice="1"/>
-
-        <setoption name="EFAS" choice="1" />
+        <setoption name="repTavgMaps" choice="0"/>
+        
+        <setoption name="EFAS" choice="0" />
+        <setoption name="GLOFAS" choice="1" />
         <setoption name="CORDEX" choice="0" />
+    
+        <setoption name="useTDewMaps" choice="1"/>
 
     </lfoptions>
 ``` 
 
 Note that each option generally requires additional items in the settings file. 
-For instance, using the dew point temperature option requires that the corresponding map stack is defined in the settings file. 
+For instance, using the dew point temperature option (*useTDewMaps=1*) requires that the corresponding map stack is defined in the settings file and provided as [input data](https://ec-jrc.github.io/lisflood-lisvap/3_1_LISVAP_setup/) in the appropriate folder. 
 The template settings file that is provided with LISVAP always contains file definitions for all implemented options.
