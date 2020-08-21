@@ -137,7 +137,7 @@ For practical reasons the following input structure is suggested:
 The following Figure illustrates this:
   
 
-![img](../media/FoldersLISVAP.png)
+![img](../media/Folders_LISVAP.png)
  
 
 **Figure:** *Suggested file structure for LISVAP*.
