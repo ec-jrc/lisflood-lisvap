@@ -25,8 +25,6 @@ The following Table lists input **base maps**.
 | **TOPOGRAPHY**                |                        |                                                   |
 | Dem                           | dem.nc                 | Elevation, in [m] above sea level                 |
 | Lat                           | lat.nc                 | Latitude [decimal degrees]                        |
-| Lon                           | lon.nc                 | Longitude [decimal degrees]                       |
-
 
 Some parameters can be set as a single value (constant) in settings file or as a base input map in case they change for different regions of the simulation area.
 Check [settings file reference](/lisflood-lisvap/3_2_LISVAP_settingsfile/) for more details.
@@ -133,14 +131,13 @@ For practical reasons the following input structure is suggested:
 
 - all meteorological input maps are in one directory (e.g. ‘meteoIn’)
 - all base maps are in one directory (e.g. ‘mapsIn’)
-- all tables are in one directory (e.g. ‘tables’)
 - all output goes into one directory (e.g. ‘out’)
 
 
 The following Figure illustrates this:
   
 
-![img](../media/figure3.jpg)
+![img](../media/FoldersLISVAP.png)
  
 
 **Figure:** *Suggested file structure for LISVAP*.
