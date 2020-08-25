@@ -25,11 +25,9 @@ The following Table lists input **base maps**.
 | **TOPOGRAPHY**                |                        |                                                   |
 | Dem                           | dem.nc                 | Elevation, in [m] above sea level                 |
 | Lat                           | lat.nc                 | Latitude [decimal degrees]                        |
-| Lon                           | lon.nc                 | Longitude [decimal degrees]                       |
-
 
 Some parameters can be set as a single value (constant) in settings file or as a base input map in case they change for different regions of the simulation area.
-Check [settings file reference](/lisflood-lisvap/3_2_settingsfile) for more details.
+Check [settings file reference](/lisflood-lisvap/3_2_LISVAP_settingsfile/) for more details.
 
 
 #### Generating base maps
@@ -43,7 +41,7 @@ In the future, a more detailed documentation assisting in the generation of inpu
 ### 2. Meteorological input datasets
 
 LISVAP needs meteorological variables as input. Those should be provided as netCDF mapstacks (timeseries of 2D georeferenced variables).
-The Table below lists all **meteorological input variables** that LISVAP can digest. However, not all of these need to be provided as demonstrated below in two examples.
+The Table below lists all **meteorological input variables** that LISVAP can digest. However, not all of these need to be provided as demonstrated by the examples below.
  
 
 **Table:** *LISVAP meteorological input variables*
@@ -58,26 +56,25 @@ The Table below lists all **meteorological input variables** that LISVAP can dig
 | EActMaps            | pd             | Actual vapour pressure [mbar]                        |
 | PSurfMaps           | ps             | Instantaneous sea level pressure [Pa]                |
 | **WIND SPEED**      |                |                                                      |
-| WindMaps            | ws             | Wind speed at 10 m height [m s-1]                    |
-| WindUMaps           | wu             | Wind speed at 10 m height, U-component [m s-1]       |
-| WindVMaps           | wv             | Wind speed at 10 m height, V-component [m s-1]       |
+| WindMaps            | ws             | Wind speed at 10 m height [m/s]                    |
+| WindUMaps           | wu             | Wind speed at 10 m height, U-component [m/s]       |
+| WindVMaps           | wv             | Wind speed at 10 m height, V-component [m/s]       |
 | **SUNSHINE**        |                |                                                      |
 | SunMaps             | s              | Sunshine duration \[hours\]                          |
 | CloudMaps           | c              | Cloud cover \[octas\]                                |
 | **RADIATION**       |                |                                                      |
-| RgdMaps             | rg             | Downward  surface solar radiation [J m-2 d]          |
-| RNMaps              | rn             | Net thermal radiation \[J m-2 d\] (always negative!) |
-| RdsMaps             | rds            | Downward short wave radiation \[W/m2\]               |
-| RdlMaps             | rdl            | Down long wave radiation \[W/m2\]                    |
-| RusMaps             | rus            | rus - up short wave radiation \[W/m2\]               |
-| RulMaps             | rul            | rul - up long wave radiation \[W/m2\]                |
+| RgdMaps             | rg             | Downward  surface solar radiation [J/m^2/d]          |
+| RNMaps              | rn             | Net thermal radiation \[J/m^2/d\] (always negative!) |
+| RdsMaps             | rds            | Downward short wave radiation \[W/m^2\]               |
+| RdlMaps             | rdl            | Down long wave radiation \[W/m^2\]                    |
+| RusMaps             | rus            | rus - up short wave radiation \[W/m^2\]               |
+| RulMaps             | rul            | rul - up long wave radiation \[W/m^2\]                |
 | **HUMIDITY**        |                |                                                      |
 | QAirMaps            | huss          | 2 m instantaneous specific humidity [kg/kg]           |
 
 
 
-In the following two example meteorological data sets that are used to run LISVAP. The first one is derived from the meteorological data collection from EFAS (European Flood Awaress System), 
-and the second from [CORDEX](https://www.cordex.org/). We use those in the [LISVAP use cases section](https://ec-jrc.github.io/lisflood-lisvap/6_LISVAP_tests/) to demonstrate how to use LISVAP. 
+The tables below provide two examples of datasets that are used to run LISVAP. The first one is derived from the meteorological data collection from [EFAS](https://www.efas.eu/) (European Flood Awaress System), the second from [CORDEX](https://www.cordex.org/). We use those in the [LISVAP use cases section](https://ec-jrc.github.io/lisflood-lisvap/6_LISVAP_tests/) to demonstrate how to use LISVAP. 
 
 
    **Table:** *Meteorological input variables from EFAS data collection*
@@ -93,20 +90,36 @@ and the second from [CORDEX](https://www.cordex.org/). We use those in the [LISV
 
 
 
-   **Table:** *Meteorological input variables form the CORDEX data collection*
+   **Table:** *Meteorological input variables from the CORDEX data collection*
 
 
 | Variable name                     |  Description                                    |
 | --------------------------------- | ----------------------------------------------- |
 | PS                                | Instantaneous sea level pressur \[Pa\]          |
 | HUSS                              | 2 m instantaneous specific humidity \[kg/kg\]   |
-| TN                                | Minimum daily temperature \[K\]                 |
-| TX                                | Maximum daily temperature \[K\]                 |
-| WS                                | Wind speed at 10 m from surface \[m/s\]         |
-| RDS                               | Downward short wave radiation \[W/m2\]          |
-| RDL                               | Down long wave radiation \[W/m2\]               |
-| RUS                               | Up short wave radiation \[W/m2\]                |
-| RUL                               | Up long wave radiation \[W/m2\]                 |
+| tmin                              | Minimum daily temperature \[K\]                 |
+| tmax                              | Maximum daily temperature \[K\]                 |
+| sfcWind                           | Wind speed at 10 m from surface \[m/s\]         |
+| RSDS                              | Downward short wave radiation \[W/m^2\]          |
+| RLDS                              | Down long wave radiation \[W/m^2\]               |
+| RSUS                              | Up short wave radiation \[W/m^2\]                |
+| RLUS                              | Up long wave radiation \[W/m^2\]                 |
+
+
+
+The [GitHub tests folder](https://github.com/ec-jrc/lisflood-lisvap/tree/master/tests) also contains an example of application of LISVAP to compute $ET0$, $ES0$, and $EW0$ for the implementation of [GloFAS](https://www.globalfloods.eu/) (Global Flood Awareness System).
+
+   **Table:** *Meteorological input variables used in the GLOFAS example*
+
+
+| Variable name                     |  Description                                         |
+| --------------------------------- | ---------------------------------------------------- |
+| rg                                | incoming solar radiation \[J/m^2/d\]                  |
+| rn                                | net longwave radiation maps \[J/m^2/d\]               |
+| ta                                | average temperature \[K\]                            |
+| td                                | dew point temperature \[K\]                          |
+| wu                                | Wind speed at 10 m from surface, u component \[m/s\] |
+| wv                                | Wind speed at 10 m from surface, v component \[m/s\] |
 
 
 
@@ -118,14 +131,13 @@ For practical reasons the following input structure is suggested:
 
 - all meteorological input maps are in one directory (e.g. ‘meteoIn’)
 - all base maps are in one directory (e.g. ‘mapsIn’)
-- all tables are in one directory (e.g. ‘tables’)
 - all output goes into one directory (e.g. ‘out’)
 
 
 The following Figure illustrates this:
   
 
-![img](../media/figure3.jpg)
+![img](../media/Folders_LISVAP.png)
  
 
 **Figure:** *Suggested file structure for LISVAP*.
