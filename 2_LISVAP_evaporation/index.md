@@ -9,7 +9,7 @@ ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
 where<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;$ET_0$:&nbsp;&nbsp; is the potential evapotranspiration rate from reference vegetation canopy (closed vegetation canopy) $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$ET0$:&nbsp;&nbsp; is the potential evapotranspiration rate from reference vegetation canopy (closed vegetation canopy) $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$R_{na}$:&nbsp;&nbsp;	is the net absorbed radiation for the reference vegetation canopy $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$EA$:&nbsp;&nbsp;	is the evaporative demand of the reference vegetation canopy $[\frac{mm}{day}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\Delta$:&nbsp;&nbsp;		is the slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$<br/>
