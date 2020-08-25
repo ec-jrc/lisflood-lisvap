@@ -1,7 +1,7 @@
 ## LISVAP use cases
 
-We have included two test cases for you to try to run LISVAP. One is using the meteorological input data from the EFAS project and the other one using the data from the CORDEX project.
-Each test case includes all the data necessary to do a 15 day simulation, meaning the base maps, meteorological input data and also the prefilled settings file. 
+We have included three test cases for you to try to run LISVAP. Two tests allow the potential evapo(transpi)ration in Europe. The first test makes use of the meteorological input data from the [EFAS](https://www.efas.eu/) project, the second test makes use of the data from the [CORDEX](https://cordex.org/) project. The third test case allow the modelling of the potential evapo(transpi)ration at the global scale, according to the [GloFAS](https://www.globalfloods.eu/) set-up.
+Each test case includes all the data necessary to do a 15 day simulation, meaning the base maps, meteorological input data and also the prefilled settings file: *tests_efas.xml*,*tests_cordex.xml*, and *tests_glofas.xml*. 
 Additionally we also provide the corresponding output files for you to verify your own results.
 
 In order to run the test cases follow the following steps:
@@ -28,7 +28,7 @@ copy input files to /input/efas......
 copy efas settings to /input/...
 ```
 
-After executed the command, you will find data under `/local/folder/lisvap/input` directory, in two subfolders `cordex` and `efas`.
+After executed the command, you will find data under `/local/folder/lisvap/input` directory, in three subfolders `efas`, `cordex`, and `glofas`.
 
 
 **From source code**
@@ -74,8 +74,8 @@ As the paths definition depends on the execution environment (i.e. Docker or loc
     <textvar name="PathMeteoIn" value="/input/efas">
         <comment>
             Path to input raw meteo maps
-            for Docker: /input/efas or /input/cordex
-            from local host: e.g. E:/lisflood_test/Lisvap/input/efas or E:/lisflood_test/Lisvap/input/cordex
+            for Docker: /input/efas or /input/cordex or /input/glofas
+            from local host: e.g. E:/lisflood_test/Lisvap/input/efas or E:/lisflood_test/Lisvap/input/cordex or E:/lisflood_test/Lisvap/input/glofas
         </comment>
     </textvar>
 
@@ -101,5 +101,5 @@ python lisvap1.py /local/folder/lisvap/input/test_efas.xml -v
 
 ### Step 4. Verify the output
 
-You will find output maps under the folder you set up in `PathOut`. They are netCDF mapstacks and can be viewed with a netCDF reader like `Panoply` or `ncview`.
-You can compare your output to the reference files for [EFAS](https://github.com/ec-jrc/lisflood-lisvap/tree/master/tests/data/reference/efas) and [CORDEX](https://github.com/ec-jrc/lisflood-lisvap/tree/master/tests/data/reference/cordex) found on github repository. 
+You will find output maps under the folder you set up in `PathOut`. These maps are netCDF mapstacks and can be viewed with a netCDF reader like `Panoply` `ncview`.
+You can compare your output to the reference files for [EFAS](https://github.com/ec-jrc/lisflood-lisvap/tree/master/tests/data/reference/efas), [CORDEX](https://github.com/ec-jrc/lisflood-lisvap/tree/master/tests/data/reference/cordex), and [GloFAS](https://github.com/ec-jrc/lisflood-lisvap/tree/master/tests/data/reference/glofas) found on github repository. 

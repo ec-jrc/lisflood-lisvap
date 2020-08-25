@@ -8,7 +8,7 @@ There are three possibilites to get LISVAP:
 2. Install LISVAP python module using pip tool
 3. Clone the repository from github
 
-If you want to run LISVAP as python package (option 2) or directly from code (option 3) you need Python 2.7, some scientific python packages and a recent version of PCRaster.
+If you want to run LISVAP as python package (option 2) or directly from code (option 3) you need Python, some scientific python packages and a recent version of PCRaster. The use of a recent Python distribution (>=3.5 works) is strongly recommended; albeit LISVAP also works with Python 2.7, the support for this version will cease late in 2020.
 In case you need some exemplary data to run it (basemaps, meteo input etc.), we suggest to install using Docker or by cloning the repository to have access to all those assets.
 
 
@@ -25,7 +25,7 @@ To pull the most updated Docker image, follow those steps:
 #### a. Sign in Docker and install it
 
 You need a user ID and password to download the installer. Create a Docker account in case you haven't got one yet. 
-Usually, installation is straight forward; just remember to set up proxies in case your organisation is using it, because Docker does not use the one configured for the system..
+Usually, installation is straight forward; just remember to set up proxies in case your organisation is using it, because Docker does not use the one configured for the system.
 
 #### b. open a terminal window
 

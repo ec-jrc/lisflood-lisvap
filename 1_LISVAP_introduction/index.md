@@ -1,23 +1,23 @@
 # Introduction
 
-LISVAP is a model developed to provide potential reference evapotranspiration ($ET_0$), potential evapotranspiration from soil ($ES_0$) and open water ($EW_0$) to LISFLOOD.
+LISVAP is a model developed to provide potential reference evapotranspiration ($ET_0$), potential evaporation from bare soil ($ES_0$) and open water ($EW_0$) to LISFLOOD.
 
 ## About LISFLOOD
 
 The LISFLOOD model is a hydrological rainfall-runoff and channel routing model that has been developed by the Floods group of the Natural Hazards project of Joint Research Centre (JRC) of the European Commission (van der Knijff & de Roo, 2008). The model is used for the modelling of hydrological processes for large (and often trans-national) catchments, and its main fields of application are flood forecasting, the assessment of river regulation measures, the assessment of the effects of land-use change, and the assessment of the effects of climate change. 
 
-Evaporation and water uptake and subsequent transpiration by vegetation are important components of the water balance. The simulation of these processes in LISFLOOD involves four steps as visualized in the following figure:
+Evaporation and water uptake and subsequent transpiration by vegetation are important components of the water balance. The simulation of these processes in LISFLOOD involves a number of steps as visualized in the following figure:
 
 ![](..\media\figure1.jpg)
 
-**Figure:** *Main steps in the calculation of actual transpiration and evaporation rates in LISFLOOD (open water evaporation –which is used for evaporation of intercepted rainfall- not shown in this figure).Yellow ovals indicate the main variables and parameters that are needed to go from one step to the next one.*  
+**Figure:** *Main steps in the calculation of actual transpiration and actual soil evaporation rates in LISFLOOD. Yellow ovals indicate the main variables and parameters that are needed to go from one step to the next one. Note that LISFLOOD also computes the actual open water evaporation – which is not shown in this figure but used for evaporation of intercepted rainfall as detailed [here](https://ec-jrc.github.io/lisflood-model/2_03_stdLISFLOOD_evaporation-intercepted-water/) *  
 
 
-**Step 1: Potential reference evapotranspiration ($ET0$)**
-<br> First, a ‘potential reference’ evapotranspiration rate, $ET0$ is calculated. This is the evapotranspiration rate from a hypothetical reference vegetation with specific characteristics with unlimited availability of water (Allen *et al*., 1998). 
+**Step 1: Potential reference evapotranspiration ($ET0$), potential evaporation from bare soil ($ES0$), potential evaporation from water surface ($EW0$)**
+<br> First, $ET0$, $ES0$ and $EW0$ are calculated. The ‘potential reference’ evapotranspiration rate, $ET0$ is the evapotranspiration rate from a hypothetical reference vegetation with specific characteristics and unlimited availability of water (Allen *et al*., 1998). Note that $ET0$, $ES0$ and $EW0$  are strictly climatic variables; they are not influenced by any land use or soil properties. $EW0$ is used to compute surface water evaporation from open water bodies such as [lakes](https://ec-jrc.github.io/lisflood-model/3_02_optLISFLOOD_lakes/).
 
-**Step 2: Potential evapotranspiration from soil ($ES0$) and open water ($EW0$)**
-Similarly, a potential soil evaporation rate, $ES0$ and the potential evaporation of an open water surface, $EW0$, are calculated. Note that $ET0$, $ES0$ and $EW0$ are strictly climatic variables; they are not influenced by any land use or soil properties. In reality, the potential evapotranspiration can be either higher or lower than $ET0$ due to differences in vegetation characteristics, aerodynamic resistance and surface reflectivity (albedo). Although models that explicitly account for these factors exist, they are generally too data demanding to use in large-scale applications. Instead, $ET0$ is simply multiplied by an empirical ‘crop coefficient’, $k_{crop}$, that lumps these differences into one factor, yielding a potential crop evapotranspiration rate ($ET_{crop}$). Tabulated values of $k_{crop}$ for different vegetation types are given in e.g. Allen *et al*. (1998).
+**Step 2: Potential evapotranspiration**
+In reality, the potential evapotranspiration can be either higher or lower than $ET0$ due to differences in vegetation characteristics, aerodynamic resistance and surface reflectivity (albedo). Although models that explicitly account for these factors exist, they are generally too data demanding to use in large-scale applications. Instead, $ET0$ is simply multiplied by an empirical ‘crop coefficient’, $[k_{crop}](https://ec-jrc.github.io/lisflood-model/2_07_stdLISFLOOD_plant-water-uptake/)$, that lumps these differences into one factor, yielding a potential crop evapotranspiration rate ($ET_{crop}$). Tabulated values of $k_{crop}$ for different vegetation types are given in e.g. Allen *et al*. (1998).
 
 **Step 3: Maximum transpiration ($T_{max}$) and evaporation from soil ($ES_{max}$)**
 It is important to note here that the value of $ET_{crop}$ includes two different processes:  
@@ -29,14 +29,13 @@ The relative importance of either process depends on the vegetation cover of the
 $$ T_{max}=ET_{crop} \cdot [1-exp(-k_{gb} \cdot LAI)] $$
 $$ ES_{max}= ES0 \cdot exp(-k_{gb} \cdot LAI)$$
 
-where $T_{max}$ and $ES_{max}$ are the maximum rates of transpiration and evaporation from the soil, respectively, and $к_{gb}$ is the extinction coefficient for global solar radiation (≈ 0.54). The reason why $ES_{max}$ is based on $ES0$ (and not $ET_{crop}$) is that the calculation of $ES0$ and $ET0$ includes two factors related to surface roughness and reflectivity (albedo), which are quite different for vegetated surfaces and bare soils.  
+where $[T_{max}](https://ec-jrc.github.io/lisflood-model/2_07_stdLISFLOOD_plant-water-uptake/)$ and $[ES_{max}](https://ec-jrc.github.io/lisflood-model/2_08_stdLISFLOOD_soil-evaporation/)$ are the maximum rates of transpiration and evaporation from the soil, respectively, and $к_{gb}$ is the extinction coefficient for global solar radiation (≈ 0.54). The reason why $ES_{max}$ is based on $ES0$ (and not $ET_{crop}$) is that the calculation of $ES0$ and $ET0$ includes two factors related to surface roughness and reflectivity (albedo), which are quite different for vegetated surfaces and bare soils.  
 
 **Step 4: Actual rates of transpiration and evaporation**
-As a fourth and final step, the *actual* rates of transpiration and evaporation are calculated, which are limited by the availability of water in the soil. 
+As a final step, the *actual* rates of transpiration and evaporation are calculated, which are limited by the availability of water in the soil. 
+The steps necessary to go from ‘potential reference’ evapo(transpi)ration to [actual transpiration](https://ec-jrc.github.io/lisflood-model/2_07_stdLISFLOOD_plant-water-uptake/) and [actual evaporation](https://ec-jrc.github.io/lisflood-model/2_08_stdLISFLOOD_soil-evaporation/) are explained in detail in the [LISFLOOD Model Documentation](https://ec-jrc.github.io/lisflood-model/). 
 
-The steps necessary to go from ‘potential reference’ evapo(transpi)ration to actual evaporation and transpiration are explained in detail in the [LISFLOOD Model Documentation](https://ec-jrc.github.io/lisflood-model/). 
-
-> **LISVAP has been developed to perform the first step: calculating the potential reference evapotranspiration and evaporation from standard (gridded) meteorological observations.**
+> **LISVAP has been developed to perform the first step: calculating the potential reference evapotranspiration and evaporation ($ET0$, $ES0$ and $EW0$) from standard (gridded) meteorological observations.**
 
 
 ## About LISVAP
@@ -48,7 +47,7 @@ For instance, incoming solar radiation can be estimated from sunshine duration o
 Some data suppliers do not offer this kind of information, but provide pre-calculated grids of components of the radiation balance instead. 
 Wind speed is sometimes provided in the form of *U* and *V* components. Vapour pressure is sometimes substituted by dew point temperature. 
 LISVAP has been designed to handle this heterogeneity in a straightforward way. 
-It contains various options that allow the user to select which data to use, and combinations of different data sources (e.g. vapour pressure and dew point temperature) can be combined within one LISVAP run. 
+It contains various options that allow the user to select which data to use, and combinations of different data sources (e.g. vapour pressure and dew point temperature) can be used within one LISVAP run. 
 LISVAP is implemented in Python and uses PCRaster python framework for model running (Wesseling *et al*., 1996). It will run on any operating system for which Python and PCRaster are available. 
 Currently these include 64-bits Windows and Linux distributions. A docker image with all dependencies and requirements is also publicly available. 
 
