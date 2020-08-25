@@ -20,13 +20,13 @@ The same equation is also used to estimate the potential evaporation from a wate
 The **potential evaporation rate from a bare soil surface [mm/day]** is then estimated by:
 
 $$
-ES = \frac{\Delta R_{na,s} + \gamma EA_s}{\Delta + \gamma}
+ES0 = \frac{\Delta R_{na,s} + \gamma EA_s}{\Delta + \gamma}
 $$
 
 Finally, the **potential evaporation rate from water surface [mm/day]** is computed as follows:
 
 $$
-EW = \frac{\Delta R_{na,w} + \gamma EA_w}{\Delta + \gamma}
+EW0 = \frac{\Delta R_{na,w} + \gamma EA_w}{\Delta + \gamma}
 $$
 
 where $R_{na,s}$ and $R_{na,w}$ are the net absorbed radiation of bare soil surface and the net absorbed radiation of water surface, respectively ($[\frac{mm}{day}]$); $EA_s$ and $EA_w$ are the evaporative demand of bare soil surface and the evaporative demand of water surface, respectively ($[\frac{mm}{day}]$).
@@ -40,7 +40,7 @@ The procedure to calculate potential evapo(transpi)ration is summarised in the f
 **Figure:** *Overview of procedure to calculate potential reference evapo(transpi)ration. Terms with an asterisk (\*) are calculated separately for a reference vegetation canopy, a bare soil surface and an open water surface, respectively.*
 
  
-The table below lists the properties of the reference surfaces that are used in the computation of $ET_0$, $ES_0$ and $EW_0$, respectively. 
+The table below lists the properties of the reference surfaces that are used in the computation of $ET0$, $ES0$ and $EW0$, respectively. 
 
 |           | **α** *(surface albedo)* | **fc** *(empirical constant in evaporative demand equation)* |
 | -------   | ------------------------ | ------------------------------------------------------------ |
@@ -164,7 +164,7 @@ where<br/>
 Alternatively, when the weather stations provide the dew point temperature $T_{dew}$, the actual vapour pressure can be computed using the Goudriaan formula (1977):
 
 $$
-e_s= 6.10588 \cdot e^{\frac{17.32491 \cdot T_{dew}}{T_{dew}+238.102}}
+e_a= 6.10588 \cdot e^{\frac{17.32491 \cdot T_{dew}}{T_{dew}+238.102}}
 $$
  
 
