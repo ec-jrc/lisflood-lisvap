@@ -19,6 +19,7 @@ Evaporation and water uptake and subsequent transpiration by vegetation are impo
 **Step 2: Potential evapotranspiration**
 In reality, the potential evapotranspiration can be either higher or lower than $ET0$ due to differences in vegetation characteristics, aerodynamic resistance and surface reflectivity (albedo). Although models that explicitly account for these factors exist, they are generally too data demanding to use in large-scale applications. Instead, $ET0$ is simply multiplied by an empirical ‘crop coefficient’, $[k_{crop}](https://ec-jrc.github.io/lisflood-model/2_07_stdLISFLOOD_plant-water-uptake/)$, that lumps these differences into one factor, yielding a potential crop evapotranspiration rate ($ET_{crop}$). Tabulated values of $k_{crop}$ for different vegetation types are given in e.g. Allen *et al*. (1998).
 
+
 **Step 3: Maximum transpiration ($T_{max}$) and evaporation from soil ($ES_{max}$)**
 It is important to note here that the value of $ET_{crop}$ includes two different processes:  
 - Transpiration (e.g. water uptake and subsequent evaporation by plants)
@@ -30,6 +31,7 @@ $$ T_{max}=ET_{crop} \cdot [1-exp(-k_{gb} \cdot LAI)] $$
 $$ ES_{max}= ES0 \cdot exp(-k_{gb} \cdot LAI)$$
 
 where $[T_{max}](https://ec-jrc.github.io/lisflood-model/2_07_stdLISFLOOD_plant-water-uptake/)$ and $[ES_{max}](https://ec-jrc.github.io/lisflood-model/2_08_stdLISFLOOD_soil-evaporation/)$ are the maximum rates of transpiration and evaporation from the soil, respectively, and $к_{gb}$ is the extinction coefficient for global solar radiation (≈ 0.54). The reason why $ES_{max}$ is based on $ES0$ (and not $ET_{crop}$) is that the calculation of $ES0$ and $ET0$ includes two factors related to surface roughness and reflectivity (albedo), which are quite different for vegetated surfaces and bare soils.  
+
 
 **Step 4: Actual rates of transpiration and evaporation**
 As a final step, the *actual* rates of transpiration and evaporation are calculated, which are limited by the availability of water in the soil. 

@@ -5,7 +5,7 @@
 Reference values for **potential evapotranspiration and evaporation** are estimated using the Penman-Monteith equation (Supit *et al*., 1994, Supit & Van Der Goot, 2003).Specifically, the **potential reference evapotranspiration rate [mm/day]** for the reference vegetation canopy is computed as follows:
 
 $$
-ET_0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
+ET0 = \frac{\Delta R_{na} + \gamma EA}{\Delta + \gamma}
 $$
 
 where<br/>
@@ -42,13 +42,11 @@ The procedure to calculate potential evapo(transpi)ration is summarised in the f
  
 The table below lists the properties of the reference surfaces that are used in the computation of $ET_0$, $ES_0$ and $EW_0$, respectively. 
 
-   **Table:** *Properties of reference surfaces for* $ET_0$, $ES_0$ and $EW_0$ 
-
-|            | **α** *(surface albedo)* | **fc** *(empirical constant in evaporative demand equation)* |
-| -------    | ------------------------ | ------------------------------------------------------------ |
-| **$ET_0$** | 0.23                     | 1                                                            |
-| **$ES_0$** | 0.15                     | 0.75                                                         |
-| **$EW_0$** | 0.05                     | 0.5                                                          |
+|           | **α** *(surface albedo)* | **fc** *(empirical constant in evaporative demand equation)* |
+| -------   | ------------------------ | ------------------------------------------------------------ |
+| **$ET0$** | 0.23                     | 1                                                            |
+| **$ES0$** | 0.15                     | 0.75                                                         |
+| **$EW0$** | 0.05                     | 0.5                                                          |
 
  
  
@@ -304,9 +302,9 @@ where $\Delta$ is in $[\frac{mbar}{^\circ C}]$.
 
 As explained before, potential evapo(transpi)ration is calculated for three reference surfaces:
 
-1. A closed canopy of some reference crop (*ET0*)
-2. A bare soil surface (*ES0*)
-3. An open water surface (*EW0*)
+1. A closed canopy of some reference crop ($ET0$)
+2. A bare soil surface ($ES0$)
+3. An open water surface ($EW0$)
  
 
 These quantities are all calculated using the Penman-Monteith equation, but using different values for the net absorbed radiation (*Rna*) and evaporative demand (*EA*): 
