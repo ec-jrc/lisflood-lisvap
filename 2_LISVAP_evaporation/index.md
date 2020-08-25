@@ -35,7 +35,7 @@ The procedure to calculate potential evapo(transpi)ration is summarised in the f
 
 
 
-![img](..\media\figure4-small.jpg)
+![](..\media\figure4-small.jpg)
 
 **Figure:** *Overview of procedure to calculate potential reference evapo(transpi)ration. Terms with an asterisk (\*) are calculated separately for a reference vegetation canopy, a bare soil surface and an open water surface, respectively.*
 
