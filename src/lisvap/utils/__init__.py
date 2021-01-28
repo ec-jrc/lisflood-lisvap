@@ -34,10 +34,15 @@ from collections import Counter, defaultdict
 import numpy as np
 from netCDF4 import Dataset
 from pcraster import pcraster
+from decimal import *
 
 from .. import __version__, __date__, __status__, __authors__, __maintainers__
 from .defaults_options import defaults
 from .decorators import cached
+
+__DECIMAL_CASES = 20
+
+getcontext().prec = __DECIMAL_CASES
 
 project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../..'))
 
@@ -320,12 +325,13 @@ class MaskMapMetadata(with_metaclass(Singleton)):
 
     @staticmethod
     def _pcr_clone_metadata():
+        decimal_format = '{:.20f}'
         # Definition of cellsize, coordinates of the meteomaps and maskmap
         # need some love for error handling
-        return {'x': pcraster.clone().west(), 'y': pcraster.clone().north(),
+        return {'x': Decimal(decimal_format.format(pcraster.clone().west())), 'y': Decimal(decimal_format.format(pcraster.clone().north())),
                 'col': pcraster.clone().nrCols(),
                 'row': pcraster.clone().nrRows(),
-                'cell': pcraster.clone().cellSize()}
+                'cell': Decimal(decimal_format.format(pcraster.clone().cellSize()))}
 
     def __setitem__(self, k, v):
         self._metadata[k] = v
@@ -370,49 +376,51 @@ class CutMap(tuple, with_metaclass(Singleton)):
 
     @staticmethod
     def get_cuts(in_file):
+        decimal_format = '{:.20f}'
         settings = LisSettings.instance()
         filename = '{}.{}'.format(os.path.splitext(in_file)[0], 'nc')
         nf1 = Dataset(filename, 'r')
 
         maskmap_attrs = MaskMapMetadata.instance()
-        cellSize = np.round(np.float64(maskmap_attrs['cell']), 5)
-        mask_x = maskmap_attrs['x']
-        mask_y = maskmap_attrs['y']
+        cellSize = Decimal(decimal_format.format(maskmap_attrs['cell']))
+        mask_x = Decimal(decimal_format.format(maskmap_attrs['x']))
+        mask_y = Decimal(decimal_format.format(maskmap_attrs['y']))
 
         if 'lon' in nf1.variables.keys():
-            x1 = nf1.variables['lon'][0]
-            x2 = nf1.variables['lon'][1]
+            x1 = Decimal(decimal_format.format(nf1.variables['lon'][0]))
+            x2 = Decimal(decimal_format.format(nf1.variables['lon'][1]))
             # Detect if the x axis is inverted
             if int(mask_x + cellSize) != int(x1):
-                x1 = nf1.variables['lon'][-1]
-                x2 = nf1.variables['lon'][-2]
-            y1 = nf1.variables['lat'][0]
-            y2 = nf1.variables['lat'][1]
+                x1 = Decimal(decimal_format.format(nf1.variables['lon'][-1]))
+                x2 = Decimal(decimal_format.format(nf1.variables['lon'][-2]))
+            y1 = Decimal(decimal_format.format(nf1.variables['lat'][0]))
+            y2 = Decimal(decimal_format.format(nf1.variables['lat'][1]))
             # Detect if the y axis is inverted
             if int(mask_y - cellSize) != int(y1):
-                y1 = nf1.variables['lat'][-1]
-                y2 = nf1.variables['lat'][-2]
+                y1 = Decimal(decimal_format.format(nf1.variables['lat'][-1]))
+                y2 = Decimal(decimal_format.format(nf1.variables['lat'][-2]))
         else:
-            x1 = nf1.variables['x'][0]
-            x2 = nf1.variables['x'][1]
-            y1 = nf1.variables['y'][0]
-            y2 = nf1.variables['y'][1]
+            x1 = Decimal(decimal_format.format(nf1.variables['x'][0]))
+            x2 = Decimal(decimal_format.format(nf1.variables['x'][1]))
+            y1 = Decimal(decimal_format.format(nf1.variables['y'][0]))
+            y2 = Decimal(decimal_format.format(nf1.variables['y'][1]))
         nf1.close()
 
-        round_x = np.round(np.float64(np.abs(x2 - x1)), 5)
-        round_y = np.round(np.float64(np.abs(y2 - y1)), 5)
+        round_x = round(Decimal(decimal_format.format(abs(x2 - x1))), 13)
+        round_y = round(Decimal(decimal_format.format(abs(y2 - y1))), 13)
+        round_cellSize = round(cellSize, 13)
 
-        if cellSize != round_x or cellSize != round_y:
+        if round_cellSize != round_x or round_cellSize != round_y:
             raise LisfloodError('Cell size different in maskmap {} ({}) and {} (xinc {}, yinc {})'.format(
-                settings.binding['MaskMap'], cell, filename, round_x, round_y)
+                settings.binding['MaskMap'], round_cellSize, filename, round_x, round_y)
             )
 
-        half_cell = cellSize / 2
+        half_cell = cellSize * Decimal(0.5)
         x = x1 - half_cell  # |
         y = y1 + half_cell  # | coordinates of the upper left corner of the input file upper left pixel
-        cut0 = int(np.round(np.abs(mask_x - x) / cellSize, 5))
+        cut0 = int(Decimal(decimal_format.format(abs(mask_x - x))) / cellSize)
         cut1 = cut0 + maskmap_attrs['col']
-        cut2 = int(np.round(np.abs(mask_y - y) / cellSize, 5))
+        cut2 = int(Decimal(decimal_format.format(abs(mask_y - y))) / cellSize)
         cut3 = cut2 + maskmap_attrs['row']
         return cut0, cut1, cut2, cut3  # input data will be sliced using [cut2:cut3, cut0:cut1]
 

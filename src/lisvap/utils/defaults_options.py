@@ -8,7 +8,7 @@ defaults = {
     'readNetcdfStack': False, 'writeNetcdfStack': False, 'writeNetcdf': False,
     'repAvTimeseries': False,
     'repET0Maps': False, 'repES0Maps': False, 'repE0Maps': True, 'repTAvgMaps': False,
-    'EFAS': True, 'CORDEX': False, 'GLOFAS': False,
+    'EFAS': True, 'CORDEX': False, 'GLOFAS': False, 'output6hourly' : False,
     'timeseries': [
         TimeSeries(name='TAvgTS', output_var='TAvg', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
         TimeSeries(name='ET0TS', output_var='ETRef', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),

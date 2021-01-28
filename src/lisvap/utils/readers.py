@@ -12,6 +12,7 @@ import numpy as np
 import pcraster
 from netCDF4 import Dataset, num2date, date2num
 from pcraster import numpy_operations, Boolean, Nominal, Scalar
+from decimal import *
 
 try:
     from pcraster.multicore import _operations as operations
@@ -21,7 +22,13 @@ except ImportError:
 from . import LisSettings, LisfloodError, MaskMapMetadata, CutMap
 from .tools import take_closest, calendar, checkmap
 
+# from memory_profiler import profile
 
+__DECIMAL_CASES = 20
+__DECIMAL_FORMAT = '{:.20f}'
+getcontext().prec = __DECIMAL_CASES
+
+# @profile
 def loadsetclone(name):
     """ Load 'MaskMap' and set as clone
 
@@ -42,7 +49,7 @@ def loadsetclone(name):
         # CM: coord[4]=yupleft
         # setclone row col cellsize xupleft yupleft
         try:
-            pcraster.setclone(int(coord[1]), int(coord[0]), float(coord[2]), float(coord[3]), float(coord[4]))  # CM: pcraster
+            pcraster.setclone(int(coord[1]), int(coord[0]), Decimal(__DECIMAL_FORMAT.format(coord[2])), Decimal(__DECIMAL_FORMAT.format(coord[3])), Decimal(__DECIMAL_FORMAT.format(coord[4])))  # CM: pcraster
         except:
             msg = 'Maskmap: [{} {} {} {}] are not valid coordinates (col row cellsize xupleft yupleft)'.format(*coord)
             raise LisfloodError(msg)
@@ -61,28 +68,38 @@ def loadsetclone(name):
             nf1 = iter_open_netcdf(filename, 'r')
             value = listitems(nf1.variables)[-1][0]  # get the last variable name
 
+            x_var = 'x'
+            y_var = 'y'
             if 'lon' in nf1.variables.keys():
-                x1 = nf1.variables['lon'][0]
-                x2 = nf1.variables['lon'][1]
-                y1 = nf1.variables['lat'][-1]
-                xlast = nf1.variables['lon'][-1]
-                ylast = nf1.variables['lat'][0]
-            else:
-                x1 = nf1.variables['x'][0]
-                x2 = nf1.variables['x'][1]
-                y1 = nf1.variables['y'][0]
-                xlast = nf1.variables['x'][-1]
-                ylast = nf1.variables['y'][-1]
+                x_var = 'lon'
+                y_var = 'lat'
+            x1 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][0]))
+            x2 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][1]))
+            y1 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][0]))
+            y2 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][1]))
+            xlast = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][-1]))
+            ylast = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][-1]))
 
-            cellSize = np.round(np.float64(np.abs(x2 - x1)), 5)
-            nrRows = int(0.5 + np.abs(ylast - y1) / cellSize + 1)
-            nrCols = int(0.5 + np.abs(xlast - x1) / cellSize + 1)
-            x = x1 - cellSize / 2  # Coordinate of west side of raster
-            y = y1 + cellSize / 2  # Coordinate of north side of raster
+#             try:
+#                 cellSizeX = Decimal(settings.binding['CellSizeX'])
+#                 cellSizeY = Decimal(settings.binding['CellSizeY'])
+#             except:
+#                 cellSizeX = abs(x2 - x1)
+#                 cellSizeY = abs(y2 - y1)
+            cellSizeX = abs(x2 - x1)
+            cellSizeY = abs(y2 - y1)
+
+            settings.binding['internal.lons'] = nf1.variables[x_var][:]
+            settings.binding['internal.lats'] = nf1.variables[y_var][:]
+
+            nrRows = int(Decimal(0.5) + abs(ylast - y1) / cellSizeY + Decimal(1.0))
+            nrCols = int(Decimal(0.5) + abs(xlast - x1) / cellSizeX + Decimal(1.0))
+            x = x1 - cellSizeX * Decimal(0.5)  # Coordinate of west side of raster
+            y = y1 + cellSizeY * Decimal(0.5)  # Coordinate of north side of raster
             mapnp = np.array(nf1.variables[value][0:nrRows, 0:nrCols])
             nf1.close()
             # setclone  row col cellsize xupleft yupleft
-            pcraster.setclone(nrRows, nrCols, cellSize, x, y)
+            pcraster.setclone(nrRows, nrCols, float(__DECIMAL_FORMAT.format(cellSizeX)), float(__DECIMAL_FORMAT.format(x)), float(__DECIMAL_FORMAT.format(y)))
             res = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
             flagmap = True
         if settings.flags['checkfiles']:
@@ -97,6 +114,7 @@ def loadsetclone(name):
     return res
 
 
+# @profile
 def loadmap(name):
     """
     :param name: Variable name as defined in XML settings or a filename of a netCDF or PCRaster map
@@ -158,7 +176,7 @@ def loadmap(name):
         checkmap(name, filename, res, flagmap, 0)
     return res
 
-
+# @profile
 def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, variable_name=None):
     """ Read maps from netCDF stacks (forcings, fractions, water demand)
 
@@ -211,7 +229,7 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
         checkmap(timename, filename, mapnp, True, 1)
     return mapnp
 
-
+# @profile
 def netcdf_step(averageyearflag, nf1, timestampflag, timestep):
     """
     Get netcdf step index based on timestep
@@ -269,7 +287,7 @@ def netcdf_step(averageyearflag, nf1, timestampflag, timestep):
     current_ncdf_index = np.where(t_steps == current_ncdf_step)[0][0]
     return current_ncdf_index
 
-
+# @profile
 def checknetcdf(name, start, end):
     """ Check available time steps in netCDF input file
 
@@ -334,14 +352,14 @@ def checknetcdf(name, start, end):
 
     return
 
-
+# @profile
 def iter_open_netcdf(file_path, mode, **kwargs):
     """Wrapper around netCDF4.Dataset function exploiting the iterAccess class to access file_path according to the specified mode"""
     def access_function(path):
         return Dataset(path, mode, **kwargs)
     return remote_input_access(access_function, file_path)
 
-
+# @profile
 def iter_read_pcraster(file_path):
     """Wrapper around pcraster.readmap function exploiting the iterAccess class to open file_path."""
     return remote_input_access(pcraster.readmap, file_path)
@@ -351,7 +369,7 @@ def iter_setclone_pcraster(file_path):
     """Wrapper around pcraster.setclone function exploiting the iterAccess class to access file_path."""
     return remote_input_access(pcraster.pcraster.setclone, file_path)
 
-
+# @profile
 def remote_input_access(function, file_path):
     """
     Wrapper around the provided file access function.
