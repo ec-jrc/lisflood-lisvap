@@ -32,3 +32,6 @@ psy0
 /.coverage
 /.tox
 /.eggs/
+/.project
+/.pydevproject
+/.settings/
