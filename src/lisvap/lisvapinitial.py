@@ -22,7 +22,7 @@ from __future__ import (absolute_import, division, print_function,
 from pcraster.framework.dynamicPCRasterBase import DynamicModel
 from pcraster.operations import scalar
 
-from .utils import LisSettings, NetcdfMetadata, CutMap
+from .utils import LisSettings, NetcdfMetadata, CutMap, FileNamesManager
 from .utils.readers import loadsetclone
 from .utils.output import OutputTssMap
 from .hydrological.miscinitial import MiscInitial
@@ -48,7 +48,15 @@ class LisvapModelIni(DynamicModel):
         # try to make the maskmap more flexible e.g. col, row,x1,y1  or x1,x2,y1,y2
         self.MaskMap = loadsetclone('MaskMap')
         self.settings = LisSettings.instance()
-        map_for_metadata = self.settings.binding.get('TMinMaps') or self.settings.binding.get('TAvgMaps') or self.settings.binding.get('TDewMaps')
+        fileManager = FileNamesManager.instance()
+        map_for_metadata = ''
+        if self.settings.binding.get('TMinMaps'):
+            map_for_metadata = fileManager.get_file_name('TMinMaps')
+        elif self.settings.binding.get('TAvgMaps'):
+            map_for_metadata = fileManager.get_file_name('TAvgMaps')
+        elif self.settings.binding.get('TDewMaps'):
+            map_for_metadata = fileManager.get_file_name('TDewMaps')
+
         if self.settings.options['readNetcdfStack']:
             # CutMap defines the extent to read from input netcdf data (cropping)
 

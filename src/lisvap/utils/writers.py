@@ -36,8 +36,6 @@ if IS_PYTHON2:
 else:
     from pathlib import Path
 
-# from pprint import pprint
-# from memory_profiler import profile
 
 __DECIMAL_CASES = 20
 __DECIMAL_FORMAT = '{:.20f}'
@@ -62,9 +60,8 @@ def coordinates_range(start=0, nelems=1, step=1):
     return elem_array
 
 
-# @profile
-def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate, flag_time=True,
-             nan_value=-9999, scale_factor=0.1, add_offset=0.0, value_min=0, value_max=-9999):
+def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate,
+             flag_time=True, nan_value=-9999, scale_factor=0.1, add_offset=0.0, value_min=0, value_max=-9999):
     """
     write a netcdf stack
     flag: integer. If 0 it means write a NEW file (!) FIXME omg

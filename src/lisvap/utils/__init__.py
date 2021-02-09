@@ -28,6 +28,7 @@ import pprint
 import sys
 import getopt
 import time
+import glob
 import xml.dom.minidom
 from collections import Counter, defaultdict
 
@@ -39,6 +40,7 @@ from decimal import *
 from .. import __version__, __date__, __status__, __authors__, __maintainers__
 from .defaults_options import defaults
 from .decorators import cached
+
 
 __DECIMAL_CASES = 20
 
@@ -454,6 +456,38 @@ class TimeProfiler(with_metaclass(Singleton)):
         print('%-17s %10s %8s' % ('Name', 'time[s]', '%'))
         for name in self.times_sum:
             print("%-17s %10.2f %8.1f" % (name, self.times_sum[name], 100 * self.times_sum[name] / tot))
+
+
+@nine
+class FileNamesManager(with_metaclass(Singleton)):
+
+    def __init__(self, unique_domain=''):
+        FileNamesManager.write_msg('INIT')
+        # Dictionary of pairs (current_file_idx, [file1, file2, ...])
+        self.input_files = {}
+        self.domain = unique_domain
+
+    @staticmethod
+    def process_file_pattern(file_pattern=''):
+        new_file_pattern = file_pattern
+        is_pattern = 1 in [c in new_file_pattern for c in '*?']
+        if not is_pattern and not new_file_pattern.endswith('.nc'):
+            new_file_pattern += '*'
+        return new_file_pattern
+
+    def get_file_name(self, variable_binding):
+        if variable_binding not in self.input_files:
+            settings = LisSettings.instance()
+            file_pattern = FileNamesManager.process_file_pattern(settings.binding[variable_binding])
+            current_file_idx = 0
+            self.input_files[variable_binding] = (current_file_idx, sorted(glob.glob(file_pattern)))
+        current_file_idx, file_list = self.input_files[variable_binding]
+        return file_list[current_file_idx]
+
+    def next(self, variable_binding):
+        current_file_idx, file_list = self.input_files[variable_binding]
+        new_file_idx = min(max(0, len(file_list)-1), current_file_idx+1)
+        self.input_files[variable_binding] = (new_file_idx, file_list)
 
 
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})

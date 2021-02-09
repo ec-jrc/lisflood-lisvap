@@ -30,7 +30,7 @@ src_dir = os.path.join(current_dir, '../src/')
 if os.path.exists(src_dir):
     sys.path.append(src_dir)
 
-from lisvap.utils import LisSettings, cdf_flags
+from lisvap.utils import LisSettings, FileNamesManager, cdf_flags
 from lisvap1 import lisvapexe
 from lisvap.utils.readers import readnetcdf, iter_open_netcdf
 
@@ -67,6 +67,7 @@ class TestLis(object):
         print('\n\n================ Running {} tests ================\n\n'.format(cls.domain.upper()))
         settings = LisSettings(cls.settings_path)
         output_path = settings.binding['PathOut']
+        fileManager = FileNamesManager(output_path)
         for var in cls.reference_files:
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):

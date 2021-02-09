@@ -47,7 +47,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 </comment>
             </textvar>
 
-            <textvar name="StepEnd" value="15/02/2015 06:00">
+            <textvar name="StepEnd" value="15/01/2015 06:00">
                 <comment>
                     Number of last time step
                 </comment>
@@ -181,8 +181,10 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="repET0Maps" choice="1" />
         <setoption name="repTavgMaps" choice="0"/>
         <setoption name="output6hourly" choice="0"/>
+        <setoption name="splitIO" choice="0"/>
 
         <setoption name="EFAS" choice="1" />
+        <setoption name="GLOFAS" choice="0" />
         <setoption name="CORDEX" choice="0" />
 
     </lfoptions>
