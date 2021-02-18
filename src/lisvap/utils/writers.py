@@ -20,6 +20,7 @@ from nine import IS_PYTHON2
 
 import os
 import time as xtime
+import datetime
 
 import numpy as np
 from netCDF4 import Dataset
@@ -60,15 +61,19 @@ def coordinates_range(start=0, nelems=1, step=1):
     return elem_array
 
 
-def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_name, value_unit, fillval, startdate,
-             flag_time=True, nan_value=-9999, scale_factor=0.1, add_offset=0.0, value_min=0, value_max=-9999):
+def writenet(current_output_index, inputmap, netfile, current_timestep, value_standard_name, value_long_name,
+             value_unit, data_type, calendar_day_start, flag_time=True, nan_value=-9999, scale_factor=0.1,
+             add_offset=0.0, value_min=0, value_max=-9999):
     """
     write a netcdf stack
-    flag: integer. If 0 it means write a NEW file (!) FIXME omg
+    output_index: integer. Global index of the map to store in the final file
     inputmap: a PCRaster 2D array
     netfile: output netcdf filename
     timestep:
     """
+    start_date = calendar_day_start + datetime.timedelta(days=1)
+    timestep = current_timestep
+    output_index = current_output_index
     p = Path(netfile)
     netfile = Path(p.parent) / Path('{}.nc'.format(p.name) if not p.name.endswith('.nc') else p.name)
     prefix = os.path.splitext(netfile.name)[0]
@@ -81,9 +86,32 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
 
     time_variable = 'time'
     output6hourly = settings.options['output6hourly']
-
+    splitIO = settings.options['splitOutput']
+    if splitIO:
+        start_year = start_date.strftime('%Y')
+        current_date = start_date + datetime.timedelta(days=timestep-1)
+        current_year = current_date.strftime('%Y')
+        filename_year = current_year
+        # days_between = -1
+        if start_year != current_year:
+            first_day_current_year = current_date.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            current_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+            days_between = (current_day - first_day_current_year).days
+            if days_between == 0:
+                # Get last year because the 1st of January belongs in the last year file
+                last_day_last_year = first_day_current_year - datetime.timedelta(days=1)
+                filename_year = (last_day_last_year).strftime('%Y')
+                num_days_last_year = last_day_last_year.timetuple().tm_yday
+                # If last year was complete the idx needs to be set to the last idx of the previous file
+                if output_index > num_days_last_year:
+                    output_index = num_days_last_year - 1
+            else:
+                # Since the 1st day belongs to the last year file, the remaining days need to start on index 0...
+                output_index = days_between - 1
+            # output_index = days_between
+        netfile = Path(p.parent) / Path('{}_{}.nc'.format(p.name, filename_year) if not p.name.endswith('.nc') else p.name)
     # Used to pack variables into short
-    if flag == 0:
+    if output_index == 0 or not netfile.exists():
         nf1 = Dataset(netfile, 'w', format='NETCDF4_CLASSIC')
 
         # general Attributes
@@ -109,10 +137,10 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
             time = nf1.createVariable(time_variable, 'f4', (time_variable, ))
             time.standard_name = time_variable
             if output6hourly:
-                time.units = 'hours since %s' % startdate.strftime('%Y-%m-%d %H:%M:%S.0')
+                time.units = 'hours since %s' % start_date.strftime('%Y-%m-%d %H:%M:%S.0')
                 time.frequency = 6
             else:
-                time.units = 'days since %s' % startdate.strftime('%Y-%m-%d %H:%M:%S.0')
+                time.units = 'days since %s' % start_date.strftime('%Y-%m-%d %H:%M:%S.0')
                 time.frequency = 1
             time.calendar = 'proleptic_gregorian'
 
@@ -128,10 +156,10 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         # projection
         proj = None
         metadata_ncdf_projections = {
-            'laea' : 'laea',
-            'lambert_azimuthal_equal_area' : 'laea',
-             'wgs_1984' : 'wgs_1984',
-             'crs' : 'crs'
+            'laea': 'laea',
+            'lambert_azimuthal_equal_area': 'laea',
+            'wgs_1984': 'wgs_1984',
+            'crs': 'crs'
         }
         selected_proj_key = ''
         for proj_key in metadata_ncdf_projections:
@@ -143,7 +171,7 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
                 for i in metadata_ncdf[proj_key]:
                     setattr(proj, i, metadata_ncdf[proj_key][i])
 
-        value = nf1.createVariable(prefix, fillval, variable_dims, zlib=True, complevel=4, fill_value=nan_value)
+        value = nf1.createVariable(prefix, data_type, variable_dims, zlib=True, complevel=4, fill_value=nan_value)
 
         value.standard_name = value_standard_name
         value.long_name = value_long_name
@@ -201,12 +229,12 @@ def writenet(flag, inputmap, netfile, timestep, value_standard_name, value_long_
         if output6hourly:
             time_frequency = 6
             for i in range(4):
-                map_idx = flag * 4 + i
+                map_idx = output_index * 4 + i
                 nf1.variables[time_variable][map_idx] = (timestep * 4 - 4 + i) * time_frequency
                 nf1.variables[prefix][map_idx, :, :] = mapnp
         else:  # Generate daily output
-            nf1.variables[time_variable][flag] = timestep - 1
-            nf1.variables[prefix][flag, :, :] = mapnp
+            nf1.variables[time_variable][output_index] = timestep - 1
+            nf1.variables[prefix][output_index, :, :] = mapnp
     else:
         nf1.variables[prefix][:, :] = mapnp
     nf1.close()

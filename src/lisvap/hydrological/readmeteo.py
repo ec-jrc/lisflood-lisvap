@@ -31,7 +31,7 @@ class ReadMeteo(object):
     def __init__(self, readmeteo_variable):
         self.var = readmeteo_variable
         self.settings = self.var.settings
-        self.splitIO = self.settings.options['splitIO']
+        self.splitIO = self.settings.options['splitInput']
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------

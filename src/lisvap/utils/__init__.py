@@ -462,7 +462,6 @@ class TimeProfiler(with_metaclass(Singleton)):
 class FileNamesManager(with_metaclass(Singleton)):
 
     def __init__(self, unique_domain=''):
-        FileNamesManager.write_msg('INIT')
         # Dictionary of pairs (current_file_idx, [file1, file2, ...])
         self.input_files = {}
         self.domain = unique_domain

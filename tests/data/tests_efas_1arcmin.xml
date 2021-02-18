@@ -181,7 +181,8 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="repET0Maps" choice="1" />
         <setoption name="repTavgMaps" choice="0"/>
         <setoption name="output6hourly" choice="0"/>
-        <setoption name="splitIO" choice="0"/>
+        <setoption name="splitInput" choice="0"/>
+        <setoption name="splitOutput" choice="0"/>
 
         <setoption name="EFAS" choice="1" />
         <setoption name="GLOFAS" choice="0" />
