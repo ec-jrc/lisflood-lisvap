@@ -18,6 +18,7 @@ lisflood_lisvap.egg-info/
 !tests/data/tests_cordex.xml
 !/tests/data/tests_glofas.xml
 !tests/data/tests_efas_1arcmin.xml
+!tests/data/tests_efas_1arcmin_yearly.xml
 
 # unignoring reference and input data for tests
 !tests/data/reference/**/*.nc
