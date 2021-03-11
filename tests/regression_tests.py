@@ -50,6 +50,20 @@ class TestEFAS1arcmin(TestLis):
         return self.listest('et')
 
 
+class TestEFAS1arcminYearly(TestLis):
+    domain = 'efas_1arcmin_yearly'
+    settings_path = os.path.join(current_dir, 'data/tests_efas_1arcmin_yearly.xml')
+
+    def test_e0(self):
+        return self.listest('e0')
+
+    def test_es(self):
+        return self.listest('es')
+
+    def test_et(self):
+        return self.listest('et')
+
+
 class TestCORDEX(TestLis):
     domain = 'cordex'
     settings_path = os.path.join(current_dir, 'data/tests_cordex.xml')

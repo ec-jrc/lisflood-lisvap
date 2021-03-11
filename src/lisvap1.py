@@ -34,7 +34,7 @@ import datetime
 import sys
 
 from lisvap import __date__, __version__
-from lisvap.utils import LisSettings, TimeProfiler, usage
+from lisvap.utils import LisSettings, TimeProfiler, FileNamesManager, usage
 from lisvap.utils.tools import checkdate, DynamicFrame
 from lisvap.lisvapdynamic import LisvapModelDyn
 from lisvap.lisvapinitial import LisvapModelIni
@@ -84,6 +84,7 @@ def main():
         sys.exit(1)
     settingsxml = sys.argv[1]  # setting.xml file
     lissettings = LisSettings(settingsxml)
+    fileManager = FileNamesManager(lissettings.binding.get('PathOut'))
     # setting of global flag e.g checking input maps, producing more output information
     if not lissettings.flags['veryquiet'] and not lissettings.flags['quiet']:
         headerinfo()

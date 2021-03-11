@@ -30,7 +30,7 @@ src_dir = os.path.join(current_dir, '../src/')
 if os.path.exists(src_dir):
     sys.path.append(src_dir)
 
-from lisvap.utils import LisSettings, cdf_flags
+from lisvap.utils import LisSettings, FileNamesManager, cdf_flags
 from lisvap1 import lisvapexe
 from lisvap.utils.readers import readnetcdf, iter_open_netcdf
 
@@ -46,6 +46,11 @@ class TestLis(object):
             'e0': os.path.join(current_dir, 'data/reference/efas_1arcmin/e0_1_15'),
             'es': os.path.join(current_dir, 'data/reference/efas_1arcmin/es_1_15'),
             'et': os.path.join(current_dir, 'data/reference/efas_1arcmin/et_1_15'),
+        },
+        'efas_1arcmin_yearly': {
+            'e0': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly/e0'),
+            'es': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly/es'),
+            'et': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly/et'),
         },
         'cordex': {
             'e0': os.path.join(current_dir, 'data/reference/cordex/e0_1_15'),
@@ -67,6 +72,7 @@ class TestLis(object):
         print('\n\n================ Running {} tests ================\n\n'.format(cls.domain.upper()))
         settings = LisSettings(cls.settings_path)
         output_path = settings.binding['PathOut']
+        fileManager = FileNamesManager(output_path)
         for var in cls.reference_files:
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):

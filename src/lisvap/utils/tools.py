@@ -68,7 +68,7 @@ def take_closest(a_list, a_number):
     https://stackoverflow.com/questions/12141150/from-list-of-integers-get-number-closest-to-a-given-value
 
     :param a_list: list of ordered values
-    :param a_number: number to be searche in a_list
+    :param a_number: number to be searched in a_list
     :return: closest left number to a_number in a_list
     """
     pos = bisect_left(a_list, a_number)

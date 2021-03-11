@@ -19,16 +19,15 @@ try:
 except ImportError:
     from pcraster import operations
 
-from . import LisSettings, LisfloodError, MaskMapMetadata, CutMap
+from . import LisSettings, LisfloodError, MaskMapMetadata, CutMap, FileNamesManager
 from .tools import take_closest, calendar, checkmap
 
-# from memory_profiler import profile
 
 __DECIMAL_CASES = 20
 __DECIMAL_FORMAT = '{:.20f}'
 getcontext().prec = __DECIMAL_CASES
 
-# @profile
+
 def loadsetclone(name):
     """ Load 'MaskMap' and set as clone
 
@@ -80,12 +79,6 @@ def loadsetclone(name):
             xlast = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][-1]))
             ylast = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][-1]))
 
-#             try:
-#                 cellSizeX = Decimal(settings.binding['CellSizeX'])
-#                 cellSizeY = Decimal(settings.binding['CellSizeY'])
-#             except:
-#                 cellSizeX = abs(x2 - x1)
-#                 cellSizeY = abs(y2 - y1)
             cellSizeX = abs(x2 - x1)
             cellSizeY = abs(y2 - y1)
 
@@ -114,7 +107,6 @@ def loadsetclone(name):
     return res
 
 
-# @profile
 def loadmap(name):
     """
     :param name: Variable name as defined in XML settings or a filename of a netCDF or PCRaster map
@@ -143,7 +135,9 @@ def loadmap(name):
 
     if not load:
         # read a netcdf (single one not a stack)
-        filename = '{}.{}'.format(os.path.splitext(value)[0], 'nc')
+        # filename = '{}.{}'.format(os.path.splitext(value)[0], 'nc')
+        fileManager = FileNamesManager.instance()
+        filename = fileManager.get_file_name(name)
 
         # get mapextend of netcdf map
         # and calculate the cutting
@@ -176,8 +170,8 @@ def loadmap(name):
         checkmap(name, filename, res, flagmap, 0)
     return res
 
-# @profile
-def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, variable_name=None):
+
+def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, variable_name=None, variable_binding=None, splitIO=False):
     """ Read maps from netCDF stacks (forcings, fractions, water demand)
 
     Read maps from netCDF stacks (forcings, fractions, water demand).
@@ -194,11 +188,19 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     :param timestampflag: look for exact time stamp in netcdf file ('exact') or for the closest (left) time stamp available ('closest')
     :param averageyearflag: if True, use "average year" netcdf file over the entire model simulation period
     :param variable_name: if given, will select the variable from netcdf instead of guessing
+    :param variable_binding: Variable biding name in the settings file used to get the file name. E.g.: TMinMaps
     :returns: content of netCDF map for timestep "time" (mapC)
     :except: if current simulation timestep is not stored in the stack, it stops with error message (if timestampflag='exact')
     """
 
-    filename = '{}.nc'.format(name) if not name.endswith('nc') else name
+    name_parameter = name
+    if splitIO:
+        fileManager = FileNamesManager.instance()
+        filename = fileManager.get_file_name(variable_binding)
+        name_parameter = os.path.splitext(filename)[0]
+    else:
+        filename = '{}.nc'.format(name_parameter) if not name.endswith('nc') else name_parameter
+
     nf1 = iter_open_netcdf(filename, 'r')
     # read information from netCDF file
     # original code
@@ -213,7 +215,17 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
             raise LisfloodError('No 3 dimensions variable was found in mapstack {}'.format(filename))
         variable_name = targets[0]
 
-    current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep)
+    current_ncdf_index = -1
+    try:
+        current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO)
+    except LisfloodError:
+        if splitIO:
+            # 1. Read the next file
+            fileManager.next(variable_binding)
+            filename = fileManager.get_file_name(variable_binding)
+            name_parameter = os.path.splitext(filename)[0]
+            nf1 = iter_open_netcdf(filename, 'r')
+            current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep)
 
     cutmaps = CutMap.instance().slices
     mapnp = nf1.variables[variable_name][current_ncdf_index, cutmaps[0], cutmaps[1]]
@@ -223,14 +235,14 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
         nan_value = -9999999
     mapnp[np.isnan(mapnp)] = nan_value
     mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, nan_value)
-    timename = os.path.basename(name) + str(timestep)
+    timename = os.path.basename(name_parameter) + str(timestep)
     settings = LisSettings.instance()
     if settings.flags['checkfiles']:
         checkmap(timename, filename, mapnp, True, 1)
     return mapnp
 
-# @profile
-def netcdf_step(averageyearflag, nf1, timestampflag, timestep):
+
+def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):
     """
     Get netcdf step index based on timestep
     :param averageyearflag:
@@ -281,13 +293,15 @@ def netcdf_step(averageyearflag, nf1, timestampflag, timestep):
         elif timestampflag == 'closest':
             # CM: get the closest value
             current_ncdf_step_new = take_closest(t_steps, current_ncdf_step)
+            if splitIO and (current_ncdf_step - t_steps[-1]) > 0.5:
+                raise LisfloodError('End of available timesteps in the file')
             # CM: set current_ncdf_step to the closest available time step in netCDF file
             current_ncdf_step = current_ncdf_step_new
     # get index of timestep in netCDF file corresponding to current simulation date
     current_ncdf_index = np.where(t_steps == current_ncdf_step)[0][0]
     return current_ncdf_index
 
-# @profile
+
 def checknetcdf(name, start, end):
     """ Check available time steps in netCDF input file
 
@@ -352,14 +366,14 @@ def checknetcdf(name, start, end):
 
     return
 
-# @profile
+
 def iter_open_netcdf(file_path, mode, **kwargs):
     """Wrapper around netCDF4.Dataset function exploiting the iterAccess class to access file_path according to the specified mode"""
     def access_function(path):
         return Dataset(path, mode, **kwargs)
     return remote_input_access(access_function, file_path)
 
-# @profile
+
 def iter_read_pcraster(file_path):
     """Wrapper around pcraster.readmap function exploiting the iterAccess class to open file_path."""
     return remote_input_access(pcraster.readmap, file_path)
@@ -369,7 +383,7 @@ def iter_setclone_pcraster(file_path):
     """Wrapper around pcraster.setclone function exploiting the iterAccess class to access file_path."""
     return remote_input_access(pcraster.pcraster.setclone, file_path)
 
-# @profile
+
 def remote_input_access(function, file_path):
     """
     Wrapper around the provided file access function.
