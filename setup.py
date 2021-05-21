@@ -45,6 +45,8 @@ from shutil import rmtree
 
 from setuptools import setup, find_packages, Command
 
+from lisvap import __version__
+
 current_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(current_dir, './src/'))
 
@@ -52,11 +54,6 @@ readme_file = os.path.join(current_dir, 'README.md')
 
 with open(readme_file, 'r') as f:
     long_description = f.read()
-
-version_file = os.path.join(current_dir, 'VERSION')
-
-with open(version_file, 'r') as f:
-    version = f.read().strip()
 
 
 class UploadCommand(Command):
@@ -89,7 +86,7 @@ class UploadCommand(Command):
         os.system('twine upload dist/*')
 
         self.print_console('Pushing git tags...')
-        os.system('git tag v{0}'.format(version))
+        os.system('git tag v{0}'.format(__version__))
         os.system('git push --tags')
 
         sys.exit()
@@ -97,7 +94,7 @@ class UploadCommand(Command):
 
 setup(
     name='lisflood-lisvap',
-    version=version,
+    version=__version__,
     package_dir={'': 'src'},
     py_modules=[os.path.splitext(os.path.basename(path))[0] for path in glob('src/*.py')],
     include_package_data=True,
