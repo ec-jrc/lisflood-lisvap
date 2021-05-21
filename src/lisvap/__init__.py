@@ -1,4 +1,4 @@
-version = tuple(map(int, open('VERSION').read().strip().split('.')))
+version = version = (1, 0, 2)
 __authors__ = "Peter Burek, Johan van der Knijff, Ad de Roo"
 __version__ = '.'.join(list(map(str, version)))
 __date__ = "27/03/2020"
