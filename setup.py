@@ -45,10 +45,11 @@ from shutil import rmtree
 
 from setuptools import setup, find_packages, Command
 
-from lisvap import __version__
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(current_dir, './src/'))
+
+from lisvap import __version__
 
 readme_file = os.path.join(current_dir, 'README.md')
 
