@@ -95,7 +95,7 @@ def get_output_parameters(settings, netcdf_output_file, start_date, timestep, cu
     return prefix, netfile, output_index
 
 
-def set_time_dimension(netcdf_obj, time_variable_name, start_date, variable_dims, output6hourly=False):
+def set_time_dimension(settings, netcdf_obj, time_variable_name, start_date, variable_dims, output6hourly=False):
     netcdf_obj.createDimension(time_variable_name, None)
     dims = list(variable_dims)
     dims.append(time_variable_name)
@@ -109,12 +109,15 @@ def set_time_dimension(netcdf_obj, time_variable_name, start_date, variable_dims
     else:
         time.units = 'days since %s' % start_date.strftime('%Y-%m-%d %H:%M:%S.0')
         time.frequency = 1
-    time.calendar = 'proleptic_gregorian'
+    if 'internal.time.calendar' in settings.binding:
+        time.calendar = settings.binding['internal.time.calendar']
+    else:
+        time.calendar = 'proleptic_gregorian'
     return variable_dims
 
 
-def set_dimensions(netcdf_obj, metadata_ncdf, ncols, nrows, time_variable_name, start_date,
-                   output6hourly=False, flag_time=True):
+def set_dimensions(settings, netcdf_obj, metadata_ncdf, ncols, nrows, time_variable_name,
+                   start_date, output6hourly=False, flag_time=True):
     # Dimension
     spatial_dims = tuple([c for c in ('x', 'lon', 'y', 'lat') if c in metadata_ncdf])
     for dim_name, dim_size in zip(spatial_dims, [ncols, nrows]):
@@ -122,7 +125,8 @@ def set_dimensions(netcdf_obj, metadata_ncdf, ncols, nrows, time_variable_name, 
 
     variable_dims = spatial_dims
     if flag_time:
-        variable_dims = set_time_dimension(netcdf_obj, time_variable_name, start_date, variable_dims, output6hourly)
+        variable_dims = set_time_dimension(settings, netcdf_obj, time_variable_name, start_date,
+                                           variable_dims, output6hourly)
 
     reverse_spatial_dims = list(spatial_dims)
     reverse_spatial_dims.reverse()
@@ -194,7 +198,7 @@ def create_new_netcdf(settings, prefix, netfile, ncols, nrows, time_variable, st
 
     metadata_ncdf = NetcdfMetadata.instance()
 
-    spatial_dims, variable_dims = set_dimensions(nf1, metadata_ncdf, ncols, nrows, time_variable,
+    spatial_dims, variable_dims = set_dimensions(settings, nf1, metadata_ncdf, ncols, nrows, time_variable,
                                                  start_date, output6hourly, flag_time)
 
     proj, selected_proj_key = set_projection(nf1, metadata_ncdf)

@@ -1,6 +1,7 @@
 cython
 netCDF4
 numpy
+pyproj
 
 python-dateutil
 docopt

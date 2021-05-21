@@ -80,6 +80,30 @@ def take_closest(a_list, a_number):
     return before
 
 
+def get_calendar_configuration(netcdf_file_obj, settings=None):
+    """
+    Retrieves the units and calendar type from a netcdf file
+
+    :param: netcdf_file_obj: netCDF file object
+    :param: settings: Internal settings dictionary containing the system configurations.
+            If provided it will setup/bind 'internal.time.unit' and 'internal.time.calendar'
+            with the corresponding values in case they are not set yet
+    :default: u'hours since 2015-01-01 06:00:00', u'gregorian'
+    :returns: unit, calendar
+    """
+    try:
+        t_unit = netcdf_file_obj.variables['time'].units  # get unit (u'hours since 2015-01-01 06:00:00')
+        t_cal = netcdf_file_obj.variables['time'].calendar  # get calendar from netCDF file
+    except AttributeError:  # Attribute does not exist
+        t_unit = u'hours since 1990-01-01 06:00:00'
+        t_cal = u'gregorian'  # Use standard calendar
+    if settings is not None and not ('internal.time.unit' in settings.binding and
+                                     'internal.time.calendar' in settings.binding):
+        settings.binding['internal.time.unit'] = t_unit
+        settings.binding['internal.time.calendar'] = t_cal
+    return t_unit, t_cal
+
+
 def calendar(date_or_ts):
     """ Get date or number of steps from input.
 
