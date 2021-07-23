@@ -264,7 +264,8 @@ def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):
     # get date of current simulation step
     current_date = calendar(timestep)
     if not isinstance(current_date, datetime.datetime):
-        current_date = begin + datetime.timedelta(days=(current_date - 1) * DtDay)
+        current_date_number = date2num(begin, units=t_unit, calendar=t_cal) + ((current_date - 1) * DtDay)
+        current_date = num2date(current_date_number, t_unit, t_cal)
     # if reading from an average year NetCDF stack, ignore the year in current simulation date and change it to the netCDF time unit year
     if averageyearflag:
         # CM: get year from time unit in case average year is used
