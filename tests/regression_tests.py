@@ -65,7 +65,7 @@ class TestEFAS1arcminYearly(TestLis):
 
 
 class TestEFAS1arcmin360DaysCalendar(TestLis):
-    domain = 'efas_1arcmin'
+    domain = 'efas_1arcmin_360days_calendar'
     settings_path = os.path.join(current_dir, 'data/tests_efas_1arcmin_360days_calendar.xml')
 
     def test_e0(self):
