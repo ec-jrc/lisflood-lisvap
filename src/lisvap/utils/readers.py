@@ -20,7 +20,7 @@ except ImportError:
     from pcraster import operations
 
 from . import LisSettings, LisfloodError, MaskMapMetadata, CutMap, FileNamesManager
-from .tools import take_closest, calendar, checkmap
+from .tools import take_closest, calendar, checkmap, get_calendar_configuration
 
 
 __DECIMAL_CASES = 20
@@ -255,12 +255,8 @@ def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):
     :rtype: int
     """
     t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
-    t_unit = nf1.variables['time'].units  # get unit (u'hours since 2015-01-01 06:00:00')
-    try:
-        t_cal = nf1.variables['time'].calendar  # get calendar from netCDF file
-    except AttributeError:  # Attribute does not exist
-        t_cal = u'gregorian'  # Use standard calendar
     settings = LisSettings.instance()
+    t_unit, t_cal = get_calendar_configuration(nf1, settings)
     begin = calendar(settings.binding['CalendarDayStart'])
     DtSec = float(settings.binding['DtSec'])
     DtDay = float(DtSec / 86400)
@@ -268,7 +264,8 @@ def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):
     # get date of current simulation step
     current_date = calendar(timestep)
     if not isinstance(current_date, datetime.datetime):
-        current_date = begin + datetime.timedelta(days=(current_date - 1) * DtDay)
+        current_date_number = date2num(begin, units=t_unit, calendar=t_cal) + ((current_date - 1) * DtDay)
+        current_date = num2date(current_date_number, t_unit, t_cal)
     # if reading from an average year NetCDF stack, ignore the year in current simulation date and change it to the netCDF time unit year
     if averageyearflag:
         # CM: get year from time unit in case average year is used
@@ -321,11 +318,7 @@ def checknetcdf(name, start, end):
 
     # read information from netCDF file
     t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
-    t_unit = nf1.variables['time'].units  # get unit (u'hours since 2015-01-01 06:00:00')
-    try:
-        t_cal = nf1.variables['time'].calendar  # get calendar from netCDF file
-    except AttributeError:  # Attribute does not exist
-        t_cal = u'gregorian'  # Use standard calendar
+    t_unit, t_cal = get_calendar_configuration(nf1)
 
     # get date of first available timestep in netcdf file
     date_first_step_in_ncdf = num2date(t_steps[0], units=t_unit, calendar=t_cal)

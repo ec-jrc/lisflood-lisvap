@@ -52,6 +52,11 @@ class TestLis(object):
             'es': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly/es'),
             'et': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly/et'),
         },
+        'efas_1arcmin_360days_calendar': {
+            'e0': os.path.join(current_dir, 'data/reference/efas_1arcmin_360days_calendar/e0_1_15'),
+            'es': os.path.join(current_dir, 'data/reference/efas_1arcmin_360days_calendar/es_1_15'),
+            'et': os.path.join(current_dir, 'data/reference/efas_1arcmin_360days_calendar/et_1_15'),
+        },
         'cordex': {
             'e0': os.path.join(current_dir, 'data/reference/cordex/e0_1_15'),
             'et': os.path.join(current_dir, 'data/reference/cordex/et_1_15'),
