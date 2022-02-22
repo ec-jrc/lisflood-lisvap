@@ -25,12 +25,12 @@ In order to run LISVAP using a Docker container, you need to map the folders usi
 Then, the corresponding Docker command (in Linux) to run the LISVAP container, given mysettings.xml is in current folder, will be:
 
 ```bash
-docker pull efas/lisvap:latest
-docker run -v $(pwd)/:/tmp -v /DATA/Meteo/EMA:/input -v /DATA/Lisvap/out:/output efas/lisvap:latest /tmp/mysettings.xml -v -t
+docker pull jrce1/lisvap:latest
+docker run -v $(pwd)/:/tmp -v /DATA/Meteo/EMA:/input -v /DATA/Lisvap/out:/output jrce1/lisvap:latest /tmp/mysettings.xml -v -t
 ```
 
 Note that in the above command we added two options (arguments) at the end. You can find the whole list of available options in the usage dialogue below.
-You can print the usage dialogue by typing `docker run efas/lisvap:latest`, which is the equivalent to calling LISVAP without any arguments.
+You can print the usage dialogue by typing `docker run jrce1/lisvap:latest`, which is the equivalent to calling LISVAP without any arguments.
 
  ```console
 LisvapPy - Lisvap (Global) using pcraster Python framework

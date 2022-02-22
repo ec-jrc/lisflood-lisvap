@@ -38,9 +38,9 @@ You send commands to Docker via its CLI so you need a terminal.
 #### c. Pull the LISVAP image
 Execute the following command in the terminal:
 
-`docker pull efas/lisvap:latest`
+`docker pull jrce1/lisvap:latest`
 
-Now you have the `efas/lisvap` docker image ready to run on your computer.
+Now you have the `jrce1/lisvap` docker image ready to run on your computer.
 
 ## Option 2. Install LISVAP python module using pip tool
 

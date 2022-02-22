@@ -15,7 +15,7 @@ You can easily get that data from the Docker container or just by cloning the re
 For example, to copy those files from Docker image to your host (e.g. in the folder /local/folder/lisvap/input)
 
 ```bash
-docker run -v /local/folder/lisvap/input:/input efas/lisvap:latest usecases
+docker run -v /local/folder/lisvap/input:/input jrce1/lisvap:latest usecases
 ```
 
 Then you will receive:
@@ -87,7 +87,7 @@ As the paths definition depends on the execution environment (i.e. Docker or loc
 **From Docker**
 
 ```bash
-docker run -v /:/tmp -v /local/folder/lisvap/input:/input -v /local/folder/lisvap/output:/output efas/lisvap:latest /input/test_efas.xml -v -t
+docker run -v /:/tmp -v /local/folder/lisvap/input:/input -v /local/folder/lisvap/output:/output jrce1/lisvap:latest /input/test_efas.xml -v -t
 ```
 
 **From source code**
