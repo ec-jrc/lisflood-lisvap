@@ -4,7 +4,7 @@ TimeSeries = namedtuple('TimeSeries', 'name, output_var, where, repoption, restr
 ReportedMap = namedtuple('ReportedMap', 'name, output_var, unit, end, steps, all, restrictoption, standard_name, scale_factor, add_offset, value_min, value_max')
 
 defaults = {
-    'useTavg': False,
+    'useTAvg': False,
     'readNetcdfStack': False, 'writeNetcdfStack': False, 'writeNetcdf': False,
     'repAvTimeseries': False,
     'repET0Maps': False, 'repES0Maps': False, 'repE0Maps': True, 'repTAvgMaps': False,

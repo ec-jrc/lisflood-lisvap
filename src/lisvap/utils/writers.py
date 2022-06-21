@@ -30,6 +30,7 @@ from decimal import *
 
 from . import CutMap, NetcdfMetadata, LisSettings
 from pyproj import proj
+from ..__init__ import __version__ as lisvap_version
 # from scprep.run.splatter import SplatSimulate
 # from audioop import reverse
 
@@ -104,7 +105,9 @@ def set_time_dimension(settings, netcdf_obj, time_variable_name, start_date, var
     time = netcdf_obj.createVariable(time_variable_name, 'f4', (time_variable_name, ))
     time.standard_name = time_variable_name
     if output6hourly:
-        time.units = 'hours since %s' % start_date.strftime('%Y-%m-%d %H:%M:%S.0')
+        # start date=day2_06:00 ; start_date_6hourly=day1_12:00
+        start_date_6hourly = start_date - datetime.timedelta(hours=18)
+        time.units = 'hours since %s' % start_date_6hourly.strftime('%Y-%m-%d %H:%M:%S.0')
         time.frequency = 6
     else:
         time.units = 'days since %s' % start_date.strftime('%Y-%m-%d %H:%M:%S.0')
@@ -193,7 +196,7 @@ def create_new_netcdf(settings, prefix, netfile, ncols, nrows, time_variable, st
     # general Attributes
     nf1.history = 'Created ' + xtime.ctime(xtime.time())
     nf1.Conventions = 'CF-1.6'
-    nf1.Source_Software = 'Lisvap'
+    nf1.Source_Software = 'Lisvap v' + lisvap_version
     nf1.source = 'Lisvap output maps'
 
     metadata_ncdf = NetcdfMetadata.instance()

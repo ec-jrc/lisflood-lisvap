@@ -48,7 +48,7 @@ class ReadMeteo(object):
             if self.settings.options['CORDEX']:
                 self.var.TMin = readnetcdf(self.settings.binding['TMinMaps'], self.var.currentTimeStep(), variable_binding='TMinMaps', splitIO=self.splitIO)
                 self.var.TMax = readnetcdf(self.settings.binding['TMaxMaps'], self.var.currentTimeStep(), variable_binding='TMaxMaps', splitIO=self.splitIO)
-                if self.settings.options['useTavg']:
+                if self.settings.options['useTAvg']:
                     self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep(), variable_binding='TAvgMaps', splitIO=self.splitIO)
                 else:
                     self.var.TAvg = 0.5 * (self.var.TMin + self.var.TMax)
@@ -74,9 +74,9 @@ class ReadMeteo(object):
                 # Maximum daily temperature (C)
                 self.var.TMax = readnetcdf(self.settings.binding['TMaxMaps'], self.var.currentTimeStep(), variable_binding='TMaxMaps', splitIO=self.splitIO)
 
-                # FIXME do we need to use option['useTavg'] also here as it is in CORDEX run?
+                # FIXME do we need to use option['useTAvg'] also here as it is in CORDEX run?
                 # Average daily temperature (C)
-                if self.settings.options['useTavg']:
+                if self.settings.options['useTAvg']:
                     self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep(), variable_binding='TAvgMaps', splitIO=self.splitIO)
                 else:
                     self.var.TAvg = 0.5 * (self.var.TMin + self.var.TMax)
