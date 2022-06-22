@@ -116,6 +116,9 @@ class LisSettings(with_metaclass(Singleton)):
         self.report_timeseries = self._report_tss()
         self.report_maps_steps, self.report_maps_all, self.report_maps_end = self._reported_maps()
 
+    def get_option(self, option_key=''):
+        return self.options[option_key.lower()]
+
     def get_binding(self, dom):
         binding = {}
 
@@ -167,12 +170,12 @@ report_maps_end: {report_maps_end}
     def _set_active_options(self, obj, reported, report_options, restricted_options):
         key = obj.name
         for rep in report_options:
-            if self.options.get(rep):
+            if self.get_option(rep):
                 # option is set so temporarily allow = True
                 allow = True
                 # checking that restricted_options are not set
                 for ro in restricted_options:
-                    if ro in self.options and not self.options[ro]:
+                    if ro.lower() in self.options and not self.options[ro.lower()]:
                         allow = False
                         break
                 if allow:
@@ -199,7 +202,7 @@ report_maps_end: {report_maps_end}
     def _report_tss(self):
         report_time_series_act = {}
         # running through all times series
-        timeseries = self.options['timeseries']
+        timeseries = self.get_option('timeseries')
         for ts in timeseries:
             rep_opt = ts.repoption.split(',') if ts.repoption else []
             rest_opt = ts.restrictoption.split(',') if ts.restrictoption else []
@@ -214,7 +217,7 @@ report_maps_end: {report_maps_end}
         report_maps_end = {}
 
         # running through all maps
-        reportedmaps = self.options['reportedmaps']
+        reportedmaps = self.get_option('reportedmaps')
         for rm in reportedmaps:
             rep_opt_all = rm.all.split(',') if rm.all else []
             rep_opt_steps = rm.steps.split(',') if rm.steps else []
@@ -266,7 +269,7 @@ report_maps_end: {report_maps_end}
         lfoptions_elem = dom.getElementsByTagName("lfoptions")[0]
         option_setting = {}
         for optset in lfoptions_elem.getElementsByTagName("setoption"):
-            option_setting[optset.attributes['name'].value] = bool(int(optset.attributes['choice'].value))
+            option_setting[str(optset.attributes['name'].value).lower()] = bool(int(optset.attributes['choice'].value))
 
         options.update(option_setting)
         return options

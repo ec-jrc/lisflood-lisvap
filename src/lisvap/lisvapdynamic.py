@@ -84,7 +84,7 @@ class LisvapModelDyn(DynamicModel):
         """ Here it starts with meteorological modules:
         """
 
-        if settings.options['EFAS']:
+        if settings.get_option('EFAS'):
             # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
             # the formula above returns value in pascal, not mbar
             # Goudriaan equation (1977)
@@ -208,7 +208,7 @@ class LisvapModelDyn(DynamicModel):
             Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
 
             # slope of saturated vapour pressure curve [mbar/deg C]
-        elif settings.options['GLOFAS']:
+        elif settings.get_option('GLOFAS'):
             EAct = 6.10588 * exp((17.32491 * self.Tdew) / (self.Tdew + 238.102))
             # the formula above returns value in pascal, not mbar
             # Goudriaan equation (1977)
@@ -265,7 +265,7 @@ class LisvapModelDyn(DynamicModel):
 
             # slope of saturated vapour pressure curve [mbar/deg C]
 
-        elif settings.options['CORDEX']:
+        elif settings.get_option('CORDEX'):
 
             Windspeed2 = self.Wind  # already multiplied by 0.749 in module readmeteo
 
