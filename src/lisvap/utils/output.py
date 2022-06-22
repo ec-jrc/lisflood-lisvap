@@ -112,7 +112,7 @@ class OutputTssMap(object):
                     # suffix
                     head, tail = os.path.split(where)
                     if '.' in tail:
-                        if self.settings.options['writeNetcdf']:
+                        if self.settings.get_option('writeNetcdf'):
                             writenet(0, what, where, self.var.currentTimeStep(),
                                      self.settings.report_maps_end[maps].standard_name,
                                      self.settings.report_maps_end[maps].output_var,
@@ -125,7 +125,7 @@ class OutputTssMap(object):
                         else:
                             report(what, where)
                     else:
-                        if self.settings.options['writeNetcdfStack']:
+                        if self.settings.get_option('writeNetcdfStack'):
                             writenet(0, what, where, self.var.currentTimeStep(),
                                      self.settings.report_maps_steps[maps].standard_name,
                                      self.settings.report_maps_steps[maps].output_var,
@@ -145,7 +145,7 @@ class OutputTssMap(object):
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
                 if self.var.currentTimeStep() in self.var.ReportSteps:
-                    if self.settings.options['writeNetcdfStack']:
+                    if self.settings.get_option('writeNetcdfStack'):
                         writenet(cdf_flags['steps'], what, where,
                                  self.var.currentTimeStep(),
                                  self.settings.report_maps_steps[maps].standard_name,
@@ -168,7 +168,7 @@ class OutputTssMap(object):
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
 
-                if self.settings.options['writeNetcdfStack']:
+                if self.settings.get_option('writeNetcdfStack'):
                     writenet(cdf_flags['all'], what, where,
                              self.var.currentTimeStep(),
                              self.settings.report_maps_all[maps].standard_name,

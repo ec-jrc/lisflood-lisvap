@@ -68,7 +68,7 @@ def get_output_parameters(settings, netcdf_output_file, start_date, timestep, cu
     p = Path(netcdf_output_file)
     netfile = Path(p.parent) / Path('{}.nc'.format(p.name) if not p.name.endswith('.nc') else p.name)
     prefix = os.path.splitext(netfile.name)[0]
-    splitIO = settings.options['splitOutput']
+    splitIO = settings.get_option('splitOutput')
     if splitIO:
         start_year = start_date.strftime('%Y')
         current_date = start_date + datetime.timedelta(days=timestep-1)
@@ -255,7 +255,7 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
     settings = LisSettings.instance()
 
     time_variable = 'time'
-    output6hourly = settings.options['output6hourly']
+    output6hourly = settings.get_option('output6hourly')
     prefix, netfile, output_index = get_output_parameters(settings, netcdf_output_file, start_date,
                                                           timestep, current_output_index)
 

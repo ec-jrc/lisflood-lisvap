@@ -31,7 +31,7 @@ class ReadMeteo(object):
     def __init__(self, readmeteo_variable):
         self.var = readmeteo_variable
         self.settings = self.var.settings
-        self.splitIO = self.settings.options['splitInput']
+        self.splitIO = self.settings.get_option('splitInput')
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
@@ -43,12 +43,12 @@ class ReadMeteo(object):
         # ************************************************************
         # ***** READ METEOROLOGICAL DATA *****************************
         # ************************************************************
-        if self.settings.options['readNetcdfStack']:
+        if self.settings.get_option('readNetcdfStack'):
 
-            if self.settings.options['CORDEX']:
+            if self.settings.get_option('CORDEX'):
                 self.var.TMin = readnetcdf(self.settings.binding['TMinMaps'], self.var.currentTimeStep(), variable_binding='TMinMaps', splitIO=self.splitIO)
                 self.var.TMax = readnetcdf(self.settings.binding['TMaxMaps'], self.var.currentTimeStep(), variable_binding='TMaxMaps', splitIO=self.splitIO)
-                if self.settings.options['useTAvg']:
+                if self.settings.get_option('useTAvg'):
                     self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep(), variable_binding='TAvgMaps', splitIO=self.splitIO)
                 else:
                     self.var.TAvg = 0.5 * (self.var.TMin + self.var.TMax)
@@ -67,7 +67,7 @@ class ReadMeteo(object):
                 self.var.Rul = readnetcdf(self.settings.binding['RulMaps'], self.var.currentTimeStep(), variable_binding='RulMaps', splitIO=self.splitIO)
                 # upward long wave radiation [W/m2]
 
-            elif self.settings.options['EFAS']:
+            elif self.settings.get_option('EFAS'):
 
                 # Minimum daily temperature (C)
                 self.var.TMin = readnetcdf(self.settings.binding['TMinMaps'], self.var.currentTimeStep(), variable_binding='TMinMaps', splitIO=self.splitIO)
@@ -76,7 +76,7 @@ class ReadMeteo(object):
 
                 # FIXME do we need to use option['useTAvg'] also here as it is in CORDEX run?
                 # Average daily temperature (C)
-                if self.settings.options['useTAvg']:
+                if self.settings.get_option('useTAvg'):
                     self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep(), variable_binding='TAvgMaps', splitIO=self.splitIO)
                 else:
                     self.var.TAvg = 0.5 * (self.var.TMin + self.var.TMax)
@@ -95,7 +95,7 @@ class ReadMeteo(object):
                 # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
                 # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
 
-            elif self.settings.options['GLOFAS']:
+            elif self.settings.get_option('GLOFAS'):
                 # set of forcings (rg, rn, ta, td, wu, wv)
 
                 self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep(), variable_binding='TAvgMaps', splitIO=self.splitIO)
@@ -118,15 +118,15 @@ class ReadMeteo(object):
                 # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
                 # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
 
-        if self.settings.options['TemperatureInKelvinFlag']:  # self.var.TemperatureInKelvinFlag:
+        if self.settings.get_option('TemperatureInKelvinFlag'):
             self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
             self.var.TMin = self.var.TMin - self.var.ZeroKelvin
             self.var.TMax = self.var.TMax - self.var.ZeroKelvin
 
-        if not self.settings.options['GLOFAS']:
+        if not self.settings.get_option('GLOFAS'):
             self.var.DeltaT = maximum(self.var.TMax - self.var.TMin, scalar(0.0))
 
-        if self.settings.options['CORDEX']:
+        if self.settings.get_option('CORDEX'):
             self.var.Rds = self.var.Rds * 86400
             self.var.Rdl = self.var.Rdl * 86400
             self.var.Rus = self.var.Rus * 86400

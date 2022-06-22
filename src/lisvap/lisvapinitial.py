@@ -57,12 +57,12 @@ class LisvapModelIni(DynamicModel):
         elif self.settings.binding.get('TDewMaps'):
             map_for_metadata = fileManager.get_file_name('TDewMaps')
 
-        if self.settings.options['readNetcdfStack']:
+        if self.settings.get_option('readNetcdfStack'):
             # CutMap defines the extent to read from input netcdf data (cropping)
 
             CutMap.register(map_for_metadata)
 
-        if self.settings.options['writeNetcdfStack'] or self.settings.options['writeNetcdf']:
+        if self.settings.get_option('writeNetcdfStack') or self.settings.get_option('writeNetcdf'):
             # if NetCDF is written, the pr.nc is read to get the metadata
             # like projection
             NetcdfMetadata.register(map_for_metadata)
