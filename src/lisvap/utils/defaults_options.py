@@ -4,9 +4,9 @@ TimeSeries = namedtuple('TimeSeries', 'name, output_var, where, repoption, restr
 ReportedMap = namedtuple('ReportedMap', 'name, output_var, unit, end, steps, all, restrictoption, standard_name, scale_factor, add_offset, value_min, value_max')
 
 defaults = {
-    'usetavg': False,
+    'usetavg': False, 'usetdewmaps': False, 'usewinduvmaps': False,
     'readnetcdfstack': False, 'writenetcdfstack': False, 'writenetcdf': False,
-    'repavtimeseries': False,
+    'repavtimeseries': False, 'temperatureinkelvinflag': False,
     'repet0maps': False, 'repes0maps': False, 'repe0maps': True, 'reptavgmaps': False,
     'efas': True, 'cordex': False, 'glofas': False, 'output6hourly': False, 'splitinput': False, 'splitoutput': False,
     'timeseries': [
