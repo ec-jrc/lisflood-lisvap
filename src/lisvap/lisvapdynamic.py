@@ -44,6 +44,55 @@ class LisvapModelDyn(DynamicModel):
         self.ESRef = None
         self.EWRef = None
 
+    def angot_radiation(self):
+        """
+        ANGOT RADIATION
+        """
+
+        # solar declination [degrees]
+        declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
+        # solar constant at top of the atmosphere [J/m2/s]
+        solar_constant = self.AvSolarConst * (1 + (0.033 * cos(2 * self.Pi * self.calendar_day / 365.)))
+        tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat)) / (cos(declin) * cos(self.Lat))
+        tmp2 = ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
+        # daylength [hour]
+        day_length = 12. + (24. / 180.) * tmp2
+        # Daylength equation can produce MV at high latitudes, this statements sets day length to 0 in that case  
+        day_length = cover(day_length, 0.0)
+        # integral of solar height [s] over the day
+        int_solar_height = 3600. * (day_length * sin(declin) * sin(self.Lat) + (24. / self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
+        # Integral of solar height cannot be negative, so truncate at 0
+        int_solar_height = maximum(int_solar_height, 0.0)
+        int_solar_height = cover(int_solar_height, 0.0)
+        # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
+        RadiationAngot = int_solar_height * solar_constant
+        return RadiationAngot
+
+    def net_absorbed_radiation(self, solar_radiation, radiation_angot):
+        """
+        Net absorbed radiation is calculated for three reference surfaces:
+
+        1. Reference vegetation canopy
+        2. Bare soil surface
+        3. Open water surface
+
+        Rnl (Maidment, 1993)
+        Rnl = f * sigma * epsilon
+        Rnl = AdjCC *stefBoltz*EmNet
+        """
+
+        EmNet = (0.56 - 0.079 * sqrt(self.EAct))
+        Rso = radiation_angot * (0.75 + (2 * 10 ** -5 * self.Dem))
+        TransAtm_Allen = solar_radiation / Rso
+        TransAtm_Allen = cover(TransAtm_Allen, 0)
+        AdjCC = 1.8 * TransAtm_Allen - 0.35
+        AdjCC = ifthenelse(AdjCC < 0, 0.05, AdjCC)
+        AdjCC = ifthenelse(AdjCC > 1, 1, AdjCC)
+
+        # Net emissivity
+        RN = self.StefBolt * ((self.TAvg + 273)**4) * EmNet * AdjCC
+        return RN
+
     # =========== DYNAMIC ====================================================
 
     def dynamic(self):
@@ -117,75 +166,26 @@ class LisvapModelDyn(DynamicModel):
         # evaporative demand of water surface [mm/d]
         EAWater = 0.26 * VapPressDef * (self.FactorWater + BU * self.Wind)
 
+        # latent heat of vaporization [MJ/kg]
+        # TAvg in Celsius
+        # Note: Mega Joule (10^6)
+        # source: STOWA 2010-37 p.9 eq 5.
+        LatHeatVap = 2.501 - 0.002361 * self.TAvg
+
         if settings.get_option('GLOFAS'):
-            # latent heat of vaporization [MJ/kg]
-            # TAvg in Celsius
-            # Note: Mega Joule (10^6)
-            # source: STOWA 2010-37 p.9 eq 5.
-            LatHeatVap = 2.501 - 0.002361 * self.TAvg
             RG = self.Rgd
             RN = self.Rnl
         else:
             if settings.get_option('EFAS'):
-                # latent heat of vaporization [MJ/kg]
-                # TAvg in Celsius
-                # Note: Mega Joule (10^6)
-                # source: STOWA 2010-37 p.9 eq 5.
-                # LatHeatVap = (2501 - 2.375 * self.TAvg) / 1000
-                LatHeatVap = 2.501 - 0.002375 * self.TAvg
+                # The equation bellow was apparently introduced by mistake in the 1st commit on github
+                # See JIRA issue: https://efascom.smhi.se/jira/browse/JRC-5431
+                # LatHeatVap = 2.501 - 0.002375 * self.TAvg
                 RG = self.Rgd
             elif settings.get_option('CORDEX'):
-                # latent heat of vaporization [MJ/kg]
-                LatHeatVap = 2.501 - 0.002361 * self.TAvg
                 RG = self.Rds
 
-            # ************************************************************
-            # ***** ANGOT RADIATION **************************************
-            # ************************************************************
-
-            # solar declination [degrees]
-            declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
-            # solar constant at top of the atmosphere [J/m2/s]
-            solar_constant = self.AvSolarConst * (1 + (0.033 * cos(2 * self.Pi * self.calendar_day / 365.)))
-            tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat)) / (cos(declin) * cos(self.Lat))
-            tmp2 = ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
-            # daylength [hour]
-            day_length = 12. + (24. / 180.) * tmp2
-            # Daylength equation can produce MV at high latitudes, this statements sets day length to 0 in that case  
-            day_length = cover(day_length, 0.0)
-            # integral of solar height [s] over the day
-            int_solar_height = 3600. * (day_length * sin(declin) * sin(self.Lat) + (24. / self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
-            # Integral of solar height cannot be negative, so truncate at 0
-            int_solar_height = maximum(int_solar_height, 0.0)
-            int_solar_height = cover(int_solar_height, 0.0)
-            # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
-            RadiationAngot = int_solar_height * solar_constant
-
-            # ************************************************************
-            # ***** NET ABSORBED RADIATION *******************************
-            # ************************************************************
-
-            # Net absorbed radiation is calculated for three reference surfaces:
-            #
-            # 1. Reference vegetation canopy
-            # 2. Bare soil surface
-            # 3. Open water surface
-
-            # Rnl (Maidment, 1993)
-            # Rnl = f * sigma * epsilon
-            # Rnl = AdjCC *stefBoltz*EmNet
-
-            EmNet = (0.56 - 0.079 * sqrt(self.EAct))
-            Rso = RadiationAngot * (0.75 + (2 * 10 ** -5 * self.Dem))
-            TransAtm_Allen = RG / Rso
-            TransAtm_Allen = cover(TransAtm_Allen, 0)
-            AdjCC = 1.8 * TransAtm_Allen - 0.35
-            AdjCC = ifthenelse(AdjCC < 0, 0.05, AdjCC)
-            AdjCC = ifthenelse(AdjCC > 1, 1, AdjCC)
-
-            # Net emissivity
-            RN = self.StefBolt * ((self.TAvg + 273)**4) * EmNet * AdjCC
-
+            radiation_angot = self.angot_radiation()
+            RN = self.net_absorbed_radiation(RG, radiation_angot)
 
         # psychrometric constant at sea level [mbar/deg C]
         # Corrected constant, was wrong originally
@@ -214,12 +214,13 @@ class LisvapModelDyn(DynamicModel):
         # 1. Reference vegetation canopy
         # 2. Bare soil surface
         # 3. Open water surface
-        self.ETRef = ((Delta * RNA) + (Psychro * EA)) / (Delta + Psychro)
+
         # potential reference evapotranspiration rate [mm/day]
-        self.ESRef = ((Delta * RNASoil) + (Psychro * EASoil)) / (Delta + Psychro)
+        self.ETRef = ((Delta * RNA) + (Psychro * EA)) / (Delta + Psychro)
         # potential evaporation rate from a bare soil surface [mm/day]
-        self.EWRef = ((Delta * RNAWater) + (Psychro * EAWater)) / (Delta + Psychro)
+        self.ESRef = ((Delta * RNASoil) + (Psychro * EASoil)) / (Delta + Psychro)
         # potential evaporation rate from water surface [mm/day]
+        self.EWRef = ((Delta * RNAWater) + (Psychro * EAWater)) / (Delta + Psychro)
 
         # ************************************************************
         # ***** WRITING RESULTS: TIME SERIES AND MAPS ****************
