@@ -153,18 +153,12 @@ class LisvapModelDyn(DynamicModel):
 
         # difference between daily maximum and minimum temperature [deg C]
         DeltaT = 0
-        # empirical constant in windspeed formula
-        # if DeltaT is less than 12 degrees, BU=0.54
-        # BU = operations.max(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
-        BU = 0.54
         if not settings.get_option('useTAvg'):
             # difference between daily maximum and minimum temperature [deg C]
-            # DeltaT = operations.max(self.TMax - self.TMin, 0.0)
             DeltaT = maximum(self.TMax - self.TMin, 0.0)
-            # empirical constant in windspeed formula
-            # if DeltaT is less than 12 degrees, BU=0.54
-            # BU = operations.max(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
-            BU = maximum(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
+        # empirical constant in windspeed formula
+        # if DeltaT is less than 12 degrees, BU=0.54
+        BU = maximum(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
 
         # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
         # the formula above returns value in pascal, not mbar
