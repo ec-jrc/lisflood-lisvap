@@ -44,6 +44,24 @@ class LisvapModelDyn(DynamicModel):
         self.ESRef = None
         self.EWRef = None
 
+    def latent_heat_vaporization(self, use_fao_formula=True):
+        """
+        latent heat of vaporization [MJ/kg]
+        TAvg in Celsius
+        Note: Mega Joule (10^6)
+        use FAO formula Ref: Harrison (1963)
+        else use STOWA formula Ref: STOWA 2010-37 p.9 eq 5.
+        """
+        if use_fao_formula:
+            # https://www.fao.org/3/X0490E/x0490e0k.htm
+            # Reference: Harrison (1963)
+            LatHeatVap = 2.501 - 0.002361 * self.TAvg
+        else:
+            # source: STOWA 2010-37 p.9 eq 5.
+            # See JIRA issue: https://efascom.smhi.se/jira/browse/JRC-5431
+            LatHeatVap = 2.501 - 0.002375 * self.TAvg
+        return LatHeatVap
+
     def angot_radiation(self):
         """
         ANGOT RADIATION
@@ -166,23 +184,17 @@ class LisvapModelDyn(DynamicModel):
         # evaporative demand of water surface [mm/d]
         EAWater = 0.26 * VapPressDef * (self.FactorWater + BU * self.Wind)
 
-        # latent heat of vaporization [MJ/kg]
-        # TAvg in Celsius
-        # Note: Mega Joule (10^6)
-        # source: STOWA 2010-37 p.9 eq 5.
-        LatHeatVap = 2.501 - 0.002361 * self.TAvg
-
         if settings.get_option('GLOFAS'):
             RG = self.Rgd
             RN = self.Rnl
+            LatHeatVap = self.latent_heat_vaporization(use_fao_formula=True)
         else:
             if settings.get_option('EFAS'):
-                # The equation bellow was apparently introduced by mistake in the 1st commit on github
-                # See JIRA issue: https://efascom.smhi.se/jira/browse/JRC-5431
-                # LatHeatVap = 2.501 - 0.002375 * self.TAvg
                 RG = self.Rgd
+                LatHeatVap = self.latent_heat_vaporization(use_fao_formula=False)
             elif settings.get_option('CORDEX'):
                 RG = self.Rds
+                LatHeatVap = self.latent_heat_vaporization(use_fao_formula=True)
 
             radiation_angot = self.angot_radiation()
             RN = self.net_absorbed_radiation(RG, radiation_angot)
