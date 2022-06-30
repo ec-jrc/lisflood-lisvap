@@ -33,6 +33,49 @@ class ReadMeteo(object):
         self.settings = self.var.settings
         self.splitIO = self.settings.get_option('splitInput')
 
+    def read_temperature(self):
+        """
+        Read the grids of Average, Min, Max daily temperature (C)
+        """
+        if self.settings.get_option('useTAvg'):
+            # Average daily temperature (C)
+            self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep(), variable_binding='TAvgMaps', splitIO=self.splitIO)
+        else:
+            # Minimum daily temperature (C)
+            self.var.TMin = readnetcdf(self.settings.binding['TMinMaps'], self.var.currentTimeStep(), variable_binding='TMinMaps', splitIO=self.splitIO)
+            # Maximum daily temperature (C)
+            self.var.TMax = readnetcdf(self.settings.binding['TMaxMaps'], self.var.currentTimeStep(), variable_binding='TMaxMaps', splitIO=self.splitIO)
+            self.var.TAvg = 0.5 * (self.var.TMin + self.var.TMax)
+
+    def read_windspeed(self):
+        """
+        Read the grids of near surface windspeed at 10 m, also the U and V components.
+        """
+        # near surface windspeed at 10 m
+        if not self.settings.get_option('useWindUVMaps'):
+            self.var.Wind = readnetcdf(self.settings.binding['WindMaps'], self.var.currentTimeStep(), variable_binding='WindMaps', splitIO=self.splitIO)
+        else:
+            self.var.WindU = readnetcdf(self.settings.binding['WindUMaps'], self.var.currentTimeStep(), variable_binding='WindUMaps', splitIO=self.splitIO)
+            self.var.WindV = readnetcdf(self.settings.binding['WindVMaps'], self.var.currentTimeStep(), variable_binding='WindVMaps', splitIO=self.splitIO)
+            self.var.Wind = sqrt(sqr(self.var.WindV) + sqr(self.var.WindU))
+
+    def read_vapor_pressure(self):
+        """
+        Read the grids of Vapor Pressure.
+        """
+        if self.settings.get_option('useTDewMaps'):
+            # Synoptic weather stations often do not supply vapour pressure data,
+            # but provided dew point temperature instead.
+            # In that case Eact can be calculated using Goudriaan Formula(1977)
+            self.var.Tdew = readnetcdf(self.settings.binding['TDewMaps'], self.var.currentTimeStep(), variable_binding='TDewMaps', splitIO=self.splitIO)
+            self.var.EAct = 6.10588 * exp((17.32491 * self.var.Tdew) / (self.var.Tdew + 238.102))
+        else:
+            # actual vapor pressure; has to be in mbar = hPa
+            # self.var.EAct = self.var.EAct / 10
+            # from hPa tp kPa
+            # actual vapour pressure (pd maps): typical value 0-70 hPa = 0-7 kPa
+            self.var.EAct = readnetcdf(self.settings.binding['EActMaps'], self.var.currentTimeStep(), variable_binding='EActMaps', splitIO=self.splitIO)
+
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------
 
@@ -44,26 +87,10 @@ class ReadMeteo(object):
         # ***** READ METEOROLOGICAL DATA *****************************
         # ************************************************************
         if self.settings.get_option('readNetcdfStack'):
-            # Average daily temperature (C)
-            if self.settings.get_option('useTAvg'):
-                self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep(), variable_binding='TAvgMaps', splitIO=self.splitIO)
-            else:
-                # Minimum daily temperature (C)
-                self.var.TMin = readnetcdf(self.settings.binding['TMinMaps'], self.var.currentTimeStep(), variable_binding='TMinMaps', splitIO=self.splitIO)
-                # Maximum daily temperature (C)
-                self.var.TMax = readnetcdf(self.settings.binding['TMaxMaps'], self.var.currentTimeStep(), variable_binding='TMaxMaps', splitIO=self.splitIO)
-                self.var.TAvg = 0.5 * (self.var.TMin + self.var.TMax)
-
-            # near surface windspeed at 10 m
-            if not self.settings.get_option('useWindUVMaps'):
-                self.var.Wind = readnetcdf(self.settings.binding['WindMaps'], self.var.currentTimeStep(), variable_binding='WindMaps', splitIO=self.splitIO)
-            else:
-                self.var.WindU = readnetcdf(self.settings.binding['WindUMaps'], self.var.currentTimeStep(), variable_binding='WindUMaps', splitIO=self.splitIO)
-                self.var.WindV = readnetcdf(self.settings.binding['WindVMaps'], self.var.currentTimeStep(), variable_binding='WindVMaps', splitIO=self.splitIO)
-                self.var.Wind = sqrt(sqr(self.var.WindV) + sqr(self.var.WindU))
+            self.read_temperature()
+            self.read_windspeed()
 
             if self.settings.get_option('CORDEX'):
-
                 self.var.Psurf = readnetcdf(self.settings.binding['PSurfMaps'], self.var.currentTimeStep(), variable_binding='PSurfMaps', splitIO=self.splitIO)
                 self.var.Qair = readnetcdf(self.settings.binding['QAirMaps'], self.var.currentTimeStep(), variable_binding='QAirMaps', splitIO=self.splitIO)
                 # Downward  short wave radiation [W/m2]
@@ -74,21 +101,8 @@ class ReadMeteo(object):
                 self.var.Rus = readnetcdf(self.settings.binding['RusMaps'], self.var.currentTimeStep(), variable_binding='RusMaps', splitIO=self.splitIO)
                 # upward long wave radiation [W/m2]
                 self.var.Rul = readnetcdf(self.settings.binding['RulMaps'], self.var.currentTimeStep(), variable_binding='RulMaps', splitIO=self.splitIO)
-
             else:
-
-                if self.settings.get_option('useTDewMaps'):
-                    # Synoptic weather stations often do not supply vapour pressure data,
-                    # but provided dew point temperature instead.
-                    # In that case Eact can be calculated using Goudriaan Formula(1977)
-                    self.var.Tdew = readnetcdf(self.settings.binding['TDewMaps'], self.var.currentTimeStep(), variable_binding='TDewMaps', splitIO=self.splitIO)
-                    self.var.EAct = 6.10588 * exp((17.32491 * self.var.Tdew) / (self.var.Tdew + 238.102))
-                else:
-                    # actual vapor pressure; has to be in mbar = hPa
-                    # self.var.EAct = self.var.EAct / 10
-                    # from hPa tp kPa
-                    # actual vapour pressure (pd maps): typical value 0-70 hPa = 0-7 kPa
-                    self.var.EAct = readnetcdf(self.settings.binding['EActMaps'], self.var.currentTimeStep(), variable_binding='EActMaps', splitIO=self.splitIO)
+                self.read_vapor_pressure()
 
                 # calculated radiation [J/m2/day]
                 # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)

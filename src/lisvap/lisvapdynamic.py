@@ -207,11 +207,11 @@ class LisvapModelDyn(DynamicModel):
         Delta = (238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2)
 
         # net absorbed radiation of reference vegetation canopy [mm/d]
-        RNA = maximum(((1 - self.AlbedoCanopy) * RG - RN) / (1E6 * LatHeatVap), 0.0)
+        RNA = maximum(((1 - self.AlbedoCanopy) * RG - RN) / (self.MJtoJ * LatHeatVap), 0.0)
         # net absorbed radiation of bare soil surface
-        RNASoil = maximum(((1 - self.AlbedoSoil) * RG - RN) / (1E6 * LatHeatVap), 0.0)
+        RNASoil = maximum(((1 - self.AlbedoSoil) * RG - RN) / (self.MJtoJ * LatHeatVap), 0.0)
         # net absorbed radiation of water surface
-        RNAWater = maximum(((1 - self.AlbedoWater) * RG - RN) / (1E6 * LatHeatVap), 0.0)
+        RNAWater = maximum(((1 - self.AlbedoWater) * RG - RN) / (self.MJtoJ * LatHeatVap), 0.0)
 
         # ************************************************************
         # ***** EA: EVAPORATIVE DEMAND *******************************
