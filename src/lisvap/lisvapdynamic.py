@@ -181,14 +181,14 @@ class LisvapModelDyn(DynamicModel):
         if settings.get_option('GLOFAS'):
             RG = self.Rgd
             RN = self.Rnl
-            LatHeatVap = self.latent_heat_vaporization(use_fao_formula=True)
+            LatHeatVap = self.latent_heat_vaporization()
         else:
             if settings.get_option('EFAS'):
                 RG = self.Rgd
-                LatHeatVap = self.latent_heat_vaporization(use_fao_formula=False)
+                LatHeatVap = self.latent_heat_vaporization()
             elif settings.get_option('CORDEX'):
                 RG = self.Rds
-                LatHeatVap = self.latent_heat_vaporization(use_fao_formula=True)
+                LatHeatVap = self.latent_heat_vaporization()
 
             radiation_angot = self.angot_radiation()
             RN = self.net_absorbed_radiation(RG, radiation_angot)
