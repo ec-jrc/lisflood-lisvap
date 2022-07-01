@@ -274,6 +274,156 @@ report_maps_end: {report_maps_end}
         options.update(option_setting)
         return options
 
+    def valid_files(self, variable_binding):
+        if variable_binding not in self.binding:
+            return False
+        file_pattern = FileNamesManager.process_file_pattern(self.binding[variable_binding])
+        file_list = glob.glob(file_pattern)
+        return len(file_list) > 0
+
+    def valid(self):
+        """
+        Validates if the setup in the settings file is correct and coherent.
+        Prints the error list and returns FALSE if there were errors or TRUE otherwise.
+        """
+        issues_list = []
+
+        selected_setups = int(self.get_option('EFAS')) + int(self.get_option('GLOFAS')) + int(self.get_option('CORDEX'))
+        if selected_setups > 1:
+            issues_list.append('Only one setup can be selected from: EFAS, GLOFAS or CORDEX')
+        elif selected_setups == 0:
+            issues_list.append('One setup needs to be selected from: EFAS, GLOFAS or CORDEX')
+        else:
+            if self.get_option('readNetcdfStack'):
+                # ###############################################
+                # Check input variables
+                # ###############################################
+                if self.get_option('useTAvg'):
+                    if self.get_option('repTAvgMaps'):
+                        issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
+                    elif not self.valid_files('TAvgMaps'):
+                        issues_list.append('Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
+                else:
+                    if not self.valid_files('TMinMaps'):
+                        issues_list.append('Option "useTAvg" OFF: Missing "TMinMaps" file(s).')
+                    if not self.valid_files('TMaxMaps'):
+                        issues_list.append('Option "useTAvg" OFF: Missing "TMaxMaps" file(s).')
+    
+                if not self.get_option('useWindUVMaps'):
+                    if not self.valid_files('WindMaps'):
+                        issues_list.append('Option "useWindUVMaps" OFF: Missing "WindMaps" file(s).')
+                else:
+                    if not self.valid_files('WindUMaps'):
+                        issues_list.append('Option "useWindUVMaps" ON: Missing "WindUMaps" file(s).')
+                    if not self.valid_files('WindVMaps'):
+                        issues_list.append('Option "useWindUVMaps" ON: Missing "WindVMaps" file(s).')
+    
+                if self.get_option('useTDewMaps'):
+                    if not self.valid_files('TDewMaps'):
+                        issues_list.append('Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
+                else:
+                    if not self.valid_files('EActMaps'):
+                        issues_list.append('Option "useTDewMaps" OFF: Missing "EActMaps" file(s).')
+                # ###############################################
+                # Check setup specific input variables
+                # ###############################################
+                if self.get_option('EFAS'):
+                    if not self.valid_files('RgdMaps'):
+                        issues_list.append('EFAS setup: Missing "RgdMaps" file(s).')
+                elif self.get_option('GLOFAS'):
+                    if not self.valid_files('RgdMaps'):
+                        issues_list.append('GLOFAS setup: Missing "RgdMaps" file(s).')
+                    if not self.valid_files('RNMaps'):
+                        issues_list.append('GLOFAS setup: Missing "RNMaps" file(s).')
+                elif self.get_option('CORDEX'):
+                    if not self.valid_files('PSurfMaps'):
+                        issues_list.append('CORDEX setup: Missing "PSurfMaps" file(s).')
+                    if not self.valid_files('QAirMaps'):
+                        issues_list.append('CORDEX setup: Missing "QAirMaps" file(s).')
+                    if not self.valid_files('RdsMaps'):
+                        issues_list.append('CORDEX setup: Missing "RdsMaps" file(s).')
+                    if not self.valid_files('RdlMaps'):
+                        issues_list.append('CORDEX setup: Missing "RdlMaps" file(s).')
+                    if not self.valid_files('RusMaps'):
+                        issues_list.append('CORDEX setup: Missing "RusMaps" file(s).')
+                    if not self.valid_files('RulMaps'):
+                        issues_list.append('CORDEX setup: Missing "RulMaps" file(s).')
+            # ###############################################
+            # Check constants
+            # ###############################################
+            if 'AvSolarConst' not in self.binding:
+                issues_list.append('Missing "AvSolarConst" parameter.')
+            if 'StefBolt' not in self.binding:
+                issues_list.append('Missing "StefBolt" parameter.')
+            if 'Press0' not in self.binding:
+                issues_list.append('Missing "Press0" parameter.')
+            if 'PD' not in self.binding:
+                issues_list.append('Missing "PD" parameter.')
+            if 'AlbedoSoil' not in self.binding:
+                issues_list.append('Missing "AlbedoSoil" parameter.')
+            if 'AlbedoWater' not in self.binding:
+                issues_list.append('Missing "AlbedoWater" parameter.')
+            if 'AlbedoCanopy' not in self.binding:
+                issues_list.append('Missing "AlbedoCanopy" parameter.')
+            if 'FactorSoil' not in self.binding:
+                issues_list.append('Missing "FactorSoil" parameter.')
+            if 'FactorWater' not in self.binding:
+                issues_list.append('Missing "FactorWater" parameter.')
+            if 'FactorCanopy' not in self.binding:
+                issues_list.append('Missing "FactorCanopy" parameter.')
+            # ###############################################
+            # Checking output definition
+            # ###############################################
+            if self.get_option('repE0Maps') and 'E0Maps' not in self.binding:
+                issues_list.append('OUTPUT: Missing "E0Maps" file path.')
+            if self.get_option('repES0Maps') and 'ES0Maps' not in self.binding:
+                issues_list.append('OUTPUT: Missing "ES0Maps" file path.')
+            if self.get_option('repET0Maps') and 'ET0Maps' not in self.binding:
+                issues_list.append('OUTPUT: Missing "ET0Maps" file path.')
+            if self.get_option('repTAvgMaps') and 'TAvgMaps' not in self.binding:
+                issues_list.append('OUTPUT: Missing "TAvgMaps" file path.')
+            # ###############################################
+            # Checking Base Maps definition
+            # ###############################################
+            if not self.valid_files('MaskMap'):
+                issues_list.append('BaseMap: Missing "MaskMap" file.')
+            if not self.valid_files('Dem'):
+                issues_list.append('BaseMap: Missing "Dem" file.')
+            if not self.valid_files('Lat'):
+                issues_list.append('BaseMap: Missing "Lat" file.')
+            # ###############################################
+            # Checking TIME-RELATED CONSTANTS
+            # ###############################################
+#             if 'CalendarDayStart' not in self.binding:
+#                 issues_list.append('TIME-CONST: Missing "CalendarDayStart" value.')
+#             if 'DtSec' not in self.binding:
+#                 issues_list.append('TIME-CONST: Missing "DtSec" value.')
+#             if 'StepStart' not in self.binding:
+#                 issues_list.append('TIME-CONST: Missing "StepStart" value.')
+#             if 'StepEnd' not in self.binding:
+#                 issues_list.append('TIME-CONST: Missing "StepEnd" value.')
+#             if 'ReportSteps' not in self.binding:
+#                 issues_list.append('TIME-CONST: Missing "ReportSteps" value.')
+
+        if len(issues_list) > 0:
+            issues_str = '\n'.join(map(lambda s: '        - ' + s, issues_list))
+            print("""\n\n
+LisvapPy - Lisvap (Global) using pcraster Python framework
+
+    Version      : {version}
+    Last updated : {date}
+    Status       : {status}
+    Authors      : {authors}
+    Maintainers  : {maintainers}
+    
+    WARNING: The provided settings file presents some issues.
+             For more details refer to the documentation: https://ec-jrc.github.io/lisflood-lisvap/
+    
+    List of issues: \n{issues}\n
+            """.format(version=__version__, date=__date__, status=__status__, authors=__authors__, maintainers=__maintainers__, issues=issues_str))
+            return False
+        return True
+
 
 @nine
 class NetcdfMetadata(with_metaclass(Singleton)):
