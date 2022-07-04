@@ -101,7 +101,7 @@ class ReadMeteo(object):
                 self.var.Rus = readnetcdf(self.settings.binding['RusMaps'], self.var.currentTimeStep(), variable_binding='RusMaps', splitIO=self.splitIO)
                 # upward long wave radiation [W/m2]
                 self.var.Rul = readnetcdf(self.settings.binding['RulMaps'], self.var.currentTimeStep(), variable_binding='RulMaps', splitIO=self.splitIO)
-            else:
+            else: # EFAS or GLOFAS
                 self.read_vapor_pressure()
 
                 # calculated radiation [J/m2/day]
