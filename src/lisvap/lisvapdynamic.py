@@ -178,18 +178,18 @@ class LisvapModelDyn(DynamicModel):
         # evaporative demand of water surface [mm/d]
         EAWater = 0.26 * VapPressDef * (self.FactorWater + BU * self.Wind)
 
+        LatHeatVap = self.latent_heat_vaporization()
+
         if settings.get_option('GLOFAS'):
             RG = self.Rgd
             RN = self.Rnl
-            LatHeatVap = self.latent_heat_vaporization()
         else:
             if settings.get_option('EFAS'):
                 RG = self.Rgd
-                LatHeatVap = self.latent_heat_vaporization()
+                # It was decided to use only the FAO formula (JRC-5431)
+                # LatHeatVap = self.latent_heat_vaporization(False)
             elif settings.get_option('CORDEX'):
                 RG = self.Rds
-                LatHeatVap = self.latent_heat_vaporization()
-
             radiation_angot = self.angot_radiation()
             RN = self.net_absorbed_radiation(RG, radiation_angot)
 
