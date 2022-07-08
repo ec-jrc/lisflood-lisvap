@@ -317,13 +317,14 @@ report_maps_end: {report_maps_end}
                         issues_list.append('Option "useWindUVMaps" ON: Missing "WindUMaps" file(s).')
                     if not self.valid_files('WindVMaps'):
                         issues_list.append('Option "useWindUVMaps" ON: Missing "WindVMaps" file(s).')
-    
-                if self.get_option('useTDewMaps'):
-                    if not self.valid_files('TDewMaps'):
-                        issues_list.append('Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
-                else:
-                    if not self.valid_files('EActMaps'):
-                        issues_list.append('Option "useTDewMaps" OFF: Missing "EActMaps" file(s).')
+
+                if not self.get_option('CORDEX'): # CORDEX calculates EAct from PSurf and Qair
+                    if self.get_option('useTDewMaps'):
+                        if not self.valid_files('TDewMaps'):
+                            issues_list.append('Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
+                    else:
+                        if not self.valid_files('EActMaps'):
+                            issues_list.append('Option "useTDewMaps" OFF: Missing "EActMaps" file(s).')
                 # ###############################################
                 # Check setup specific input variables
                 # ###############################################
