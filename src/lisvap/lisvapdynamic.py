@@ -152,15 +152,10 @@ class LisvapModelDyn(DynamicModel):
 
             # Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
             # slope of saturated vapour pressure curve [mbar/deg C]
-            # LatHeatVap = (2501 - 2.375 * self.TAvg) / 1000
+            LatHeatVap = (2501 - 2.375 * self.TAvg) / 1000
             # TAvg in Celsius
             # Note: Mega Joule (10^6)
             # source: STOWA 2010-37 p.9 eq 5.
-            LatHeatVap = 2.501 - 0.002361 * self.TAvg
-            # latent heat of vaporization [MJ/kg]
-            # TAvg in Celsius
-            # Note: Mega Joule (10^6)
-            # source: FAO
 
             # Net absorbed radiation is calculated for three reference surfaces:
             #
