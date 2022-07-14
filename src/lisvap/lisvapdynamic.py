@@ -125,7 +125,7 @@ class LisvapModelDyn(DynamicModel):
             declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
 
             # solar constant at top of the atmosphere [J/m2/s]
-            solar_constant = self.AvSolarConst * (1 + (0.033 * cos(2 * self.Pi * self.calendar_day / 365.)))
+            solar_constant = self.AvSolarConst * (1 + (0.033 * cos(360. * self.calendar_day / 365.)))
 
             tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat))/(cos(declin) * cos(self.Lat))
             tmp2 = ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
