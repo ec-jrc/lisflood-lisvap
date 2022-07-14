@@ -125,7 +125,7 @@ class LisvapModelDyn(DynamicModel):
             declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
 
             # solar constant at top of the atmosphere [J/m2/s]
-            solar_constant = self.AvSolarConst * (1 + (0.033 * cos(2 * self.Pi * self.calendar_day / 365.)))
+            solar_constant = self.AvSolarConst * (1 + (0.033 * cos(360. * self.calendar_day / 365.)))
 
             tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat))/(cos(declin) * cos(self.Lat))
             tmp2 = ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
@@ -153,7 +153,6 @@ class LisvapModelDyn(DynamicModel):
             # Delta = ((238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2))
             # slope of saturated vapour pressure curve [mbar/deg C]
             LatHeatVap = (2501 - 2.375 * self.TAvg) / 1000
-            # latent heat of vaporization [MJ/kg]
             # TAvg in Celsius
             # Note: Mega Joule (10^6)
             # source: STOWA 2010-37 p.9 eq 5.
@@ -240,7 +239,7 @@ class LisvapModelDyn(DynamicModel):
             # latent heat of vaporization [MJ/kg]
             # TAvg in Celsius
             # Note: Mega Joule (10^6)
-            # source: STOWA 2010-37 p.9 eq 5.
+            # source: FAO
 
             RNA = maximum(((1 - self.AlbedoCanopy) * self.Rgd - self.Rnl) / (1E6 * LatHeatVap), 0.0)
             # net absorbed radiation of reference vegetation canopy [mm/d]
