@@ -14,6 +14,8 @@ sqr = operations.sqr
 maximum = operations.max
 ifthenelse = operations.ifthenelse
 exp = pcraster.operations.exp
+abs = operations.abs
+
 # sin = np.sin
 # cos = np.cos
 # tan = np.tan

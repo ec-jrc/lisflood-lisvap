@@ -25,7 +25,7 @@ import datetime
 import numpy as np
 from pcraster.framework import DynamicModel
 
-from .utils.operators import exp, maximum, cos, sin, ifthenelse, asin, scalar, cover, tan, sqr, sqrt
+from .utils.operators import exp, maximum, cos, sin, ifthenelse, asin, scalar, cover, tan, sqr, sqrt, abs
 from .utils import LisSettings, TimeProfiler
 
 
@@ -43,6 +43,21 @@ class LisvapModelDyn(DynamicModel):
         self.ETRef = None
         self.ESRef = None
         self.EWRef = None
+
+
+    def int_solar_height_main(self, day_length, declin):
+        """
+            integral of solar height [s] over the day
+        """
+        return 3600. * (day_length * sin(declin) * sin(self.Lat) + (24./self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
+
+
+    def int_solar_height_north_pole(self, day_length, declin):
+        """
+            integral of solar height [s] over the day in the north pole during summer solstice
+        """
+        return 3600. * (day_length * sin(declin) * sin(self.Lat))
+
 
     def latent_heat_vaporization(self, use_fao_formula=True):
         """
@@ -66,19 +81,20 @@ class LisvapModelDyn(DynamicModel):
         """
         ANGOT RADIATION
         """
-
         # solar declination [degrees]
         declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
         # solar constant at top of the atmosphere [J/m2/s]
         solar_constant = self.AvSolarConst * (1 + (0.033 * cos(360. * self.calendar_day / 365.)))
-        tmp1 = ((-sin(self.PD / self.Pi)) + sin(declin) * sin(self.Lat)) / (cos(declin) * cos(self.Lat))
+        tmp1 = ((-sin(self.PD / 180.)) + sin(declin) * sin(self.Lat)) / (cos(declin) * cos(self.Lat))
         tmp2 = ifthenelse(tmp1 < 0, scalar(asin(tmp1))-360., scalar(asin(tmp1)))
         # daylength [hour]
-        day_length = 12. + (24. / 180.) * tmp2
+        # abs(tmp1) > 1. corrects the day length at higher altitudes to 24h
+        day_length = ifthenelse(abs(tmp1) > 1., scalar(24.), 12. + (24. / 180.) * tmp2)
         # Daylength equation can produce MV at high latitudes, this statements sets day length to 0 in that case  
         day_length = cover(day_length, 0.0)
         # integral of solar height [s] over the day
-        int_solar_height = 3600. * (day_length * sin(declin) * sin(self.Lat) + (24. / self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
+        # abs(tmp1) > 1. allows correcting the integral of solar height at higher altitudes (north pole)
+        int_solar_height = ifthenelse(abs(tmp1) > 1., self.int_solar_height_north_pole(day_length, declin), self.int_solar_height_main(day_length, declin))
         # Integral of solar height cannot be negative, so truncate at 0
         int_solar_height = maximum(int_solar_height, 0.0)
         int_solar_height = cover(int_solar_height, 0.0)
