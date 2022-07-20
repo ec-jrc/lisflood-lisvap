@@ -44,20 +44,17 @@ class LisvapModelDyn(DynamicModel):
         self.ESRef = None
         self.EWRef = None
 
-
     def int_solar_height_main(self, day_length, declin):
         """
             integral of solar height [s] over the day
         """
         return 3600. * (day_length * sin(declin) * sin(self.Lat) + (24./self.Pi) * cos(declin) * cos(self.Lat) * sqrt(1 - sqr(tan(declin) * tan(self.Lat))))
 
-
     def int_solar_height_north_pole(self, day_length, declin):
         """
             integral of solar height [s] over the day in the north pole during summer solstice
         """
         return 3600. * (day_length * sin(declin) * sin(self.Lat))
-
 
     def latent_heat_vaporization(self, use_fao_formula=True):
         """
