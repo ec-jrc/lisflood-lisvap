@@ -92,7 +92,10 @@ where<br/>
 <br/> The **integral of the solar height** equals:
 
 $$
-\int sin \beta \ dt_h = 3600(L_d \cdot sin \ \delta \cdot sin \ \lambda + \frac{24}{\pi} \cdot cos \ \delta \cdot cos \ \lambda \cdot \sqrt{1-(tan \ \delta \cdot tan \ \lambda)^2})
+\int sin \beta \ dt_h = \begin{cases}
+3600(L_d \cdot sin \ \delta \cdot sin \ \lambda)   &[B_{ld} > 1]\\
+3600(L_d \cdot sin \ \delta \cdot sin \ \lambda + \frac{24}{\pi} \cdot cos \ \delta \cdot cos \ \lambda \cdot \sqrt{1-(tan \ \delta \cdot tan \ \lambda)^2})   &[B_{ld} \le 1]
+\end{cases}
 $$
 
 where<br/>
@@ -109,7 +112,7 @@ $$
 
 <br/> The **day length** is given by:
 
-$$  \begin{cases} L_d = 12+ \frac{24}{180} \alpha sin(B_{ld})   &[B_{ld} \ge 0]\\ L_d = 12+ \frac{24}{180} [\alpha sin(B_{ld}) - 360] & [B_{ld} < 0]\end{cases} $$ 
+$$ \begin{cases} L_d = 24   &[B_{ld} > 1]\\ L_d = 12+ \frac{24}{180} \alpha sin(B_{ld})   &[0 \le B_{ld} \le 1]\\ L_d = 12+ \frac{24}{180} [\alpha sin(B_{ld}) - 360] & [B_{ld} < 0]\end{cases} $$
 
 with:
 
