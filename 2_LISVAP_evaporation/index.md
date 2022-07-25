@@ -103,6 +103,14 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\delta$:&nbsp;&nbsp;		Solar declination $[^\circ]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\lambda$:&nbsp;&nbsp;		Latitude $[^\circ]$
 
+with:
+
+$$
+B_{ld} = \frac{-sin (\frac{PD}{\pi})+sin \ \delta \cdot sin \ \lambda}{cos \ \delta \cdot \ cos \ \lambda}
+$$
+
+where *PD* is a correction constant (-2.65).
+
 
 <br/> The **solar declination** is a simple function of the calendar day number (*td*):
 
@@ -113,14 +121,6 @@ $$
 <br/> The **day length** is given by:
 
 $$ \begin{cases} L_d = 24   &[B_{ld} > 1]\\ L_d = 12+ \frac{24}{180} \alpha sin(B_{ld})   &[0 \le B_{ld} \le 1]\\ L_d = 12+ \frac{24}{180} [\alpha sin(B_{ld}) - 360] & [B_{ld} < 0]\end{cases} $$
-
-with:
-
-$$
-B_{ld} = \frac{-sin (\frac{PD}{\pi})+sin \ \delta \cdot sin \ \lambda}{cos \ \delta \cdot \ cos \ \lambda}
-$$
-
-where *PD* is a correction constant (-2.65).
 
 
 
