@@ -85,6 +85,8 @@ def main():
     settingsxml = sys.argv[1]  # setting.xml file
     lissettings = LisSettings(settingsxml)
     fileManager = FileNamesManager(lissettings.binding.get('PathOut'))
+    if not lissettings.valid():
+        sys.exit(1)
     # setting of global flag e.g checking input maps, producing more output information
     if not lissettings.flags['veryquiet'] and not lissettings.flags['quiet']:
         headerinfo()

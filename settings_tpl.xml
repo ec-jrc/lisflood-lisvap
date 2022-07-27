@@ -120,13 +120,27 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
     </lfuser>
 
     <lfoptions>
-        <setoption name="TemperatureInKelvinFlag" choice="0" />
-        <setoption name="readNetcdfStack" choice="1" />
-        <setoption name="writeNetcdfStack" choice="1" />
-        <setoption name="repE0Maps" choice="1" />
-        <setoption name="EFAS" choice="0" />
-        <setoption name="CORDEX" choice="0" />
-        <setoption name="GLOFAS" choice="1" />
+        <setoption name="readNetcdfStack" choice="1"/>
+        <setoption name="writeNetcdfStack" choice="1"/>
+        <setoption name="TemperatureInKelvinFlag" choice="0"/>
+
+        <setoption name="repE0Maps" choice="1"/>
+        <setoption name="repES0Maps" choice="0" />
+        <setoption name="repET0Maps" choice="0" />
+        <setoption name="repTAvgMaps" choice="0"/>
+        <setoption name="repAvTimeseries" choice="0"/>
+
+        <setoption name="output6hourly" choice="0"/>
+        <setoption name="splitInput" choice="0"/>
+        <setoption name="splitOutput" choice="0"/>
+
+        <setoption name="EFAS" choice="0"/>
+        <setoption name="CORDEX" choice="0"/>
+        <setoption name="GLOFAS" choice="1"/>
+
+        <setoption name="useTAvg" choice="1"/>
+        <setoption name="useTDewMaps" choice="1"/>
+        <setoption name="useWindUVMaps" choice="1"/>
     </lfoptions>
 
 
