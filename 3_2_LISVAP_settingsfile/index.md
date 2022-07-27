@@ -236,26 +236,28 @@ The table below lists all currently implemented options and their respective def
  **Table:** *LISVAP options.*
  
 
-| Option                    | Description                                                                        | Default |
-| ------------------------- | ---------------------------------------------------------------------------------- | ------- |
-| **Input**                 |                                                                                    |         |
-| TemperatureInKelvinFlag   | Temperature in Kelvin                                                              | False   |
-| readNetcdfStack           | Input variables as netCDF mapstacks                                                | False   |
-| useTavg                   | Use $T_{avg}$ input map. If false, will be computed out of $T_{max}$ and $T_{min}$ | False   |
-| splitInput                | Sets Lisvap to input multiple meteo maps separated by year.                        | False   |
-| EFAS                      | Use *EFAS* setup                                                                   | True    |
-| GLOFAS                    | Use *GLOFAS* setup                                                                 | False   |
-| CORDEX[^1]                | Use *CORDEX* setup                                                                 | False   |
-| **Output**                |                                                                                    |         |
-| writeNetcdfStack          | Output variables as netCDF mapstacks                                               | False   |
-| writeNetcdf               | Output variables as netCDF maps                                                    | False   |
-| repAvTimeseries           | Write output TSS                                                                   | False   |
-| repE0Maps                 | Write output variable $E_0$ map                                                    | True    |
-| repET0Maps                | Write output variable $ET_0$ map                                                   | True    |
-| repES0Maps                | Write output variable $ES_0$ map                                                   | True    |
-| repTAvgMaps               | Write output variable $T_{avg}$ map                                                | True    |
-| output6hourly             | Outputs 4 maps per day corresponding each to 6 hours of evapotranspiration.        | False   |
-| splitOutput               | Sets Lisvap to output multiple evapotranspiration maps separated by year.          | False   |
+| Option                    | Description                                                                                             | Default |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- | ------- |
+| **Input**                 |                                                                                                         |         |
+| TemperatureInKelvinFlag   | Temperature in Kelvin                                                                                   | False   |
+| readNetcdfStack           | Input variables as netCDF mapstacks                                                                     | False   |
+| useTAvg                   | Use $T_{avg}$ input map. If false, will be computed out of $T_{max}$ and $T_{min}$                      | False   |
+| useTDewMaps               | Use $T_{dew point}$ input map to compute actual vap pressure ($EAct$). If false, it uses the $EAct$ map | False   |
+| useWindUVMaps             | Use $Wind_{U}$ and $Wind_{V}$ input maps to compute $Windspeed$. If false, it uses the $Wind$ map       | False   |
+| splitInput                | Sets Lisvap to input multiple meteo maps separated by year.                                             | False   |
+| EFAS                      | Use *EFAS* setup                                                                                        | True    |
+| GLOFAS                    | Use *GLOFAS* setup                                                                                      | False   |
+| CORDEX[^1]                | Use *CORDEX* setup                                                                                      | False   |
+| **Output**                |                                                                                                         |         |
+| writeNetcdfStack          | Output variables as netCDF mapstacks                                                                    | False   |
+| writeNetcdf               | Output variables as netCDF maps                                                                         | False   |
+| repAvTimeseries           | Write output TSS                                                                                        | False   |
+| repE0Maps                 | Write output variable $E_0$ map                                                                         | True    |
+| repET0Maps                | Write output variable $ET_0$ map                                                                        | True    |
+| repES0Maps                | Write output variable $ES_0$ map                                                                        | True    |
+| repTAvgMaps               | Write output variable $T_{avg}$ map                                                                     | True    |
+| output6hourly             | Outputs 4 maps per day corresponding each to 6 hours of evapotranspiration.                             | False   |
+| splitOutput               | Sets Lisvap to output multiple evapotranspiration maps separated by year.                               | False   |
 
 [^1]: Note that EFAS, GLOFAS and CORDEX are mutually-exclusive flags. If all the three flags are true, the EFAS flag has precedence; if both GLOFAS and CORDEX flags are true, the GLOFAS flag has the precedence.
 

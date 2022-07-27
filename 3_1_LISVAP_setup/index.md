@@ -49,28 +49,29 @@ The Table below lists all **meteorological input variables** that LISVAP can dig
 | Map stack           | Default prefix | Description                                          |
 | ------------------- | -------------- | ---------------------------------------------------- |
 | **TEMPERATURE**     |                |                                                      |
-| TMaxMaps            | tx             | Maximum daily temperature \[°C or K\]                |
-| TMinMaps            | tn             | Minimum daily temperature \[°C or K\]                |
+| TMaxMaps            | tx             | Maximum daily temperature [°C or K]                  |
+| TMinMaps            | tn             | Minimum daily temperature [°C or K]                  |
+| TAvgMaps            | ta             | Average daily temperature [°C or K]                  |
 | **VAPOUR PRESSURE** |                |                                                      |
 | TDewMaps            | td             | Average daily dew point temperature [°C or K]        |
 | EActMaps            | pd             | Actual vapour pressure [mbar]                        |
 | PSurfMaps           | ps             | Instantaneous sea level pressure [Pa]                |
 | **WIND SPEED**      |                |                                                      |
-| WindMaps            | ws             | Wind speed at 10 m height [m/s]                    |
-| WindUMaps           | wu             | Wind speed at 10 m height, U-component [m/s]       |
-| WindVMaps           | wv             | Wind speed at 10 m height, V-component [m/s]       |
+| WindMaps            | ws             | Wind speed at 10 m height [m/s]                      |
+| WindUMaps           | wu             | Wind speed at 10 m height, U-component [m/s]         |
+| WindVMaps           | wv             | Wind speed at 10 m height, V-component [m/s]         |
 | **SUNSHINE**        |                |                                                      |
-| SunMaps             | s              | Sunshine duration \[hours\]                          |
-| CloudMaps           | c              | Cloud cover \[octas\]                                |
+| SunMaps             | s              | Sunshine duration [hours]                            |
+| CloudMaps           | c              | Cloud cover [octas]                                  |
 | **RADIATION**       |                |                                                      |
 | RgdMaps             | rg             | Downward  surface solar radiation [J/m^2/d]          |
-| RNMaps              | rn             | Net thermal radiation \[J/m^2/d\] (always negative!) |
-| RdsMaps             | rds            | Downward short wave radiation \[W/m^2\]               |
-| RdlMaps             | rdl            | Down long wave radiation \[W/m^2\]                    |
-| RusMaps             | rus            | rus - up short wave radiation \[W/m^2\]               |
-| RulMaps             | rul            | rul - up long wave radiation \[W/m^2\]                |
+| RNMaps              | rn             | Net thermal radiation [J/m^2/d] (always negative!)   |
+| RdsMaps             | rds            | Downward short wave radiation [W/m^2]                |
+| RdlMaps             | rdl            | Down long wave radiation [W/m^2]                     |
+| RusMaps             | rus            | rus - up short wave radiation [W/m^2]                |
+| RulMaps             | rul            | rul - up long wave radiation [W/m^2]                 |
 | **HUMIDITY**        |                |                                                      |
-| QAirMaps            | huss          | 2 m instantaneous specific humidity [kg/kg]           |
+| QAirMaps            | huss           | 2 m instantaneous specific humidity [kg/kg]          |
 
 
 
@@ -100,10 +101,10 @@ The tables below provide two examples of datasets that are used to run LISVAP. T
 | tmin                              | Minimum daily temperature \[K\]                 |
 | tmax                              | Maximum daily temperature \[K\]                 |
 | sfcWind                           | Wind speed at 10 m from surface \[m/s\]         |
-| RSDS                              | Downward short wave radiation \[W/m^2\]          |
-| RLDS                              | Down long wave radiation \[W/m^2\]               |
-| RSUS                              | Up short wave radiation \[W/m^2\]                |
-| RLUS                              | Up long wave radiation \[W/m^2\]                 |
+| RSDS                              | Downward short wave radiation \[W/m^2\]         |
+| RLDS                              | Down long wave radiation \[W/m^2\]              |
+| RSUS                              | Up short wave radiation \[W/m^2\]               |
+| RLUS                              | Up long wave radiation \[W/m^2\]                |
 
 
 
@@ -114,8 +115,8 @@ The [GitHub tests folder](https://github.com/ec-jrc/lisflood-lisvap/tree/master/
 
 | Variable name                     |  Description                                         |
 | --------------------------------- | ---------------------------------------------------- |
-| rg                                | incoming solar radiation \[J/m^2/d\]                  |
-| rn                                | net longwave radiation maps \[J/m^2/d\]               |
+| rg                                | incoming solar radiation \[J/m^2/d\]                 |
+| rn                                | net longwave radiation maps \[J/m^2/d\]              |
 | ta                                | average temperature \[K\]                            |
 | td                                | dew point temperature \[K\]                          |
 | wu                                | Wind speed at 10 m from surface, u component \[m/s\] |
