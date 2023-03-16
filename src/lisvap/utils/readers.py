@@ -232,7 +232,7 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     nf1.close()
     nan_value = -9999
     if variable_name == 'rn':
-        nan_value = -9999999
+        nan_value = -99999999
     mapnp[np.isnan(mapnp)] = nan_value
     mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, nan_value)
     timename = os.path.basename(name_parameter) + str(timestep)
