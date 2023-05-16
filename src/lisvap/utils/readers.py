@@ -65,7 +65,7 @@ def loadsetclone(name):
             # try to read a netcdf file
             filename = '{}.{}'.format(os.path.splitext(settings.binding[name])[0], 'nc')
             nf1 = iter_open_netcdf(filename, 'r')
-            value = listitems(nf1.variables)[-1][0]  # get the last variable name
+            value = get_netcdf_meteo_variable_name(nf1)
 
             x_var = 'x'
             y_var = 'y'
@@ -145,7 +145,7 @@ def loadmap(name):
 
         # load netcdf map but only the rectangle needed
         nf1 = Dataset(filename, 'r')
-        value = listitems(nf1.variables)[-1][0]  # get the last variable name
+        value = get_netcdf_meteo_variable_name(nf1)
         mapnp = nf1.variables[value][cut2:cut3, cut0:cut1]
         nf1.close()
 
@@ -358,6 +358,13 @@ def checknetcdf(name, start, end):
         raise LisfloodError(msg)
 
     return
+
+
+def get_netcdf_meteo_variable_name(nc_file_obj):
+    # Only one variable must be present in netcdf files
+    num_dims = 3 if 'time' in nc_file_obj.variables else 2
+    varname = [v for v in nc_file_obj.variables if len(nc_file_obj.variables[v].dimensions) == num_dims][0]
+    return varname
 
 
 def iter_open_netcdf(file_path, mode, **kwargs):
