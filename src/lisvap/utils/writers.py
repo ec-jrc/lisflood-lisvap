@@ -63,6 +63,54 @@ def coordinates_range(start=0, nelems=1, step=1):
     return elem_array
 
 
+def get_output_parameters_monthly(start_date, timestep, current_output_index):
+    output_index = current_output_index
+    start_yearmonth = start_date.strftime('%Y%m')
+    current_date = start_date + datetime.timedelta(days=timestep-1)
+    current_yearmonth = current_date.strftime('%Y%m')
+    filename_suffix = current_yearmonth
+    if start_yearmonth != current_yearmonth:
+        first_day_current_month = current_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        current_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        days_between = (current_day - first_day_current_month).days
+        if days_between == 0:
+            # Get last month because the 1st of the month belongs in the last month file
+            last_day_last_month = first_day_current_month - datetime.timedelta(days=1)
+            filename_suffix = (last_day_last_month).strftime('%Y%m')
+            num_days_last_month = last_day_last_month.day
+            # If last month was complete the idx needs to be set to the last idx of the previous file
+            if output_index > num_days_last_month:
+                output_index = num_days_last_month - 1
+        else:
+            # Since the 1st day belongs to the last year file, the remaining days need to start on index 0...
+            output_index = days_between - 1
+    return filename_suffix, output_index
+
+
+def get_output_parameters_yearly(start_date, timestep, current_output_index):
+    output_index = current_output_index
+    start_year = start_date.strftime('%Y')
+    current_date = start_date + datetime.timedelta(days=timestep-1)
+    current_year = current_date.strftime('%Y')
+    filename_suffix = current_year
+    if start_year != current_year:
+        first_day_current_year = current_date.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        current_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        days_between = (current_day - first_day_current_year).days
+        if days_between == 0:
+            # Get last year because the 1st of January belongs in the last year file
+            last_day_last_year = first_day_current_year - datetime.timedelta(days=1)
+            filename_suffix = (last_day_last_year).strftime('%Y')
+            num_days_last_year = last_day_last_year.timetuple().tm_yday
+            # If last year was complete the idx needs to be set to the last idx of the previous file
+            if output_index > num_days_last_year:
+                output_index = num_days_last_year - 1
+        else:
+            # Since the 1st day belongs to the last year file, the remaining days need to start on index 0...
+            output_index = days_between - 1
+    return filename_suffix, output_index
+
+
 def get_output_parameters(settings, netcdf_output_file, start_date, timestep, current_output_index):
     output_index = current_output_index
     p = Path(netcdf_output_file)
@@ -70,29 +118,12 @@ def get_output_parameters(settings, netcdf_output_file, start_date, timestep, cu
     prefix = os.path.splitext(netfile.name)[0]
     splitIO = settings.get_option('splitOutput')
     if splitIO:
-        start_year = start_date.strftime('%Y')
-        current_date = start_date + datetime.timedelta(days=timestep-1)
-        current_year = current_date.strftime('%Y')
-        filename_year = current_year
-        # days_between = -1
-        if start_year != current_year:
-            first_day_current_year = current_date.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-            current_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
-            days_between = (current_day - first_day_current_year).days
-            if days_between == 0:
-                # Get last year because the 1st of January belongs in the last year file
-                last_day_last_year = first_day_current_year - datetime.timedelta(days=1)
-                filename_year = (last_day_last_year).strftime('%Y')
-                num_days_last_year = last_day_last_year.timetuple().tm_yday
-                # If last year was complete the idx needs to be set to the last idx of the previous file
-                if output_index > num_days_last_year:
-                    output_index = num_days_last_year - 1
-            else:
-                # Since the 1st day belongs to the last year file, the remaining days need to start on index 0...
-                output_index = days_between - 1
-            # output_index = days_between
-        netfile = Path(p.parent) / Path('{}_{}.nc'.format(p.name, filename_year) if not p.name.endswith('.nc') else p.name)
-
+        monthlyIO = settings.get_option('monthlyOutput')
+        if monthlyIO:
+            filename_suffix, output_index = get_output_parameters_monthly(start_date, timestep, current_output_index)
+        else:
+            filename_suffix, output_index = get_output_parameters_yearly(start_date, timestep, current_output_index)
+        netfile = Path(p.parent) / Path('{}_{}.nc'.format(p.name, filename_suffix) if not p.name.endswith('.nc') else p.name)
     return prefix, netfile, output_index
 
 

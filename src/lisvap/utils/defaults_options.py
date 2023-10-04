@@ -8,7 +8,8 @@ defaults = {
     'readnetcdfstack': False, 'writenetcdfstack': False, 'writenetcdf': False,
     'repavtimeseries': False, 'temperatureinkelvinflag': False,
     'repet0maps': True, 'repes0maps': True, 'repe0maps': True, 'reptavgmaps': True,
-    'efas': True, 'cordex': False, 'glofas': False, 'output6hourly': False, 'splitinput': False, 'splitoutput': False,
+    'efas': True, 'cordex': False, 'glofas': False, 'output6hourly': False, 'splitinput': False,
+    'splitoutput': False, 'monthlyOutput': False,
     'timeseries': [
         TimeSeries(name='TAvgTS', output_var='TAvg', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
         TimeSeries(name='ET0TS', output_var='ETRef', where='1', repoption='repAvTimeseries', restrictoption='', operation=''),
