@@ -257,7 +257,8 @@ The table below lists all currently implemented options and their respective def
 | repES0Maps                | Write output variable $ES_0$ map                                                                        | True    |
 | repTAvgMaps               | Write output variable $T_{avg}$ map                                                                     | True    |
 | output6hourly             | Outputs 4 maps per day corresponding each to 6 hours of evapotranspiration.                             | False   |
-| splitOutput               | Sets Lisvap to output multiple evapotranspiration maps separated by year.                               | False   |
+| splitOutput               | Sets Lisvap to output multiple evapotranspiration maps separated by time period.                        | False   |
+| monthlyOutput             | Sets the time period for the splitOutput. Monthly if True or Yearly if False (default).                 | False   |
 
 [^1]: Note that EFAS, GLOFAS and CORDEX are mutually-exclusive flags. If all the three flags are true, the EFAS flag has precedence; if both GLOFAS and CORDEX flags are true, the GLOFAS flag has the precedence.
 
@@ -275,6 +276,7 @@ These options all act as switches (1= on,  0=off). The panel below shows an exam
         <setoption name="output6hourly" choice="0" />
         <setoption name="splitInput" choice="0" />
         <setoption name="splitOutput" choice="0" />
+        <setoption name="monthlyOutput" choice="0" />
         
         <setoption name="EFAS" choice="0" />
         <setoption name="GLOFAS" choice="1" />
