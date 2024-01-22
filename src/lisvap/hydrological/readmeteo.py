@@ -74,7 +74,7 @@ class ReadMeteo(object):
             # self.var.EAct = self.var.EAct / 10
             # from hPa tp kPa
             # actual vapour pressure (pd maps): typical value 0-70 hPa = 0-7 kPa
-            self.var.EAct = readnetcdf(self.settings.binding['EActMaps'], self.var.currentTimeStep(), variable_binding='EActMaps', splitIO=self.splitIO)
+            self.var.EAct = readnetcdf(self.settings.binding['EActMaps'], self.var.currentTimeStep(), variable_binding='EActMaps', splitIO=self.splitIO, negative_value_substitute=0.0)
 
 # --------------------------------------------------------------------------
 # --------------------------------------------------------------------------

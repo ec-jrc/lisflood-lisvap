@@ -171,7 +171,8 @@ def loadmap(name):
     return res
 
 
-def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, variable_name=None, variable_binding=None, splitIO=False):
+def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, variable_name=None,
+               variable_binding=None, splitIO=False, negative_value_substitute=None):
     """ Read maps from netCDF stacks (forcings, fractions, water demand)
 
     Read maps from netCDF stacks (forcings, fractions, water demand).
@@ -189,6 +190,8 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     :param averageyearflag: if True, use "average year" netcdf file over the entire model simulation period
     :param variable_name: if given, will select the variable from netcdf instead of guessing
     :param variable_binding: Variable biding name in the settings file used to get the file name. E.g.: TMinMaps
+    :param splitIO: Indicates if the input files are split into smaller files (yearly, monthly, etc.)
+    :param negative_value_substitute: Avoids negative values for certain variables like Vapor Pressure cannot be negative but can be zero.
     :returns: content of netCDF map for timestep "time" (mapC)
     :except: if current simulation timestep is not stored in the stack, it stops with error message (if timestampflag='exact')
     """
@@ -210,7 +213,7 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
         # get the variable with 3 dimensions (variable order not relevant)
         targets = [k for k in nf1.variables if len(nf1.variables[k].dimensions) == 3]
         if len(targets) > 1:
-            warnings.warn('Wrong number of variables found in netCDF file {}}'.format(filename))
+            warnings.warn('Wrong number of variables found in netCDF file {}'.format(filename))
         elif not targets:
             raise LisfloodError('No 3 dimensions variable was found in mapstack {}'.format(filename))
         variable_name = targets[0]
@@ -233,6 +236,15 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     nan_value = -9999
     if variable_name == 'rn':
         nan_value = -99999999
+    # Eliminating the eventual negative values 
+    # from Vapor Pressure resulting from height correction
+    if negative_value_substitute is not None:
+        # count_negative = np.count_nonzero(mapnp < 0)
+        count_negative = np.sum((mapnp < 0) & (mapnp > nan_value))
+        if count_negative > 0:
+            warn_msg = 'Detected {} negative values in timestep {} of netCDF file {}. Substituting them by {}.'
+            warnings.warn(warn_msg.format(count_negative, current_ncdf_index, filename, negative_value_substitute))
+            mapnp[np.where(mapnp<0)] = negative_value_substitute
     mapnp[np.isnan(mapnp)] = nan_value
     mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, nan_value)
     timename = os.path.basename(name_parameter) + str(timestep)

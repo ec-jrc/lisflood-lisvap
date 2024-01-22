@@ -383,6 +383,8 @@ report_maps_end: {report_maps_end}
                 issues_list.append('OUTPUT: Missing "ET0Maps" file path.')
             if self.get_option('repTAvgMaps') and 'TAvgMaps' not in self.binding:
                 issues_list.append('OUTPUT: Missing "TAvgMaps" file path.')
+            if self.get_option('monthlyOutput') and not self.get_option('splitOutput'):
+                issues_list.append('OUTPUT: If "monthlyOutput" is True, "splitOutput" needs also to be True.')
             # ###############################################
             # Checking Base Maps definition
             # ###############################################

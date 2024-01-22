@@ -133,6 +133,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="output6hourly" choice="0"/>
         <setoption name="splitInput" choice="0"/>
         <setoption name="splitOutput" choice="0"/>
+        <setoption name="monthlyOutput" choice="0"/>
 
         <setoption name="EFAS" choice="0"/>
         <setoption name="CORDEX" choice="0"/>
