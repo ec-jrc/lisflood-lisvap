@@ -63,55 +63,47 @@ def coordinates_range(start=0, nelems=1, step=1):
     return elem_array
 
 
-def get_output_parameters_monthly(start_date, timestep, current_output_index):
+def get_output_parameters_monthly(start_date, timestep, time_frequency, timestep_stride, current_output_index):
     output_index = current_output_index
-    start_yearmonth = start_date.strftime('%Y%m')
-    current_date = start_date + datetime.timedelta(days=timestep-1)
-    current_yearmonth = current_date.strftime('%Y%m')
-    filename_suffix = current_yearmonth
-    if start_yearmonth != current_yearmonth:
-        first_day_current_month = current_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        current_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
-        days_between = (current_day - first_day_current_month).days
-        if days_between == 0:
-            # Get last month because the 1st of the month belongs in the last month file
-            last_day_last_month = first_day_current_month - datetime.timedelta(days=1)
-            filename_suffix = (last_day_last_month).strftime('%Y%m')
-            num_days_last_month = last_day_last_month.day
-            # If last month was complete the idx needs to be set to the last idx of the previous file
-            if output_index > num_days_last_month:
-                output_index = num_days_last_month - 1
-        else:
-            # Since the 1st day belongs to the last year file, the remaining days need to start on index 0...
-            output_index = days_between - 1
+    current_date = start_date + datetime.timedelta(seconds=((timestep - 1) * timestep_stride))
+    filename_suffix = current_date.strftime('%Y%m')
+
+    first_date_current_month = start_date.replace(year=current_date.year, month=current_date.month)
+    seconds_between = (current_date - first_date_current_month).total_seconds()
+    num_steps_done_in_current_month = int(seconds_between / timestep_stride) + 1
+    last_date_last_month = first_date_current_month - datetime.timedelta(seconds=timestep_stride)
+    day_inside_last_month = last_date_last_month - datetime.timedelta(seconds=timestep_stride)
+
+    if current_date == first_date_current_month:
+        output_index = 0
+    elif current_date == last_date_last_month:
+        filename_suffix = day_inside_last_month.strftime('%Y%m')
+    elif current_output_index >= num_steps_done_in_current_month:
+        output_index = num_steps_done_in_current_month - 1
     return filename_suffix, output_index
 
 
-def get_output_parameters_yearly(start_date, timestep, current_output_index):
+def get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_stride, current_output_index):
     output_index = current_output_index
-    start_year = start_date.strftime('%Y')
-    current_date = start_date + datetime.timedelta(days=timestep-1)
-    current_year = current_date.strftime('%Y')
-    filename_suffix = current_year
-    if start_year != current_year:
-        first_day_current_year = current_date.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-        current_day = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
-        days_between = (current_day - first_day_current_year).days
-        if days_between == 0:
-            # Get last year because the 1st of January belongs in the last year file
-            last_day_last_year = first_day_current_year - datetime.timedelta(days=1)
-            filename_suffix = (last_day_last_year).strftime('%Y')
-            num_days_last_year = last_day_last_year.timetuple().tm_yday
-            # If last year was complete the idx needs to be set to the last idx of the previous file
-            if output_index > num_days_last_year:
-                output_index = num_days_last_year - 1
-        else:
-            # Since the 1st day belongs to the last year file, the remaining days need to start on index 0...
-            output_index = days_between - 1
+    current_date = start_date + datetime.timedelta(seconds=((timestep - 1) * timestep_stride))
+    filename_suffix = current_date.strftime('%Y')
+
+    first_date_current_year = start_date.replace(year=current_date.year)
+    seconds_between = (current_date - first_date_current_year).total_seconds()
+    num_steps_done_in_current_year = int(seconds_between / timestep_stride) + 1
+    last_date_last_year = first_date_current_year - datetime.timedelta(seconds=timestep_stride)
+    day_inside_last_year = last_date_last_year - datetime.timedelta(seconds=timestep_stride)
+
+    if current_date == first_date_current_year:
+        output_index = 0
+    elif current_date == last_date_last_year:
+        filename_suffix = day_inside_last_year.strftime('%Y')
+    elif current_output_index >= num_steps_done_in_current_year:
+        output_index = num_steps_done_in_current_year - 1
     return filename_suffix, output_index
 
 
-def get_output_parameters(settings, netcdf_output_file, start_date, timestep, current_output_index):
+def get_output_parameters(settings, netcdf_output_file, start_date, timestep, time_frequency, timestep_stride, current_output_index):
     output_index = current_output_index
     p = Path(netcdf_output_file)
     netfile = Path(p.parent) / Path('{}.nc'.format(p.name) if not p.name.endswith('.nc') else p.name)
@@ -120,9 +112,9 @@ def get_output_parameters(settings, netcdf_output_file, start_date, timestep, cu
     if splitIO:
         monthlyIO = settings.get_option('monthlyOutput')
         if monthlyIO:
-            filename_suffix, output_index = get_output_parameters_monthly(start_date, timestep, current_output_index)
+            filename_suffix, output_index = get_output_parameters_monthly(start_date, timestep, time_frequency, timestep_stride, current_output_index)
         else:
-            filename_suffix, output_index = get_output_parameters_yearly(start_date, timestep, current_output_index)
+            filename_suffix, output_index = get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_stride, current_output_index)
         netfile = Path(p.parent) / Path('{}_{}.nc'.format(p.name, filename_suffix) if not p.name.endswith('.nc') else p.name)
     return prefix, netfile, output_index
 
@@ -140,6 +132,16 @@ def set_time_dimension(settings, netcdf_obj, time_variable_name, start_date, var
         start_date_6hourly = start_date - datetime.timedelta(hours=18)
         time.units = 'hours since %s' % start_date_6hourly.strftime('%Y-%m-%d %H:%M:%S.0')
         time.frequency = 6
+    elif 'internal.time.unit' in settings.binding:
+        internal_time_units = settings.binding['internal.time.unit']
+        # Separate the different parts of time units, ex:
+        # "seconds since 1970-01-01 00:00:00"
+        # "days since 1970-01-01 00:00:00"
+        # "hours since 1970-01-01 00:00:00"
+        # "minutes since 1970-01-01 00:00:00"
+        time_units_parts = internal_time_units.split(' ')
+        time.units = '%s since %s' % (time_units_parts[0], start_date.strftime('%Y-%m-%d %H:%M:%S.0'))
+        time.frequency = int(settings.binding['internal.time.frequency'])
     else:
         time.units = 'days since %s' % start_date.strftime('%Y-%m-%d %H:%M:%S.0')
         time.frequency = 1
@@ -276,19 +278,21 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
     netfile: output netcdf filename
     timestep:
     """
-    start_date = calendar_day_start + datetime.timedelta(days=1)
+    settings = LisSettings.instance()
+
+    timestep_stride = int(settings.binding['DtSec'])
+    time_frequency = int(settings.binding['internal.time.frequency'])
+    start_date = calendar_day_start + datetime.timedelta(seconds=timestep_stride)
     timestep = current_timestep
 
     cutmap = CutMap.instance()
     nrows = np.abs(cutmap.cuts[3] - cutmap.cuts[2])
     ncols = np.abs(cutmap.cuts[1] - cutmap.cuts[0])
 
-    settings = LisSettings.instance()
-
     time_variable = 'time'
     output6hourly = settings.get_option('output6hourly')
-    prefix, netfile, output_index = get_output_parameters(settings, netcdf_output_file, start_date,
-                                                          timestep, current_output_index)
+    prefix, netfile, output_index = get_output_parameters(settings, netcdf_output_file, start_date, timestep,
+                                                          time_frequency, timestep_stride, current_output_index)
 
     # Create and setup the netcdf file when the first map needs to be stored
     if output_index == 0 or not netfile.exists():
@@ -304,7 +308,7 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
     mapnp[np.isnan(mapnp)] = (nan_value - add_offset) * scale_factor
     if flag_time:
         # In case output6hourly==True, replicate four daily maps to get the 6 hourly output (EFCC-2316)
-        # The timestep need to increase by 4
+        # The timestep needs to increase by 4
         if output6hourly:
             time_frequency = 6
             for i in range(4):
@@ -312,7 +316,7 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
                 nf1.variables[time_variable][map_idx] = (timestep * 4 - 4 + i) * time_frequency
                 nf1.variables[prefix][map_idx, :, :] = mapnp
         else:  # Generate daily output
-            nf1.variables[time_variable][output_index] = timestep - 1
+            nf1.variables[time_variable][output_index] = (timestep - 1) * time_frequency  # timestep - time_frequency
             nf1.variables[prefix][output_index, :, :] = mapnp
     else:
         nf1.variables[prefix][:, :] = mapnp

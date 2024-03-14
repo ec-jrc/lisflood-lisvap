@@ -29,6 +29,7 @@ from pcraster.framework.dynamicFramework import DynamicFramework
 from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimum, mapmaximum
 
 from . import LisfloodError
+from . import LisSettings
 from .decorators import counted
 
 
@@ -97,10 +98,16 @@ def get_calendar_configuration(netcdf_file_obj, settings=None):
     except AttributeError:  # Attribute does not exist
         t_unit = u'hours since 1990-01-01 06:00:00'
         t_cal = u'gregorian'  # Use standard calendar
+    try:
+        t_frequency = int(netcdf_file_obj.variables['time'].frequency) # get frequency
+    except AttributeError:  # Attribute does not exist
+        t_frequency = 1
     if settings is not None and not ('internal.time.unit' in settings.binding and
-                                     'internal.time.calendar' in settings.binding):
+                                     'internal.time.calendar' in settings.binding and
+                                     'internal.time.frequency' in settings.binding):
         settings.binding['internal.time.unit'] = t_unit
         settings.binding['internal.time.calendar'] = t_cal
+        settings.binding['internal.time.frequency'] = t_frequency
     return t_unit, t_cal
 
 
@@ -142,7 +149,6 @@ def date_to_int(date_in, both=False):
     the number of steps as integer is returned
     :return: number of steps as integer and input date as string
     """
-    from lisvap.utils import LisSettings
     settings = LisSettings.instance()
     binding = settings.binding
     # CM: get reference date to be used with step numbers from 'CalendarDayStart' in Settings.xml file
@@ -175,7 +181,6 @@ def checkdate(start, end):
     :param start: start date for model run (# or date as string)
     :param end: end date for model run (# or date as string)
     """
-    from . import LisSettings
     settings = LisSettings.instance()
     binding = settings.binding
     # CM: calendar date start (CalendarDayStart)
