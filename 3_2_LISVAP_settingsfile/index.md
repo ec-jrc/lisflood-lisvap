@@ -39,7 +39,8 @@ TIME-RELATED CONSTANTS
 
       <textvar name="DtSec" value="86400">
         <comment>
-time step [seconds] ALWAYS USE 86400 for daily, 43200 for 12hourly, 21600 for 6hourly and 3600 for hourly!!
+        time step [seconds] ALWAYS USE 86400 for daily,
+        43200 for 12hourly, 21600 for 6hourly and 3600 for hourly!!
         </comment>
       </textvar>
 
