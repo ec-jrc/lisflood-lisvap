@@ -39,7 +39,7 @@ TIME-RELATED CONSTANTS
 
       <textvar name="DtSec" value="86400">
         <comment>
-time step [seconds] ALWAYS USE 86400!!
+time step [seconds] ALWAYS USE 86400 for daily, 43200 for 12hourly, 21600 for 6hourly and 3600 for hourly!!
         </comment>
       </textvar>
 
@@ -66,7 +66,7 @@ time step [seconds] ALWAYS USE 86400!!
  ```
 
 -  ***CalendarDayStart*** is the calendar day of the first time step in the model run; format is DD/MM/YYYY hh:mm
--  ***DtSec*** is the simulation time interval in seconds. It has a value of 86400  for a daily time interval. Some of the simplifying assumptions made in LISVAP related to the radiation balance are not valid at time steps smaller than days. Therefore, it is advised to use LISVAP for daily time intervals only (i.e. *DtSec* should always be 86400)
+-  ***DtSec*** is the simulation time interval in seconds. It has a value of 86400 for a daily time interval. Since v1.3.0 can be used for other sub daily time intervals like: 43200 for 12hourly, 21600 for 6hourly and 3600 for hourly. Some of the simplifying assumptions made in LISVAP related to the radiation balance are not valid at time steps smaller than days. Therefore, it is advised to use LISVAP for daily time intervals only (i.e. *DtSec* should always be 86400)
 -  ***StepStart*** Date of first time step of the simulation; format is DD/MM/YYYY hh:mm
 -  ***StepEnd*** Date of the last time step of the simulation; format is DD/MM/YYYY hh:mm
 -  ***ReportSteps*** Interval of steps to be reported in output maps and tss; format is a..b, with a,b >= 1 and a, b integers.
