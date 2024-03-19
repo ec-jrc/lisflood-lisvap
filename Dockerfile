@@ -1,5 +1,5 @@
-FROM python:3.7-stretch
-MAINTAINER Domenico Nappo <domenico.nappo@gmail.com>
+FROM python:3.7-buster
+MAINTAINER Goncalo Gomes <goncalo.ramos-gomes@ext.ec.europa.eu>
 
 ENV no_proxy=jrc.it,localhost,ies.jrc.it,127.0.0.1,jrc.ec.europa.eu
 ENV ftp_proxy=http://10.168.209.72:8012
@@ -24,12 +24,13 @@ RUN wget -q http://pcraster.geo.uu.nl/pcraster/4.2.1/pcraster-4.2.1.tar.bz2 && t
 
 COPY requirements.txt /
 RUN /usr/local/bin/pip3.7 install -U pip && /usr/local/bin/pip3.7 install -r /requirements.txt \
- && cd /usr/lib/x86_64-linux-gnu/ && ln -s libboost_python-py35.so libboost_python3.so
+ && cd /usr/lib/x86_64-linux-gnu/ && [ ! -f libboost_python3.so ] && ln -s libboost_python-py35.so libboost_python3.so || true
 
 WORKDIR /opt/pcraster-4.2.1/build
 RUN cmake -DFERN_BUILD_ALGORITHM:BOOL=TRUE -DCMAKE_INSTALL_PREFIX:PATH=/opt/pcraster -DPYTHON_EXECUTABLE:FILEPATH=/usr/local/bin/python3.7 ../ \
    && cmake --build ./ && make install
 
+WORKDIR /
 COPY tests/. /tests/
 COPY basemaps/. /basemaps/
 COPY src/. /

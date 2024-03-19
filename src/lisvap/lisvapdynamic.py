@@ -135,7 +135,7 @@ class LisvapModelDyn(DynamicModel):
         # CM: get time for operation "Start dynamic"
         tp.timemeasure('Start dynamic')
         # CM: date corresponding to the model time step (yyyy-mm-dd hh:mm:ss)
-        self.calendar_date = self.calendar_day_start + datetime.timedelta(days=(self.currentTimeStep()) * self.DtDay)
+        self.calendar_date = self.calendar_day_start + datetime.timedelta(seconds=(self.currentTimeStep()) * self.DtSec)
         # CM: day of the year corresponding to the model time step
         self.calendar_day = int(self.calendar_date.strftime("%j"))
 
@@ -146,7 +146,7 @@ class LisvapModelDyn(DynamicModel):
         self.time_since_start = self.currentTimeStep() - self.firstTimeStep() + 1
 
         if settings.flags['loud']:
-            print("%-6i %10s" % (self.currentTimeStep(), self.calendar_date.strftime("%d/%m/%Y")))
+            print("%-6i %10s" % (self.currentTimeStep(), self.calendar_date.strftime("%d/%m/%Y %H:%M")))
         elif not settings.flags['checkfiles']:
             if settings.flags['quiet'] and not settings.flags['veryquiet']:
                 sys.stdout.write(".")

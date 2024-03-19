@@ -47,10 +47,31 @@ class TestLis(object):
             'es': os.path.join(current_dir, 'data/reference/efas_1arcmin/es_1_15'),
             'et': os.path.join(current_dir, 'data/reference/efas_1arcmin/et_1_15'),
         },
+        'efas_1arcmin_6hourly': {
+            'e0_202112': os.path.join(current_dir, 'data/reference/efas_1arcmin_6hourly/e0_202112'),
+            'es_202112': os.path.join(current_dir, 'data/reference/efas_1arcmin_6hourly/es_202112'),
+            'et_202112': os.path.join(current_dir, 'data/reference/efas_1arcmin_6hourly/et_202112'),
+            'e0_202201': os.path.join(current_dir, 'data/reference/efas_1arcmin_6hourly/e0_202201'),
+            'es_202201': os.path.join(current_dir, 'data/reference/efas_1arcmin_6hourly/es_202201'),
+            'et_202201': os.path.join(current_dir, 'data/reference/efas_1arcmin_6hourly/et_202201'),
+        },
+        'efas_1arcmin_hourly': {
+            'e0': os.path.join(current_dir, 'data/reference/efas_1arcmin_hourly/e0'),
+            'es': os.path.join(current_dir, 'data/reference/efas_1arcmin_hourly/es'),
+            'et': os.path.join(current_dir, 'data/reference/efas_1arcmin_hourly/et'),
+        },
         'efas_1arcmin_yearly': {
             'e0': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly/e0'),
             'es': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly/es'),
             'et': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly/et'),
+        },
+        'efas_1arcmin_yearly_output': {
+            'e0_2015': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly_output/e0_2015'),
+            'es_2015': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly_output/es_2015'),
+            'et_2015': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly_output/et_2015'),
+            'e0_2016': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly_output/e0_2016'),
+            'es_2016': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly_output/es_2016'),
+            'et_2016': os.path.join(current_dir, 'data/reference/efas_1arcmin_yearly_output/et_2016'),
         },
         'efas_1arcmin_360days_calendar': {
             'e0': os.path.join(current_dir, 'data/reference/efas_1arcmin_360days_calendar/e0_1_15'),
@@ -91,11 +112,11 @@ class TestLis(object):
         cdf_flags['end'] = 0
 
     @classmethod
-    def check_var_step(cls, var, step):
+    def check_var_step(cls, var, step, variable_file_sufix=''):
         settings = LisSettings.instance()
         output_path = settings.binding['PathOut']
-        output_nc = os.path.join(output_path, var)
-        reference = pcr2numpy(readnetcdf(cls.reference_files[cls.domain][var], step, variable_name=var), -9999)
+        output_nc = os.path.join(output_path, var + variable_file_sufix)
+        reference = pcr2numpy(readnetcdf(cls.reference_files[cls.domain][var + variable_file_sufix], step, variable_name=var), -9999)
         current_output = pcr2numpy(readnetcdf(output_nc, step, variable_name=var), -9999)
         same_size = reference.size == current_output.size
         diff_values = np.abs(reference - current_output)
@@ -133,13 +154,13 @@ class TestLis(object):
         return len(t_steps)
 
     @classmethod
-    def listest(cls, variable):
+    def listest(cls, variable, variable_file_sufix=''):
         settings = LisSettings.instance()
         output_path = settings.binding['PathOut']
-        output_nc = os.path.join(output_path, variable)
-        print('\n\n>>> Reference: {} - Current Output: {}'.format(cls.reference_files[cls.domain][variable], output_nc))
+        output_nc = os.path.join(output_path, variable + variable_file_sufix)
+        print('\n\n>>> Reference: {} - Current Output: {}'.format(cls.reference_files[cls.domain][variable + variable_file_sufix], output_nc))
         results = []
-        numsteps = cls.netcdf_steps(cls.reference_files[cls.domain][variable])
+        numsteps = cls.netcdf_steps(cls.reference_files[cls.domain][variable + variable_file_sufix])
         for step in range(0, numsteps):
-            results.append(cls.check_var_step(variable, step))
+            results.append(cls.check_var_step(variable, step, variable_file_sufix))
         assert all(results)

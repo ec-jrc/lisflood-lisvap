@@ -6,7 +6,7 @@ if [[ "$1" = 'usecases' ]]; then
     mkdir -p /input/efas
     mkdir -p /input/basemaps
     echo "Copying basemaps to /input/..."
-    cp /basemaps/* /input/basemaps/
+    cp -r /basemaps/* /input/basemaps/
     echo "copy input files to /input/cordex......"
     cp /tests/data/input/cordex/*.nc /input/cordex/
     echo "copy cordex settings to /input/..."

@@ -64,6 +64,66 @@ class TestEFAS1arcminYearly(TestLis):
         return self.listest('et')
 
 
+class TestEFAS1arcminHourly(TestLis):
+    domain = 'efas_1arcmin_hourly'
+    settings_path = os.path.join(current_dir, 'data/tests_efas_1arcmin_hourly.xml')
+
+    def test_e0(self):
+        return self.listest('e0')
+
+    def test_es(self):
+        return self.listest('es')
+
+    def test_et(self):
+        return self.listest('et')
+
+
+class TestEFAS1arcmin6Hourly(TestLis):
+    domain = 'efas_1arcmin_6hourly'
+    settings_path = os.path.join(current_dir, 'data/tests_efas_1arcmin_6hourly.xml')
+
+    def test_e0_202112(self):
+        return self.listest('e0', '_202112')
+
+    def test_es_202112(self):
+        return self.listest('es', '_202112')
+
+    def test_et_202112(self):
+        return self.listest('et', '_202112')
+
+    def test_e0_202201(self):
+        return self.listest('e0', '_202201')
+
+    def test_es_202201(self):
+        return self.listest('es', '_202201')
+
+    def test_et_202201(self):
+        return self.listest('et', '_202201')
+
+
+class TestEFAS1arcminYearlyOutput(TestLis):
+    domain = 'efas_1arcmin_yearly_output'
+    settings_path = os.path.join(current_dir, 'data/tests_efas_1arcmin_yearly_output.xml')
+
+    def test_e0_2015(self):
+        return self.listest('e0', '_2015')
+
+    def test_es_2015(self):
+        return self.listest('es', '_2015')
+
+    def test_et_2015(self):
+        return self.listest('et', '_2015')
+
+    def test_e0_2016(self):
+        return self.listest('e0', '_2016')
+
+    def test_es_2016(self):
+        return self.listest('es', '_2016')
+
+    def test_et_2016(self):
+        return self.listest('et', '_2016')
+
+
 class TestEFAS1arcmin360DaysCalendar(TestLis):
     domain = 'efas_1arcmin_360days_calendar'
     settings_path = os.path.join(current_dir, 'data/tests_efas_1arcmin_360days_calendar.xml')

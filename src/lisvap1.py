@@ -50,10 +50,11 @@ def lisvapexe(settings):
     tp = TimeProfiler()
     step_start = settings.binding['StepStart']
     step_end = settings.binding['StepEnd']
+    timestep_stride = int(settings.binding['DtSec'])
     start_date, end_date = datetime.datetime.strptime(step_start, '%d/%m/%Y %H:%M'), datetime.datetime.strptime(step_end, '%d/%m/%Y %H:%M')
     start_date_simulation = datetime.datetime.strptime(settings.binding['CalendarDayStart'], '%d/%m/%Y %H:%M')
-    timestep_start = (start_date - start_date_simulation).days + 1
-    timestep_end = (end_date - start_date_simulation).days + 1
+    timestep_start = int((start_date - start_date_simulation).total_seconds() / timestep_stride) + 1
+    timestep_end = int((end_date - start_date_simulation).total_seconds() / timestep_stride) + 1
     checkdate('StepStart', 'StepEnd')
     print('Start date: {} ({}) - End date: {} ({})'.format(step_start, timestep_start, step_end, timestep_end))
 

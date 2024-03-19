@@ -18,7 +18,10 @@ lisflood_lisvap.egg-info/
 !tests/data/tests_cordex.xml
 !/tests/data/tests_glofas.xml
 !tests/data/tests_efas_1arcmin.xml
+!tests/data/tests_efas_1arcmin_6hourly.xml
+!tests/data/tests_efas_1arcmin_hourly.xml
 !tests/data/tests_efas_1arcmin_yearly.xml
+!tests/data/tests_efas_1arcmin_yearly_output.xml
 !tests/data/tests_efas_1arcmin_360days_calendar.xml
 
 # unignoring reference and input data for tests
