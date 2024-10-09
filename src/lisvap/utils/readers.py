@@ -171,6 +171,51 @@ def loadmap(name):
     return res
 
 
+def get_current_date(timestep):
+    settings = LisSettings.instance()
+    begin = calendar(settings.binding['CalendarDayStart'])
+    DtSec = float(settings.binding['DtSec'])
+    DtDay = float(DtSec / 86400)
+    # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
+    # get date of current simulation step
+    current_date = calendar(timestep)
+    if not isinstance(current_date, datetime.datetime):
+        current_date_number = current_date * int(settings.binding['internal.time.frequency'])
+        init_t_unit = settings.binding['internal.time.unit']
+        init_t_cal = settings.binding['internal.time.calendar']
+        begin_date_number = date2num(begin, units=init_t_unit, calendar=init_t_cal)
+        cur_date = num2date(current_date_number, init_t_unit, init_t_cal)
+        next_date = cur_date - datetime.timedelta(seconds=DtSec)
+        cur_step = date2num(next_date, units=init_t_unit, calendar=init_t_cal)
+        current_date_number = begin_date_number + cur_step
+        current_date = num2date(current_date_number, init_t_unit, init_t_cal)
+    return current_date
+
+
+def get_initial_and_final_dates(nf1):
+    time_var = nf1.variables['time']
+    time_units = time_var.units
+    time_calendar = time_var.calendar
+    time_value_initial = time_var[0]
+    time_value_final = time_var[len(time_var)-1]
+    datetime_initial = num2date(time_value_initial, time_units, calendar=time_calendar)
+    datetime_final = num2date(time_value_final, time_units, calendar=time_calendar)
+    return datetime_initial, datetime_final
+
+
+# def current_date_is_in_netcdf(nf1, timestep):
+#     time_var = nf1.variables['time']
+#     time_units = time_var.units
+#     time_calendar = time_var.calendar
+#     time_value_initial = time_var[0]
+#     time_value_final = time_var[len(time_var)-1]
+#     datetime_initial = num2date(time_value_initial, time_units, calendar=time_calendar)
+#     datetime_final = num2date(time_value_final, time_units, calendar=time_calendar)
+#     # get date of current simulation step
+#     current_date = get_current_date(timestep)
+#     return datetime_initial <= current_date and datetime_final >= current_date
+
+
 def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, variable_name=None,
                variable_binding=None, splitIO=False, negative_value_substitute=None):
     """ Read maps from netCDF stacks (forcings, fractions, water demand)
@@ -223,11 +268,26 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
         current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO)
     except LisfloodError:
         if splitIO:
-            # 1. Read the next file
-            fileManager.next(variable_binding)
-            filename = fileManager.get_file_name(variable_binding)
-            name_parameter = os.path.splitext(filename)[0]
-            nf1 = iter_open_netcdf(filename, 'r')
+            # get date of current simulation step
+            current_date = get_current_date(timestep)
+            datetime_initial, datetime_final = get_initial_and_final_dates(nf1)
+            # Search for the file containing the current timestep
+            while not (datetime_initial <= current_date and datetime_final >= current_date) and not fileManager.reached_last_file(variable_binding):
+                # 1. Read the next file
+                fileManager.next(variable_binding)
+                filename = fileManager.get_file_name(variable_binding)
+                name_parameter = os.path.splitext(filename)[0]
+                old_nf = nf1
+                nf1 = iter_open_netcdf(filename, 'r')
+                datetime_initial, datetime_final = get_initial_and_final_dates(nf1)
+                # Exit the cycle if there are still files to process but they contain dates greater than last timestep/current_date 
+                if current_date < datetime_initial:
+                    # In case we are exiting the cycle it means the next file dates range is out of the current
+                    # date and in order to maintain the expected Lisvap behavior we get the previous file so the
+                    # last timestep will be read.
+                    nf1.close()
+                    nf1 = old_nf
+                    break
             current_ncdf_index = netcdf_step(averageyearflag, nf1, timestampflag, timestep)
 
     cutmaps = CutMap.instance().slices
@@ -269,23 +329,10 @@ def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):
     t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
     settings = LisSettings.instance()
     t_unit, t_cal = get_calendar_configuration(nf1, settings)
-    begin = calendar(settings.binding['CalendarDayStart'])
-    DtSec = float(settings.binding['DtSec'])
-    DtDay = float(DtSec / 86400)
-    # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
-    # get date of current simulation step
-    current_date = calendar(timestep)
 
-    if not isinstance(current_date, datetime.datetime):
-        current_date_number = current_date * int(settings.binding['internal.time.frequency'])
-        init_t_unit = settings.binding['internal.time.unit']
-        init_t_cal = settings.binding['internal.time.calendar']
-        begin_date_number = date2num(begin, units=init_t_unit, calendar=init_t_cal)
-        cur_date = num2date(current_date_number, init_t_unit, init_t_cal)
-        next_date = cur_date - datetime.timedelta(seconds=DtSec)
-        cur_step = date2num(next_date, units=init_t_unit, calendar=init_t_cal)
-        current_date_number = begin_date_number + cur_step
-        current_date = num2date(current_date_number, init_t_unit, init_t_cal)
+    # get date of current simulation step
+    current_date = get_current_date(timestep)
+
     # if reading from an average year NetCDF stack, ignore the year in current simulation date and change it to the netCDF time unit year
     if averageyearflag:
         # CM: get year from time unit in case average year is used

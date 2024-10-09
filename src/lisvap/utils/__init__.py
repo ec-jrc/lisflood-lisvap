@@ -643,6 +643,10 @@ class FileNamesManager(with_metaclass(Singleton)):
         current_file_idx, file_list = self.input_files[variable_binding]
         new_file_idx = min(max(0, len(file_list)-1), current_file_idx+1)
         self.input_files[variable_binding] = (new_file_idx, file_list)
+    
+    def reached_last_file(self, variable_binding):
+        current_file_idx, file_list = self.input_files[variable_binding]
+        return current_file_idx == len(file_list) - 1
 
 
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})
