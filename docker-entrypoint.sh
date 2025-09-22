@@ -16,6 +16,9 @@ if [[ "$1" = 'usecases' ]]; then
     echo "copy efas settings to /input/..."
     cp /tests/data/tests_efas.xml /input/
     chmod a+w /input/*.xml
+elif [[ "$1" = 'tests' ]]; then
+    # execute unit tests
+    exec conda run -n lisvap pytest /tests -x -l -ra
 else
-    exec python /lisvap1.py "$@"
+    exec conda run -n lisvap python /lisvap1.py "$@"
 fi

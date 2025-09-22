@@ -82,7 +82,7 @@ def headerinfo():
 def main():
     if len(sys.argv) < 2:
         usage()
-        sys.exit(1)
+        sys.exit(0)
     settingsxml = sys.argv[1]  # setting.xml file
     lissettings = LisSettings(settingsxml)
     fileManager = FileNamesManager(lissettings.binding.get('PathOut'))
