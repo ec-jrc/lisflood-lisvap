@@ -1,19 +1,20 @@
-cython
-netCDF4
-numpy
-pyproj
+Cython==3.0.11
+netCDF4==1.7.2
+numpy==1.24.4
+pyproj==3.5.0
 
-python-dateutil
-docopt
+python-dateutil==2.9.0.post0
+docopt==0.6.2
 
 # pathlib for python2.7 (this module is included in python3.6)
-pathlib2
+pathlib2==2.3.7.post1
 
 # packages for python2/python3 compatibility
-future
-nine
+future==1.0.0
+nine==1.1.0
 # packages for tests
-pytest
-tox
-coverage
-pytest-cov
+pytest==8.3.4
+tox==4.23.2
+coverage==7.6.1
+pytest-cov==5.0.0
+
