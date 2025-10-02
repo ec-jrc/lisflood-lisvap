@@ -27,6 +27,7 @@ import pcraster
 from pcraster import numpy_operations, Nominal
 from pcraster.framework.dynamicFramework import DynamicFramework
 from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimum, mapmaximum
+from netCDF4 import num2date, date2num
 
 from . import LisfloodError
 from . import LisSettings
@@ -128,6 +129,15 @@ def calendar(date_or_ts):
     try:
         # try reading step number from number or string
         date = parser.parse(date_or_ts, dayfirst=True)
+        # Convert the date into the calendar type as soon as it is defined
+        settings = LisSettings.instance()
+        if (settings is not None and
+            'internal.time.unit' in settings.binding and
+            'internal.time.calendar' in settings.binding):
+            t_unit = settings.binding['internal.time.unit']
+            t_cal = settings.binding['internal.time.calendar']
+            date_number = date2num(date, units=t_unit, calendar=t_cal)
+            date = num2date(date_number, t_unit, t_cal)
     except (TypeError, ValueError) as e:
         # if cannot read input then stop
         msg = ' Wrong step or date format: {}, Input {} '.format(e, date_or_ts)
