@@ -15,11 +15,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-from future.utils import with_metaclass
-from nine import (IS_PYTHON2, str, range, map, nine)
+import threading
+from nine import (str, range, map, nine)
 
 import inspect
 import os
@@ -48,12 +46,7 @@ getcontext().prec = __DECIMAL_CASES
 
 project_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../..'))
 
-
-if not IS_PYTHON2:
-    # time.clock is deprecated and will be removed in python 3.8
-    process_time = time.process_time
-else:
-    process_time = time.clock
+process_time = time.process_time
 
 
 class LisfloodError(Exception):
@@ -72,26 +65,28 @@ class LisfloodError(Exception):
 
 class Singleton(type):
     """
-    Singleton metaclass to keep single instances by init arguments
+    Thread safe Singleton metaclass to keep single instances by init arguments
     """
     _instances = {}
     _init = {}
     _current = {}
+    _lock = threading.Lock()
 
     def __init__(cls, name, bases, dct):
         cls._init[cls] = dct.get('__init__', None)
         super(Singleton, cls).__init__(name, bases, dct)
 
     def __call__(cls, *args, **kwargs):
-        init = cls._init[cls]
-        if init is not None:
-            key = (cls, frozenset(inspect.getcallargs(init, None, *args, **kwargs).items()))
-        else:
-            key = cls
-
-        if key not in cls._instances:
-            cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
-        cls._current[cls] = cls._instances[key]
+        with cls._lock:
+            init = cls._init[cls]
+            if init is not None:
+                key = (cls, frozenset(inspect.getcallargs(init, None, *args, **kwargs).items()))
+            else:
+                key = cls
+    
+            if key not in cls._instances:
+                cls._instances[key] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._current[cls] = cls._instances[key]
         return cls._instances[key]
 
     def instance(cls):
@@ -99,7 +94,7 @@ class Singleton(type):
 
 
 @nine
-class LisSettings(with_metaclass(Singleton)):
+class LisSettings(metaclass=Singleton):
     printer = pprint.PrettyPrinter(indent=4, width=120)
 
     def __init__(self, settings_file):
@@ -429,7 +424,7 @@ LisvapPy - Lisvap (Global) using pcraster Python framework
 
 
 @nine
-class NetcdfMetadata(with_metaclass(Singleton)):
+class NetcdfMetadata(metaclass=Singleton):
 
     @classmethod
     def register(cls, netcdf_file):
@@ -471,7 +466,7 @@ class NetcdfMetadata(with_metaclass(Singleton)):
         return res
 
 
-class MaskMapMetadata(with_metaclass(Singleton)):
+class MaskMapMetadata(metaclass=Singleton):
 
     @classmethod
     def register(cls, maskmap):
@@ -522,7 +517,7 @@ class MaskMapMetadata(with_metaclass(Singleton)):
         return res
 
 
-class CutMap(tuple, with_metaclass(Singleton)):
+class CutMap(tuple, metaclass=Singleton):
 
     @classmethod
     def register(cls, in_file):
@@ -587,7 +582,7 @@ class CutMap(tuple, with_metaclass(Singleton)):
         return slice(self.cuts[2], self.cuts[3]), slice(self.cuts[0], self.cuts[1])
 
 
-class TimeProfiler(with_metaclass(Singleton)):
+class TimeProfiler(metaclass=Singleton):
 
     def __init__(self):
         self.start = process_time()
@@ -615,7 +610,7 @@ class TimeProfiler(with_metaclass(Singleton)):
 
 
 @nine
-class FileNamesManager(with_metaclass(Singleton)):
+class FileNamesManager(metaclass=Singleton):
 
     def __init__(self, unique_domain=''):
         # Dictionary of pairs (current_file_idx, [file1, file2, ...])

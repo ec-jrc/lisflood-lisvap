@@ -15,8 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
-from __future__ import (absolute_import, division, print_function, unicode_literals)
-from nine import IS_PYTHON2
 
 import os
 import time as xtime
@@ -31,13 +29,8 @@ from decimal import *
 from . import CutMap, NetcdfMetadata, LisSettings
 from pyproj import proj
 from ..__init__ import __version__ as lisvap_version
-# from scprep.run.splatter import SplatSimulate
-# from audioop import reverse
 
-if IS_PYTHON2:
-    from pathlib2 import Path
-else:
-    from pathlib import Path
+from pathlib import Path
 
 
 __DECIMAL_CASES = 20

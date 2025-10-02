@@ -108,9 +108,9 @@ setup(
     keywords='lisflood lisvap efas evapotranspiration evaporation',
     license='EUPL 1.2',
     url='https://github.com/ec-jrc/lisflood-lisvap',
-    setup_requires=['future', 'nine'],
-    install_requires=['numpy>=1.15', 'netCDF4', 'python-dateutil', 'future', 'nine', 'pathlib2', 'pyproj'],
-    python_requires=">=2.7,!=3.0.*,!=3.1.*",
+    setup_requires=['nine'],
+    install_requires=['numpy>=1.15', 'netCDF4', 'python-dateutil', 'nine', 'pyproj'],
+    python_requires=">=3.8",
     scripts=['bin/lisvap'],
     zip_safe=True,
     classifiers=[

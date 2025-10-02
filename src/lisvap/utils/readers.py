@@ -1,6 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-from future.utils import listitems
+
 from nine import str
 
 import datetime
@@ -254,7 +252,6 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     # original code
     # Attempt at checking if input files are not in the format we expect
     if not variable_name:
-        # variables = listitems(nf1.variables)
         # get the variable with 3 dimensions (variable order not relevant)
         targets = [k for k in nf1.variables if len(nf1.variables[k].dimensions) == 3]
         if len(targets) > 1:

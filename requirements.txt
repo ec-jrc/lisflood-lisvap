@@ -6,12 +6,9 @@ pyproj==3.5.0
 python-dateutil==2.9.0.post0
 docopt==0.6.2
 
-# pathlib for python2.7 (this module is included in python3.6)
-pathlib2==2.3.7.post1
-
 # packages for python2/python3 compatibility
-future==0.18.3
 nine==1.1.0
+
 # packages for tests
 pytest==8.3.4
 tox==4.23.2
