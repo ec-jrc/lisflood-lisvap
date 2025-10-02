@@ -17,7 +17,6 @@ See the Licence for the specific language governing permissions and limitations 
 """
 
 import threading
-from nine import (str, range, map, nine)
 
 import inspect
 import os
@@ -93,7 +92,6 @@ class Singleton(type):
         return cls._current[cls]
 
 
-@nine
 class LisSettings(metaclass=Singleton):
     printer = pprint.PrettyPrinter(indent=4, width=120)
 
@@ -423,7 +421,6 @@ LisvapPy - Lisvap (Global) using pcraster Python framework
         return True
 
 
-@nine
 class NetcdfMetadata(metaclass=Singleton):
 
     @classmethod
@@ -609,7 +606,6 @@ class TimeProfiler(metaclass=Singleton):
             print("%-17s %10.2f %8.1f" % (name, self.times_sum[name], 100 * self.times_sum[name] / tot))
 
 
-@nine
 class FileNamesManager(metaclass=Singleton):
 
     def __init__(self, unique_domain=''):

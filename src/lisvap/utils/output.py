@@ -15,8 +15,6 @@ See the Licence for the specific language governing permissions and limitations 
 
 """
 
-from nine import str, range
-
 import os
 from decimal import Decimal
 

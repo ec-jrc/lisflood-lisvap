@@ -251,7 +251,6 @@ dependencies:
       - filelock==3.16.1
       - iniconfig==2.0.0
       - netcdf4==1.7.2
-      - nine==1.1.0
       - platformdirs==4.3.6
       - pluggy==1.5.0
       - pyproj==3.5.0

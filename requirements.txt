@@ -6,9 +6,6 @@ pyproj==3.5.0
 python-dateutil==2.9.0.post0
 docopt==0.6.2
 
-# packages for python2/python3 compatibility
-nine==1.1.0
-
 # packages for tests
 pytest==8.3.4
 tox==4.23.2
