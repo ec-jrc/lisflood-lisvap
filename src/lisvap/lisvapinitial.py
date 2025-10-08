@@ -52,12 +52,13 @@ class LisvapModelIni(DynamicModel):
             map_for_metadata = fileManager.get_file_name('TAvgMaps')
         elif self.settings.get_option('useTDewMaps') and self.settings.binding.get('TDewMaps'):
             map_for_metadata = fileManager.get_file_name('TDewMaps')
+        elif self.settings.get_option('useRelHumidityMaps') and self.settings.binding.get('RelHMaps'):
+            map_for_metadata = fileManager.get_file_name('RelHMaps')
         elif self.settings.binding.get('TMinMaps'):
             map_for_metadata = fileManager.get_file_name('TMinMaps')
 
         if self.settings.get_option('readNetcdfStack'):
             # CutMap defines the extent to read from input netcdf data (cropping)
-
             CutMap.register(map_for_metadata)
 
         if self.settings.get_option('writeNetcdfStack') or self.settings.get_option('writeNetcdf'):

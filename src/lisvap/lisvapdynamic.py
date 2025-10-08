@@ -171,16 +171,8 @@ class LisvapModelDyn(DynamicModel):
         # if DeltaT is less than 12 degrees, BU=0.54
         BU = maximum(0.54 + 0.35 * ((DeltaT - 12) / 4), 0.54)
 
-        # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
-        # the formula above returns value in pascal, not mbar
-        # Goudriaan equation (1977)
-        # saturated vapour pressure [mbar]
-        # TAvg [deg Celsius]
-        # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
-        ESat = 6.10588 * exp((17.32491 * self.TAvg) / (self.TAvg + 238.102))
-
         # Vapour pressure deficit [mbar]
-        VapPressDef = maximum(ESat - self.EAct, 0.0)
+        VapPressDef = maximum(self.ESat - self.EAct, 0.0)
 
         # evaporative demand of reference vegetation canopy [mm/d]
         EA = 0.26 * VapPressDef * (self.FactorCanopy + BU * self.Wind)
@@ -215,7 +207,7 @@ class LisvapModelDyn(DynamicModel):
         Psychro = Psychro0 * ((293 - 0.0065 * self.Dem) / 293) ** 5.26
 
         # slope of saturated vapour pressure curve [mbar/deg C]
-        Delta = (238.102 * 17.32491 * ESat) / ((self.TAvg + 238.102) ** 2)
+        Delta = (238.102 * 17.32491 * self.ESat) / ((self.TAvg + 238.102) ** 2)
 
         # net absorbed radiation of reference vegetation canopy [mm/d]
         RNA = maximum(((1 - self.AlbedoCanopy) * RG - RN) / (self.MJtoJ * LatHeatVap), 0.0)

@@ -315,9 +315,12 @@ report_maps_end: {report_maps_end}
                     if self.get_option('useTDewMaps'):
                         if not self.valid_files('TDewMaps'):
                             issues_list.append('Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
+                    elif self.get_option('useRelHumidityMaps'):
+                        if not self.valid_files('RelHMaps'):
+                            issues_list.append('Option "useRelHumidityMaps" ON: Missing "RelHMaps" file(s).')
                     else:
                         if not self.valid_files('EActMaps'):
-                            issues_list.append('Option "useTDewMaps" OFF: Missing "EActMaps" file(s).')
+                            issues_list.append('Option "useTDewMaps" OFF and "useRelHumidityMaps" OFF: Missing "EActMaps" file(s).')
                 # ###############################################
                 # Check setup specific input variables
                 # ###############################################

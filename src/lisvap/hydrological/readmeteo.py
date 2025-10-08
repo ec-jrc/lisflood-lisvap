@@ -15,8 +15,13 @@ See the Licence for the specific language governing permissions and limitations 
 
 """
 
+import datetime
+
+from netCDF4 import date2num, num2date
+
 from ..utils.operators import scalar, maximum, sqrt, sqr, exp
 from ..utils.readers import readnetcdf
+from ..utils.tools import calendar
 
 
 class ReadMeteo(object):
@@ -68,6 +73,9 @@ class ReadMeteo(object):
             # In that case Eact can be calculated using Goudriaan Formula(1977)
             self.var.Tdew = readnetcdf(self.settings.binding['TDewMaps'], self.var.currentTimeStep(), variable_binding='TDewMaps', splitIO=self.splitIO)
             self.var.EAct = 6.10588 * exp((17.32491 * self.var.Tdew) / (self.var.Tdew + 238.102))
+        elif self.settings.get_option('useRelHumidityMaps'):
+            self.var.RelH = readnetcdf(self.settings.binding['RelHMaps'], self.var.currentTimeStep(), variable_binding='RelHMaps', splitIO=self.splitIO)
+            self.var.EAct = (self.var.RelH / 100) * self.var.ESat
         else:
             # actual vapor pressure; has to be in mbar = hPa
             # self.var.EAct = self.var.EAct / 10
@@ -88,6 +96,20 @@ class ReadMeteo(object):
         if self.settings.get_option('readNetcdfStack'):
             self.read_temperature()
             self.read_windspeed()
+
+            if self.settings.get_option('TemperatureInKelvinFlag'):
+                self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
+                if not self.settings.get_option('useTAvg'):
+                    self.var.TMin = self.var.TMin - self.var.ZeroKelvin
+                    self.var.TMax = self.var.TMax - self.var.ZeroKelvin
+
+            # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
+            # the formula above returns value in pascal, not mbar
+            # Goudriaan equation (1977)
+            # saturated vapour pressure [mbar]
+            # TAvg [deg Celsius]
+            # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
+            self.var.ESat = 6.10588 * exp((17.32491 * self.var.TAvg) / (self.var.TAvg + 238.102))
 
             if self.settings.get_option('CORDEX'):
                 self.var.Psurf = readnetcdf(self.settings.binding['PSurfMaps'], self.var.currentTimeStep(), variable_binding='PSurfMaps', splitIO=self.splitIO)
@@ -112,12 +134,6 @@ class ReadMeteo(object):
                     # set of forcings (rg, rn, ta, td, wu, wv)
                     # Net long wave radiation [J/m2/day]
                     self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep(), variable_binding='RNMaps', splitIO=self.splitIO) * -1
-
-        if self.settings.get_option('TemperatureInKelvinFlag'):
-            self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
-            if not self.settings.get_option('useTAvg'):
-                self.var.TMin = self.var.TMin - self.var.ZeroKelvin
-                self.var.TMax = self.var.TMax - self.var.ZeroKelvin
 
         if self.settings.get_option('CORDEX'):
             self.var.Rds = self.var.Rds * 86400

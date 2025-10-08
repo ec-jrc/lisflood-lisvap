@@ -194,6 +194,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
         <setoption name="useTAvg" choice="0" />
         <setoption name="useTDewMaps" choice="0" />
+        <setoption name="useRelHumidityMaps" choice="0" />
         <setoption name="useWindUVMaps" choice="0" />
 
     </lfoptions>

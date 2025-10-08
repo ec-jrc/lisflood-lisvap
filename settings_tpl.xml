@@ -142,6 +142,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="useTAvg" choice="1"/>
         <setoption name="useTDewMaps" choice="1"/>
         <setoption name="useWindUVMaps" choice="1"/>
+        <setoption name="useRelHumidityMaps" choice="1"/>
     </lfoptions>
 
 
@@ -281,11 +282,20 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 </comment>
             </textvar>
             
-            <textvar name="TDew" value="$(PathMeteoIn)/rlus_1_15">
+            <textvar name="TDewMaps" value="$(PathMeteoIn)/rlus_1_15">
                 <comment>
                     TDew - Dew point Temperature used for actual vap pressure 
                     Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
                     Used when the "GLOFAS" option is switched on.
+                    
+                </comment>
+            </textvar>
+            
+            <textvar name="RelHMaps" value="$(PathMeteoIn)/hurs_1_15">
+                <comment>
+                    RelHMaps - Relative Humidity used for actual vap pressure 
+                    Units: [%]
+                    Used when the "EFAS" option is switched on.
                     
                 </comment>
             </textvar>
