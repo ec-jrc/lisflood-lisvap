@@ -54,6 +54,7 @@ The Table below lists all **meteorological input variables** that LISVAP can dig
 | TAvgMaps            | ta             | Average daily temperature [°C or K]                  |
 | **VAPOUR PRESSURE** |                |                                                      |
 | TDewMaps            | td             | Average daily dew point temperature [°C or K]        |
+| RelHMaps            | rh             | Relative humidity [%]                                |
 | EActMaps            | pd             | Actual vapour pressure [mbar]                        |
 | PSurfMaps           | ps             | Instantaneous sea level pressure [Pa]                |
 | **WIND SPEED**      |                |                                                      |
@@ -119,6 +120,7 @@ The [GitHub tests folder](https://github.com/ec-jrc/lisflood-lisvap/tree/master/
 | rn                                | net longwave radiation maps \[J/m^2/d\]              |
 | ta                                | average temperature \[K\]                            |
 | td                                | dew point temperature \[K\]                          |
+| rh                                | relative humidity \[%\]                              |
 | wu                                | Wind speed at 10 m from surface, u component \[m/s\] |
 | wv                                | Wind speed at 10 m from surface, v component \[m/s\] |
 
