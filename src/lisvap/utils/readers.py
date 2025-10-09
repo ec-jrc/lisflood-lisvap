@@ -4,6 +4,7 @@ import os
 import time
 import warnings
 
+import cftime
 import numpy as np
 import pcraster
 from netCDF4 import Dataset, num2date, date2num
@@ -175,7 +176,7 @@ def get_current_date(timestep):
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
     # get date of current simulation step
     current_date = calendar(timestep)
-    if not isinstance(current_date, datetime.datetime):
+    if not (isinstance(current_date, cftime.datetime) or isinstance(current_date, datetime.datetime)):
         current_date_number = current_date * int(settings.binding['internal.time.frequency'])
         init_t_unit = settings.binding['internal.time.unit']
         init_t_cal = settings.binding['internal.time.calendar']
