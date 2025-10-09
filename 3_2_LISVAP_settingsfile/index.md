@@ -244,7 +244,7 @@ The table below lists all currently implemented options and their respective def
 | readNetcdfStack           | Input variables as netCDF mapstacks                                                                     | False   |
 | useTAvg                   | Use $T_{avg}$ input map. If false, will be computed out of $T_{max}$ and $T_{min}$                      | False   |
 | useTDewMaps               | Use $T_{dew point}$ input map to compute actual vap pressure ($EAct$). If false, it uses the $EAct$ map | False   |
-| useRelHumidityMaps        | Use $T_{rel humidity}$ input map to compute actual vap pressure ($EAct$). If false, it uses the $EAct$ map | False   |
+| useRelHumidityMaps        | Use $Rel_{humidity}$ input map to compute actual vap pressure ($EAct$). If false, it uses the $EAct$ map | False   |
 | useWindUVMaps             | Use $Wind_{U}$ and $Wind_{V}$ input maps to compute $Windspeed$. If false, it uses the $Wind$ map       | False   |
 | splitInput                | Sets Lisvap to input multiple meteo maps separated by year.                                             | False   |
 | EFAS                      | Use *EFAS* setup                                                                                        | True    |
