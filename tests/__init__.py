@@ -20,7 +20,6 @@ import sys
 
 from pyexpat import *
 import numpy as np
-from pcraster.numpy_operations import pcr2numpy
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.join(current_dir, '../src/')
@@ -113,9 +112,9 @@ class TestLis(object):
         settings = LisSettings.instance()
         output_path = settings.binding['PathOut']
         output_nc = os.path.join(output_path, var + variable_file_sufix)
-        reference = pcr2numpy(readnetcdf(cls.reference_files[cls.domain][var + variable_file_sufix], step, variable_name=var), -9999)
-        current_output = pcr2numpy(readnetcdf(output_nc, step, variable_name=var), -9999)
-        same_size = reference.size == current_output.size
+        reference = readnetcdf(cls.reference_files[cls.domain][var + variable_file_sufix], step, variable_name=var)
+        current_output = readnetcdf(output_nc, step, variable_name=var)
+        same_size = reference.shape == current_output.shape
         diff_values = np.abs(reference - current_output)
 
         same_values = np.allclose(diff_values, np.zeros(diff_values.shape), atol=cls.atol)

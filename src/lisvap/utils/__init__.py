@@ -30,8 +30,8 @@ import xml.dom.minidom
 from collections import Counter, defaultdict
 
 import numpy as np
+import numpy.ma as ma
 from netCDF4 import Dataset
-from pcraster import pcraster
 from decimal import *
 
 from .. import __version__, __date__, __status__, __authors__, __maintainers__
@@ -238,7 +238,7 @@ report_maps_end: {report_maps_end}
                 opts, arguments = getopt.getopt(argz, 'qvlcht', list(flags.keys()))
             except getopt.GetoptError:
                 usage()
-                sys.exit(1)
+#                sys.exit(1)
             else:
                 for o, a in opts:
                     for opt in (('-q', '--quiet'), ('-v', '--veryquiet'),
@@ -407,7 +407,7 @@ report_maps_end: {report_maps_end}
         if len(issues_list) > 0:
             issues_str = '\n'.join(map(lambda s: '        - ' + s, issues_list))
             print("""\n\n
-LisvapPy - Lisvap (Global) using pcraster Python framework
+LisvapPy - Lisvap (Global)
 
     Version      : {version}
     Last updated : {date}
@@ -467,24 +467,46 @@ class NetcdfMetadata(metaclass=Singleton):
 
 
 class MaskMapMetadata(metaclass=Singleton):
+    """
+    Class containing the maskmap and its metadata
+
+    maskmap: The actual mask/clone map (np.array)
+    west: Coordinate of west side of raster (decimal)
+    north: Coordinate of north side of raster (decimal)
+    num_cols: Number of columns of the raster (int)
+    num_rows: Number of rows of the raster (int)
+    cell_size_x: Size of a cell in the x axis (decimal)
+    cell_size_y: Size of a cell in the y axis (decimal)
+    """
 
     @classmethod
-    def register(cls, maskmap):
-        return cls(maskmap)
+    def register(cls, maskmap_filename, west=None, north=None, num_cols=None, num_rows=None, cell_size_x=None, cell_size_y=None):
+        return cls(maskmap_filename, west, north, num_cols, num_rows, cell_size_x, cell_size_y)
 
-    def __init__(self, maskmap):
-        self.maskmap = maskmap
-        self._metadata = self._pcr_clone_metadata()
+    def __init__(self, maskmap_filename, west=None, north=None, num_cols=None, num_rows=None, cell_size_x=None, cell_size_y=None):
+        self.maskmap_filename = maskmap_filename
+        self.maskmap = None
+        self._metadata = self._set_metadata(west, north, num_cols, num_rows, cell_size_x, cell_size_y)
+
+    def set_maskmap(self, maskmap):
+        self.maskmap = ma.masked_where(np.isnan(maskmap), maskmap)
+
+    def get_maskmap(self):
+        assert not self.maskmap is None, 'MaskMapMetadata: Maskmap was not set'
+        return self.maskmap
 
     @staticmethod
-    def _pcr_clone_metadata():
+    def _set_metadata(west=None, north=None, num_cols=None, num_rows=None, cell_size_x=None, cell_size_y=None):
         decimal_format = '{:.20f}'
         # Definition of cellsize, coordinates of the meteomaps and maskmap
         # need some love for error handling
-        return {'x': Decimal(decimal_format.format(pcraster.clone().west())), 'y': Decimal(decimal_format.format(pcraster.clone().north())),
-                'col': pcraster.clone().nrCols(),
-                'row': pcraster.clone().nrRows(),
-                'cell': Decimal(decimal_format.format(pcraster.clone().cellSize()))}
+        return {'x': Decimal(decimal_format.format(west)),
+                'y': Decimal(decimal_format.format(north)),
+                'col': num_cols,
+                'row': num_rows,
+                'cell_x': Decimal(decimal_format.format(cell_size_x)),
+                'cell_y': Decimal(decimal_format.format(cell_size_y))
+        }
 
     def __setitem__(self, k, v):
         self._metadata[k] = v
@@ -508,12 +530,13 @@ class MaskMapMetadata(metaclass=Singleton):
         res = """
         x - west: {west}
         y - north: {north}
-        cell size: {cell_size}
+        cell size x: {cell_size_x}
+        cell size y: {cell_size_y}
         num_rows: {num_rows}
         num_cols: {num_cols}
         """.format(west=self._metadata['x'], north=self._metadata['y'],
-                   cell_size=self._metadata['cell'], num_rows=self._metadata['row'],
-                   num_cols=self._metadata['col'])
+                   cell_size_x=self._metadata['cell_x'], cell_size_y=self._metadata['cell_y'],
+                   num_rows=self._metadata['row'], num_cols=self._metadata['col'])
         return res
 
 
@@ -535,7 +558,8 @@ class CutMap(tuple, metaclass=Singleton):
         nf1 = Dataset(filename, 'r')
 
         maskmap_attrs = MaskMapMetadata.instance()
-        cellSize = Decimal(decimal_format.format(maskmap_attrs['cell']))
+        cellSizeX = Decimal(decimal_format.format(maskmap_attrs['cell_x']))
+        cellSizeY = Decimal(decimal_format.format(maskmap_attrs['cell_y']))
         mask_x = Decimal(decimal_format.format(maskmap_attrs['x']))
         mask_y = Decimal(decimal_format.format(maskmap_attrs['y']))
 
@@ -543,13 +567,13 @@ class CutMap(tuple, metaclass=Singleton):
             x1 = Decimal(decimal_format.format(nf1.variables['lon'][0]))
             x2 = Decimal(decimal_format.format(nf1.variables['lon'][1]))
             # Detect if the x axis is inverted
-            if int(mask_x + cellSize) != int(x1):
+            if int(mask_x + cellSizeX) != int(x1):
                 x1 = Decimal(decimal_format.format(nf1.variables['lon'][-1]))
                 x2 = Decimal(decimal_format.format(nf1.variables['lon'][-2]))
             y1 = Decimal(decimal_format.format(nf1.variables['lat'][0]))
             y2 = Decimal(decimal_format.format(nf1.variables['lat'][1]))
             # Detect if the y axis is inverted
-            if int(mask_y - cellSize) != int(y1):
+            if int(mask_y - cellSizeY) != int(y1):
                 y1 = Decimal(decimal_format.format(nf1.variables['lat'][-1]))
                 y2 = Decimal(decimal_format.format(nf1.variables['lat'][-2]))
         else:
@@ -561,19 +585,21 @@ class CutMap(tuple, metaclass=Singleton):
 
         round_x = round(Decimal(decimal_format.format(abs(x2 - x1))), 13)
         round_y = round(Decimal(decimal_format.format(abs(y2 - y1))), 13)
-        round_cellSize = round(cellSize, 13)
+        round_cellSizeX = round(cellSizeX, 13)
+        round_cellSizeY = round(cellSizeY, 13)
 
-        if round_cellSize != round_x or round_cellSize != round_y:
-            raise LisfloodError('Cell size different in maskmap {} ({}) and {} (xinc {}, yinc {})'.format(
-                settings.binding['MaskMap'], round_cellSize, filename, round_x, round_y)
+        if round_cellSizeX != round_x or round_cellSizeY != round_y:
+            raise LisfloodError('Cell size different in maskmap {} ({}, {}) and {} (xinc {}, yinc {})'.format(
+                settings.binding['MaskMap'], round_cellSizeX, round_cellSizeY, filename, round_x, round_y)
             )
 
-        half_cell = cellSize * Decimal(0.5)
-        x = x1 - half_cell  # |
-        y = y1 + half_cell  # | coordinates of the upper left corner of the input file upper left pixel
-        cut0 = int(Decimal(decimal_format.format(abs(mask_x - x))) / cellSize)
+        half_cell_x = cellSizeX * Decimal(0.5)
+        half_cell_y = cellSizeY * Decimal(0.5)
+        x = x1 - half_cell_x  # |
+        y = y1 + half_cell_y  # | coordinates of the upper left corner of the input file upper left pixel
+        cut0 = int(Decimal(decimal_format.format(abs(mask_x - x))) / cellSizeX)
         cut1 = cut0 + maskmap_attrs['col']
-        cut2 = int(Decimal(decimal_format.format(abs(mask_y - y))) / cellSize)
+        cut2 = int(Decimal(decimal_format.format(abs(mask_y - y))) / cellSizeY)
         cut3 = cut2 + maskmap_attrs['row']
         return cut0, cut1, cut2, cut3  # input data will be sliced using [cut2:cut3, cut0:cut1]
 
@@ -643,6 +669,128 @@ class FileNamesManager(metaclass=Singleton):
         return current_file_idx == len(file_list) - 1
 
 
+class DynamicModel:
+
+    def __init__(self):
+        self._d_nrTimeSteps = 0
+        self.currentStep = 0
+        self._d_firstTimeStep = 1
+        self.inTimeStep = False
+        self.inInitial = False
+        self.inDynamic = False
+        self.silentModelOutput = False
+
+    def initial(self):
+        print("Implement 'initial' method")
+    
+    def dynamic(self):
+        print("Implement 'dynamic' method")
+
+    def setQuiet(self, quiet=True):
+        """
+        Disables the progress display of timesteps.
+        """
+        self.silentModelOutput = quiet
+    
+    def _silentModelOutput(self):
+        return self.silentModelOutput
+    
+    def timeSteps(self):
+        """
+        Return a list of time steps configured
+        """
+        return range(self.firstTimeStep(), self.nrTimeSteps() + 1)
+    
+    def nrTimeSteps(self):
+        """
+        Return the number of time steps
+        """
+        assert self._d_nrTimeSteps
+        return self._d_nrTimeSteps
+    
+    def currentTimeStep(self):
+        """
+        Return the current time step in the range from firstTimeStep to nrTimeSteps.
+        """
+        assert self.currentStep >= 0
+        return self.currentStep
+    
+    def firstTimeStep(self):
+        """
+        Return first timestep of a model.
+        """
+        assert self._d_firstTimeStep
+        return self._d_firstTimeStep
+
+    def _inDynamic(self):
+        return self.inDynamic
+
+    def _inInitial(self):
+        return self.inInitial
+
+    def _setInInitial(self, value):
+        assert isinstance(value, bool)
+        self.inInitial = value
+    
+    def _setInDynamic(self, value):
+        assert isinstance(value, bool)
+        self.inDynamic = value
+    
+    def _inTimeStep(self):
+        """
+        Returns whether a time step is currently executing.
+        """
+        return self.inTimeStep
+    
+    def _setInTimeStep(self, value):
+        assert isinstance(value, bool)
+        self.inTimeStep = value
+    
+    
+    def _setFirstTimeStep(self, firstTimeStep):
+    
+        if not isinstance(firstTimeStep, int):
+          msg = "first timestep argument (%s) of DynamicFramework must be of type int" % (type(firstTimeStep))
+          raise AttributeError(msg)
+    
+        if firstTimeStep <= 0:
+          msg = "first timestep argument (%s) of DynamicFramework must be > 0" % (firstTimeStep)
+          raise AttributeError(msg)
+    
+        if firstTimeStep > self.nrTimeSteps():
+          msg = "first timestep argument (%s) of DynamicFramework must be smaller than given last timestep (%s)" % (firstTimeStep, self.nrTimeSteps())
+          raise AttributeError(msg)
+    
+        self._d_firstTimeStep = firstTimeStep
+    
+    def _setCurrentTimeStep(self, step):
+    
+        if step <= 0:
+          msg = "Current timestep must be > 0"
+          raise AttributeError(msg)
+    
+        if step > self.nrTimeSteps():
+          msg = "Current timestep must be <= %d (nrTimeSteps)"
+          raise AttributeError(msg)
+    
+        self.currentStep = step
+    
+    def _setNrTimeSteps(self, lastTimeStep):
+        """
+        Set the number of time steps to run.
+        """
+        if not isinstance(lastTimeStep, int):
+          msg = "last timestep argument (%s) of DynamicFramework must be of type int" % (type(lastTimeStep))
+          raise AttributeError(msg)
+    
+        if lastTimeStep <= 0:
+          msg = "last timestep argument (%s) of DynamicFramework must be > 0" % (lastTimeStep)
+          raise AttributeError(msg)
+    
+        self._d_nrTimeSteps = lastTimeStep
+
+
+
 cdf_flags = Counter({'all': 0, 'steps': 0, 'end': 0})
 
 
@@ -652,7 +800,7 @@ def usage():
     """
     print(
         """\n\n
-LisvapPy - Lisvap (Global) using pcraster Python framework
+LisvapPy - Lisvap (Global)
 
     Version      : {version}
     Last updated : {date}

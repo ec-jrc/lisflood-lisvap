@@ -18,13 +18,15 @@ See the Licence for the specific language governing permissions and limitations 
 import os
 from decimal import Decimal
 
+import numpy as np
+
 import pcraster
 from pcraster.framework.Timeoutput import TimeoutputTimeseries
 
 from pcraster.operations import mapmaximum, catchmenttotal, nominal
 from pcraster.framework import report
 
-from . import cdf_flags, LisfloodError
+from . import cdf_flags, LisfloodError, MaskMapMetadata
 from .tools import valuecell
 from .writers import writenet
 from .readers import loadmap
@@ -191,7 +193,7 @@ class OutputTssMap(object):
 
 class TimeoutputTimeseries(TimeoutputTimeseries):
     """
-    Class to create pcrcalc timeoutput style timeseries
+    Class to create timeoutput style timeseries
     """
 
     def __init__(self, tssFilename, model, idMap=None, noHeader=False):
@@ -213,39 +215,23 @@ class TimeoutputTimeseries(TimeoutputTimeseries):
         # array to store the timestep values
         self._sampleValues = None
 
-        _idMap = False
-        if isinstance(idMap, (str, pcraster.pcraster.Field)):
-            _idMap = True
-
         nrRows = self._userModel.nrTimeSteps() - self._userModel.firstTimeStep() + 1
 
-        if _idMap:
+        if isinstance(idMap, (str, np.ndarray)):
             self._spatialId = idMap
             if isinstance(idMap, str):
-                self._spatialId = pcraster.readmap(idMap)
+                self._spatialId = loadmap(idMap)
 
-            _allowdDataTypes = [pcraster.Nominal, pcraster.pcraster.Ordinal, pcraster.Boolean]
-            if self._spatialId.dataType() not in _allowdDataTypes:
-                # raise Exception(
-                #    "idMap must be of type Nominal, Ordinal or Boolean")
-                # changed into creating a nominal map instead of bailing out
-                self._spatialId = nominal(self._spatialId)
-
-            if self._spatialId.isSpatial():
-                self._maxId, valid = pcraster.pcraster.cellvalue(pcraster.operations.mapmaximum(pcraster.operations.ordinal(self._spatialId)), 1)
-            else:
-                self._maxId = 1
-
+            self._maxId = np.max(self._spatialId)
+            
             # cell indices of the sample locations
-
-            # #self._sampleAddresses = []
-            # for cellId in range(1, self._maxId + 1):
-            # self._sampleAddresses.append(self._getIndex(cellId))
-
             self._sampleAddresses = [1 for _ in range(self._maxId)]
             # init with the left/top cell - could also be 0 but then you have to catch it in
             # the sample routine and put an exeption in
-            nrCells = pcraster.pcraster.clone().nrRows() * pcraster.pcraster.clone().nrCols()
+            maskmap_attrs = MaskMapMetadata.instance()
+            nrRows = maskmap_attrs['row']
+            nrCols = maskmap_attrs['col']
+            nrCells = nrRows * nrCols
             for cell in range(1, nrCells + 1):
                 if pcraster.pcraster.cellvalue(self._spatialId, cell)[1]:
                     self._sampleAddresses[pcraster.pcraster.cellvalue(self._spatialId, cell)[0] - 1] = cell

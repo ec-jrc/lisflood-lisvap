@@ -17,12 +17,12 @@ See the Licence for the specific language governing permissions and limitations 
 
 """
 
-from pcraster.framework.dynamicPCRasterBase import DynamicModel
-from pcraster.operations import scalar
+import numpy as np
 
-from .utils import LisSettings, NetcdfMetadata, CutMap, FileNamesManager
+from .utils import LisSettings, NetcdfMetadata, CutMap, FileNamesManager, DynamicModel
 from .utils.readers import loadsetclone
 from .utils.output import OutputTssMap
+from .utils.operators import scalar
 from .hydrological.miscinitial import MiscInitial
 from .hydrological.readmeteo import ReadMeteo
 
@@ -30,7 +30,6 @@ from .hydrological.readmeteo import ReadMeteo
 class LisvapModelIni(DynamicModel):
 
     """ LISVAP initial part
-        same as the PCRaster script -initial-
         this part is to initialize the variables
         it will call the initial part of the hydrological modules
     """

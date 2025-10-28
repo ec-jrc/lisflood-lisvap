@@ -21,10 +21,9 @@ import sys
 import datetime
 
 import numpy as np
-from pcraster.framework import DynamicModel
 
 from .utils.operators import exp, maximum, cos, sin, ifthenelse, asin, scalar, cover, tan, sqr, sqrt, abs
-from .utils import LisSettings, TimeProfiler
+from .utils import LisSettings, TimeProfiler, DynamicModel
 
 
 class LisvapModelDyn(DynamicModel):
@@ -34,7 +33,7 @@ class LisvapModelDyn(DynamicModel):
             defines the mask map and the outlet points
             initialization of the hydrological modules
         """
-        super(LisvapModelDyn, self).__init__()
+        # super(LisvapModelDyn, self).__init__()
         self.calendar_date = None
         self.calendar_day = None
         self.time_since_start = None
@@ -76,22 +75,34 @@ class LisvapModelDyn(DynamicModel):
         """
         ANGOT RADIATION
         """
+        np.set_printoptions(precision=16)
         # solar declination [degrees]
         declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
         # solar constant at top of the atmosphere [J/m2/s]
         solar_constant = self.AvSolarConst * (1 + (0.033 * cos(360. * self.calendar_day / 365.)))
         bld = ((-sin(self.PD / 180.)) + sin(declin) * sin(self.Lat)) / (cos(declin) * cos(self.Lat))
+        
+        print('self.PD / 180.=', self.PD / 180., 'self.PD / self.Pi=', self.PD / self.Pi)
+        print('sin(self.PD / 180.)=', sin(self.PD / 180.), 'np.sin(self.PD / self.Pi)=', np.sin(self.PD / self.Pi))
+        print('###### bld sin min:', np.nanmin(((-sin(self.PD / 180.)) + sin(declin) * sin(self.Lat))), 'bld sin max:', np.nanmax(((-sin(self.PD / 180.)) + sin(declin) * sin(self.Lat))))
+        print('###### bld cos max:', np.nanmin((cos(declin) * cos(self.Lat))), 'bld cos max:', np.nanmax((cos(declin) * cos(self.Lat))))
+        print('###### bld min:', np.nanmin(bld), 'bld max:', np.nanmax(bld))
+
         tmp2 = ifthenelse(bld < 0, scalar(asin(bld))-360., scalar(asin(bld)))
+        print('###### tmp2 min:', np.nanmin(tmp2), 'tmp2 max:', np.nanmax(tmp2))
+
+        abs_bld = abs(bld)
+        abs_bld_gt_1 = abs_bld[abs_bld > 1]
         # daylength [hour]
         # abs(bld) > 1. corrects the day length at higher altitudes to 24h
-        day_length = ifthenelse(abs(bld) > 1., scalar(24.), 12. + (24. / 180.) * tmp2)
+        day_length = ifthenelse(abs_bld > 1., scalar(24.), 12. + (24. / 180.) * tmp2)
         # Daylength equation can produce MV at high latitudes, this statements sets day length to 0 in that case  
         day_length = cover(day_length, 0.0)
         # integral of solar height [s] over the day
         # abs(bld) > 1. allows correcting the integral of solar height at higher altitudes (north pole)
-        int_solar_height = ifthenelse(abs(bld) > 1., self.int_solar_height_north_pole(day_length, declin), self.int_solar_height_main(day_length, declin))
+        int_solar_height = ifthenelse(abs_bld > 1., self.int_solar_height_north_pole(day_length, declin), self.int_solar_height_main(day_length, declin))
         # Integral of solar height cannot be negative, so truncate at 0
-        int_solar_height = maximum(int_solar_height, 0.0)
+        int_solar_height = maximum(int_solar_height, scalar(0.0))
         int_solar_height = cover(int_solar_height, 0.0)
         # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
         RadiationAngot = int_solar_height * solar_constant

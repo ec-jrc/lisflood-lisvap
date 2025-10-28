@@ -6,15 +6,8 @@ import warnings
 
 import cftime
 import numpy as np
-import pcraster
 from netCDF4 import Dataset, num2date, date2num
-from pcraster import numpy_operations, Boolean, Nominal, Scalar
 from decimal import *
-
-try:
-    from pcraster.multicore import _operations as operations
-except ImportError:
-    from pcraster import operations
 
 from . import LisSettings, LisfloodError, MaskMapMetadata, CutMap, FileNamesManager
 from .tools import take_closest, calendar, checkmap, get_calendar_configuration
@@ -29,85 +22,73 @@ def loadsetclone(name):
     """ Load 'MaskMap' and set as clone
 
     :param name: name of the key in Settings.xml containing path and name of mask map as string
-    :return: map: mask map (False=include in modelling; True=exclude from modelling) as pcraster
+    :return: map: mask map (False=include in modelling; True=exclude from modelling) as numpy
     """
     settings = LisSettings.instance()
     filename = settings.binding[name]
     coord = filename.split()  # CM: returns a list of all the words in the string
-    if len(coord) == 5:
-        # CM: read information on clone map from Settings.xml
-        # changed order of x, y i- in setclone y is first in Lisflood
-        # settings x is first
-        # CM: coord[0]=col
-        # CM: coord[1]=row
-        # CM: coord[2]=cellsize
-        # CM: coord[3]=xupleft
-        # CM: coord[4]=yupleft
-        # setclone row col cellsize xupleft yupleft
-        try:
-            pcraster.setclone(int(coord[1]), int(coord[0]), Decimal(__DECIMAL_FORMAT.format(coord[2])), Decimal(__DECIMAL_FORMAT.format(coord[3])), Decimal(__DECIMAL_FORMAT.format(coord[4])))  # CM: pcraster
-        except:
-            msg = 'Maskmap: [{} {} {} {}] are not valid coordinates (col row cellsize xupleft yupleft)'.format(*coord)
-            raise LisfloodError(msg)
-        mapnp = np.ones((int(coord[1]), int(coord[0])))
-        res = numpy_operations.numpy2pcr(Boolean, mapnp, -9999)
+    if len(coord) == 6:
+        nrRows = int(coord[1])
+        nrCols = int(coord[0])
+        cellSizeX = Decimal(__DECIMAL_FORMAT.format(coord[2]))
+        cellSizeY = Decimal(__DECIMAL_FORMAT.format(coord[3]))
+        # Coordinate of west side of raster.
+        x = Decimal(__DECIMAL_FORMAT.format(coord[4]))
+        # Coordinate of north side of raster.
+        y = Decimal(__DECIMAL_FORMAT.format(coord[5]))
+        
+        mapnp = np.ones((nrRows, nrCols))
+        flagmap = False
     elif len(coord) == 1:
-        # CM: read information on clone map from map (pcraster or netcdf)
-        try:
-            # try to read a pcraster map
-            iter_setclone_pcraster(filename)
-            res = operations.boolean(iter_read_pcraster(filename))
-            flagmap = True
-        except:
-            # try to read a netcdf file
-            filename = '{}.{}'.format(os.path.splitext(settings.binding[name])[0], 'nc')
-            nf1 = iter_open_netcdf(filename, 'r')
-            value = get_netcdf_meteo_variable_name(nf1)
+        # CM: read information on clone map from map (netcdf)
+        # try to read a netcdf file
+        filename = '{}.{}'.format(os.path.splitext(settings.binding[name])[0], 'nc')
+        nf1 = iter_open_netcdf(filename, 'r')
+        value = get_netcdf_meteo_variable_name(nf1)
 
-            x_var = 'x'
-            y_var = 'y'
-            if 'lon' in nf1.variables.keys():
-                x_var = 'lon'
-                y_var = 'lat'
-            x1 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][0]))
-            x2 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][1]))
-            y1 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][0]))
-            y2 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][1]))
-            xlast = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][-1]))
-            ylast = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][-1]))
+        x_var = 'x'
+        y_var = 'y'
+        if 'lon' in nf1.variables.keys():
+            x_var = 'lon'
+            y_var = 'lat'
+        x1 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][0]))
+        x2 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][1]))
+        y1 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][0]))
+        y2 = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][1]))
+        xlast = Decimal(__DECIMAL_FORMAT.format(nf1.variables[x_var][-1]))
+        ylast = Decimal(__DECIMAL_FORMAT.format(nf1.variables[y_var][-1]))
 
-            cellSizeX = abs(x2 - x1)
-            cellSizeY = abs(y2 - y1)
+        cellSizeX = abs(x2 - x1)
+        cellSizeY = abs(y2 - y1)
 
-            settings.binding['internal.lons'] = nf1.variables[x_var][:]
-            settings.binding['internal.lats'] = nf1.variables[y_var][:]
+        settings.binding['internal.lons'] = nf1.variables[x_var][:]
+        settings.binding['internal.lats'] = nf1.variables[y_var][:]
 
-            nrRows = int(Decimal(0.5) + abs(ylast - y1) / cellSizeY + Decimal(1.0))
-            nrCols = int(Decimal(0.5) + abs(xlast - x1) / cellSizeX + Decimal(1.0))
-            x = x1 - cellSizeX * Decimal(0.5)  # Coordinate of west side of raster
-            y = y1 + cellSizeY * Decimal(0.5)  # Coordinate of north side of raster
-            mapnp = np.array(nf1.variables[value][0:nrRows, 0:nrCols])
-            nf1.close()
-            # setclone  row col cellsize xupleft yupleft
-            pcraster.setclone(nrRows, nrCols, float(__DECIMAL_FORMAT.format(cellSizeX)), float(__DECIMAL_FORMAT.format(x)), float(__DECIMAL_FORMAT.format(y)))
-            res = numpy_operations.numpy2pcr(Boolean, mapnp, 0)
-            flagmap = True
-        if settings.flags['checkfiles']:
-            checkmap(name, filename, res, flagmap, 0)
+        nrRows = int(Decimal(0.5) + abs(ylast - y1) / cellSizeY + Decimal(1.0))
+        nrCols = int(Decimal(0.5) + abs(xlast - x1) / cellSizeX + Decimal(1.0))
+        x = x1 - cellSizeX * Decimal(0.5)  # Coordinate of west side of raster
+        y = y1 + cellSizeY * Decimal(0.5)  # Coordinate of north side of raster
+        mapnp = np.array(nf1.variables[value][0:nrRows, 0:nrCols])
+        nf1.close()
+        flagmap = True
     else:
         msg = 'Maskmap: {} is not a valid mask map nor valid coordinates'.format(name)
         raise LisfloodError(msg)
 
     # Definition of cellsize, coordinates of the meteomaps and maskmap
-    # Get the current PCRaster clone map and it save metadata
-    MaskMapMetadata.register(filename)
-    return res
+    MaskMapMetadata.register(filename, west=x, north=y, num_cols=nrCols, num_rows=nrRows, cell_size_x=cellSizeX, cell_size_y=cellSizeY)
+    MaskMapMetadata.instance().set_maskmap(mapnp)
+
+    if settings.flags['checkfiles']:
+        checkmap(name, filename, mapnp, flagmap, 0)
+
+    return mapnp
 
 
 def loadmap(name):
     """
-    :param name: Variable name as defined in XML settings or a filename of a netCDF or PCRaster map
-    load a static map either value or pcraster map or netcdf
+    :param name: Variable name as defined in XML settings or a filename of a netCDF map
+    load a static map either value or netcdf
     """
     settings = LisSettings.instance()
     value = settings.binding[name]
@@ -122,13 +103,7 @@ def loadmap(name):
         flagmap = False
         load = True
     except ValueError:
-        try:
-            # try to read a pcraster map
-            res = pcraster.readmap(value)
-            flagmap = True
-            load = True
-        except:
-            load = False
+        load = False
 
     if not load:
         # read a netcdf (single one not a stack)
@@ -138,29 +113,36 @@ def loadmap(name):
 
         # get mapextend of netcdf map
         # and calculate the cutting
-        cut0, cut1, cut2, cut3 = CutMap.get_cuts(filename)
+        # cut0, cut1, cut2, cut3 = CutMap.get_cuts(filename)
+        
+        # Cutmap was already setup when reading the maskmap
+        cutmap = CutMap.instance()
+        slices = cutmap.slices
 
         # load netcdf map but only the rectangle needed
         nf1 = Dataset(filename, 'r')
         value = get_netcdf_meteo_variable_name(nf1)
-        mapnp = nf1.variables[value][cut2:cut3, cut0:cut1]
+        # mapnp = nf1.variables[value][cut2:cut3, cut0:cut1]
+        mapnp = nf1.variables[value][slices[0], slices[1]]
         nf1.close()
 
+        mv = -9999
         # check if integer map (like outlets, lakes etc)
         checkint = str(mapnp.dtype)
-        if checkint == "int16" or checkint == "int32":
-            mapnp[mapnp.mask] = -9999
-            res = numpy_operations.numpy2pcr(Nominal, mapnp, -9999)
-        elif checkint == "int8":
-            res = numpy_operations.numpy2pcr(Nominal, mapnp, 0)
-        else:
-            mapnp[np.isnan(mapnp)] = -9999
-            res = numpy_operations.numpy2pcr(Scalar, mapnp, -9999)
+        if checkint == "int8":
+            mv = 0
+        # mapnp[np.isnan(mapnp)] = mv
+        maskmap = MaskMapMetadata.instance().get_maskmap()
+        mapnp[maskmap.mask] = np.nan
+        res = mapnp
+        # mapnp[np.isnan(mapnp)] = (nan_value - add_offset) * scale_factor
 
         # if the map is a ldd
         if value.split('.')[0][-3:] == 'ldd':
             # FIXME weak...filename must contain 'ldd' string
-            res = operations.ldd(operations.nominal(res))
+            # TODO: implement using earthkit.hydro.subnetwork.from_mask()
+            # res = operations.ldd(operations.nominal(res))
+            raise LisfloodError('LDD is not implemented, use earthkit.hydro.subnetwork.from_mask()')
         flagmap = True
 
     if settings.flags['checkfiles']:
@@ -301,8 +283,7 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
             warn_msg = 'Detected {} negative values in timestep {} of netCDF file {}. Substituting them by {}.'
             warnings.warn(warn_msg.format(count_negative, current_ncdf_index, filename, negative_value_substitute))
             mapnp[np.where(mapnp<0)] = negative_value_substitute
-    mapnp[np.isnan(mapnp)] = nan_value
-    mapnp = numpy_operations.numpy2pcr(Scalar, mapnp, nan_value)
+    # mapnp[np.isnan(mapnp)] = nan_value
     timename = os.path.basename(name_parameter) + str(timestep)
     settings = LisSettings.instance()
     if settings.flags['checkfiles']:
@@ -435,16 +416,6 @@ def iter_open_netcdf(file_path, mode, **kwargs):
     def access_function(path):
         return Dataset(path, mode, **kwargs)
     return remote_input_access(access_function, file_path)
-
-
-def iter_read_pcraster(file_path):
-    """Wrapper around pcraster.readmap function exploiting the iterAccess class to open file_path."""
-    return remote_input_access(pcraster.readmap, file_path)
-
-
-def iter_setclone_pcraster(file_path):
-    """Wrapper around pcraster.setclone function exploiting the iterAccess class to access file_path."""
-    return remote_input_access(pcraster.pcraster.setclone, file_path)
 
 
 def remote_input_access(function, file_path):

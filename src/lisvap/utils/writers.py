@@ -22,11 +22,9 @@ import datetime
 
 import numpy as np
 from netCDF4 import Dataset
-import pcraster
-from pcraster import numpy_operations
 from decimal import *
 
-from . import CutMap, NetcdfMetadata, LisSettings
+from . import CutMap, NetcdfMetadata, LisSettings, MaskMapMetadata
 from pyproj import proj
 from ..__init__ import __version__ as lisvap_version
 
@@ -200,23 +198,22 @@ def get_coordinate_arrays(settings, ncols, nrows):
     try:
         int_lons = settings.binding['internal.lons']
         int_lats = settings.binding['internal.lats']
-        # x1 = Decimal(__DECIMAL_FORMAT.format(int_lons[0]))
-        # x2 = Decimal(__DECIMAL_FORMAT.format(int_lons[1]))
-        # y1 = Decimal(__DECIMAL_FORMAT.format(int_lats[0]))
-        # y2 = Decimal(__DECIMAL_FORMAT.format(int_lats[1]))
-        # cellSizeX = abs(x2 - x1)
-        # cellSizeY = abs(y2 - y1)
         lats = coordinates_range_from_array(int_lats)
         lons = coordinates_range_from_array(int_lons)
     except:
-        cellSize = Decimal(__DECIMAL_FORMAT.format(pcraster.clone().cellSize()))
-        half_cell = cellSize * Decimal(0.5)
-        xl = Decimal(__DECIMAL_FORMAT.format(pcraster.clone().west())) + half_cell
-        # xr = xl + ncols * cellSize - half_cell
-        yu = Decimal(__DECIMAL_FORMAT.format(pcraster.clone().north())) - half_cell
-        # yd = yu - nrows * cellSize + half_cell
-        lats = coordinates_range(yu, nrows, -cellSize)
-        lons = coordinates_range(xl, ncols, cellSize)
+        maskmap_attrs = MaskMapMetadata.instance()
+        cellSizeX = Decimal(__DECIMAL_FORMAT.format(maskmap_attrs['cell_x']))
+        cellSizeY = Decimal(__DECIMAL_FORMAT.format(maskmap_attrs['cell_y']))
+        west = Decimal(__DECIMAL_FORMAT.format(maskmap_attrs['x']))
+        north = Decimal(__DECIMAL_FORMAT.format(maskmap_attrs['y']))
+        half_cell_x = cellSizeX * Decimal(0.5)
+        half_cell_y = cellSizeY * Decimal(0.5)
+        xl = west + half_cell_x
+        # xr = xl + ncols * cellSizeX - half_cell_x
+        yu = north - half_cell_y
+        # yd = yu - nrows * cellSizeY + half_cell_y
+        lats = coordinates_range(yu, nrows, -cellSizeY)
+        lons = coordinates_range(xl, ncols, cellSizeX)
     return lats, lons
 
 
@@ -273,7 +270,7 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
     """
     write a netcdf stack
     output_index: integer. Global index of the map to store in the final file
-    inputmap: a PCRaster 2D array
+    inputmap: a netCDF 2D array
     netfile: output netcdf filename
     timestep:
     """
@@ -302,7 +299,8 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
     else:
         nf1 = Dataset(netfile, 'a')
 
-    mapnp = numpy_operations.pcr2numpy(inputmap, np.nan)
+    slices = cutmap.slices
+    mapnp = inputmap[slices[0], slices[1]]
     # Pack NAN values into short
     mapnp[np.isnan(mapnp)] = (nan_value - add_offset) * scale_factor
     if flag_time:

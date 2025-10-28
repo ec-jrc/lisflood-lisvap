@@ -186,7 +186,6 @@ dependencies:
   - openssl=3.5.0
   - packaging=24.2
   - pango=1.54.0
-  - pcraster=4.4.1
   - pcre2=10.44
   - pip=24.3.1
   - pixman=0.43.2

@@ -468,13 +468,13 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 </comment>
             </textvar>
 
-            <textvar name="Dem" value="$(PathBaseMapsIn)/dem.map">
+            <textvar name="Dem" value="$(PathBaseMapsIn)/dem.nc">
                 <comment>
                     Digital elevation model [meters a.s.l.]
                 </comment>
             </textvar>
 
-            <textvar name="Lat" value="$(PathBaseMapsIn)/lat.map">
+            <textvar name="Lat" value="$(PathBaseMapsIn)/lat.nc">
                 <comment>
                     Latitude [decimal degrees]
                 </comment>
