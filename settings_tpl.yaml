@@ -64,15 +64,12 @@ prefixes-input-variables:
     PrefixTAvg: ta
 
 operational-parameters:
-    readNetcdfStack: 1
-    writeNetcdfStack: 1
     TemperatureInKelvinFlag: 0
     input-output-setup:
         repE0Maps: 1
         repES0Maps: 0
         repET0Maps: 0
         repTAvgMaps: 0
-        repAvTimeseries: 0
         output6hourly: 0
         splitInput: 0
         splitOutput: 0

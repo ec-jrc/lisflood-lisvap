@@ -106,8 +106,7 @@ class LisSettings(metaclass=Singleton):
         self.binding = bindings
         self.options = self.get_options(dom)
         self.report_steps = self._report_steps(user_settings, bindings)
-        self.report_timeseries = self._report_tss()
-        self.report_maps_steps, self.report_maps_all, self.report_maps_end = self._reported_maps()
+        self.report_maps_all = self._reported_maps()
 
     def get_option(self, option_key=''):
         return self.options[option_key.lower()]
@@ -150,14 +149,10 @@ class LisSettings(metaclass=Singleton):
 Binding: {binding}
 Options: {options}
 report_steps: {report_steps}
-report_timeseries: {report_timeseries}
-report_maps_steps: {report_maps_steps}
 report_maps_all: {report_maps_all}
-report_maps_end: {report_maps_end}
 """.format(binding=self.printer.pformat(self.binding), options=self.printer.pformat(self.options),
-           report_steps=self.printer.pformat(self.report_steps), report_timeseries=self.printer.pformat(self.report_timeseries),
-           report_maps_steps=self.printer.pformat(self.report_maps_steps), report_maps_all=self.printer.pformat(self.report_maps_all),
-           report_maps_end=self.printer.pformat(self.report_maps_end))
+           report_steps=self.printer.pformat(self.report_steps),
+           report_maps_all=self.printer.pformat(self.report_maps_all))
         return res
 
     def _set_active_options(self, obj, reported, report_options, restricted_options):
@@ -192,36 +187,19 @@ report_maps_end: {report_maps_end}
         res['rep'] = list(map(int, jjj))
         return res
 
-    def _report_tss(self):
-        report_time_series_act = {}
-        # running through all times series
-        timeseries = self.get_option('timeseries')
-        for ts in timeseries:
-            rep_opt = ts.repoption.split(',') if ts.repoption else []
-            rest_opt = ts.restrictoption.split(',') if ts.restrictoption else []
-            self._set_active_options(ts, report_time_series_act, rep_opt, rest_opt)
-
-        return report_time_series_act
-
     def _reported_maps(self):
 
-        report_maps_steps = {}
         report_maps_all = {}
-        report_maps_end = {}
 
         # running through all maps
         reportedmaps = self.get_option('reportedmaps')
         for rm in reportedmaps:
             rep_opt_all = rm.all.split(',') if rm.all else []
-            rep_opt_steps = rm.steps.split(',') if rm.steps else []
-            rep_opt_end = rm.end.split(',') if rm.end else []
             restricted_options = rm.restrictoption.split(',') if rm.restrictoption else []
 
             self._set_active_options(rm, report_maps_all, rep_opt_all, restricted_options)
-            self._set_active_options(rm, report_maps_steps, rep_opt_steps, restricted_options)
-            self._set_active_options(rm, report_maps_end, rep_opt_end, restricted_options)
 
-        return report_maps_steps, report_maps_all, report_maps_end
+        return report_maps_all
 
     @staticmethod
     def config_flags():
@@ -287,64 +265,63 @@ report_maps_end: {report_maps_end}
         elif selected_setups == 0:
             issues_list.append('One setup needs to be selected from: EFAS, GLOFAS or CORDEX')
         else:
-            if self.get_option('readNetcdfStack'):
-                # ###############################################
-                # Check input variables
-                # ###############################################
-                if self.get_option('useTAvg'):
-                    if self.get_option('repTAvgMaps'):
-                        issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
-                    elif not self.valid_files('TAvgMaps'):
-                        issues_list.append('Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
-                else:
-                    if not self.valid_files('TMinMaps'):
-                        issues_list.append('Option "useTAvg" OFF: Missing "TMinMaps" file(s).')
-                    if not self.valid_files('TMaxMaps'):
-                        issues_list.append('Option "useTAvg" OFF: Missing "TMaxMaps" file(s).')
-    
-                if not self.get_option('useWindUVMaps'):
-                    if not self.valid_files('WindMaps'):
-                        issues_list.append('Option "useWindUVMaps" OFF: Missing "WindMaps" file(s).')
-                else:
-                    if not self.valid_files('WindUMaps'):
-                        issues_list.append('Option "useWindUVMaps" ON: Missing "WindUMaps" file(s).')
-                    if not self.valid_files('WindVMaps'):
-                        issues_list.append('Option "useWindUVMaps" ON: Missing "WindVMaps" file(s).')
+            # ###############################################
+            # Check input variables
+            # ###############################################
+            if self.get_option('useTAvg'):
+                if self.get_option('repTAvgMaps'):
+                    issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
+                elif not self.valid_files('TAvgMaps'):
+                    issues_list.append('Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
+            else:
+                if not self.valid_files('TMinMaps'):
+                    issues_list.append('Option "useTAvg" OFF: Missing "TMinMaps" file(s).')
+                if not self.valid_files('TMaxMaps'):
+                    issues_list.append('Option "useTAvg" OFF: Missing "TMaxMaps" file(s).')
 
-                if not self.get_option('CORDEX'): # CORDEX calculates EAct from PSurf and Qair
-                    if self.get_option('useTDewMaps'):
-                        if not self.valid_files('TDewMaps'):
-                            issues_list.append('Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
-                    elif self.get_option('useRelHumidityMaps'):
-                        if not self.valid_files('RelHMaps'):
-                            issues_list.append('Option "useRelHumidityMaps" ON: Missing "RelHMaps" file(s).')
-                    else:
-                        if not self.valid_files('EActMaps'):
-                            issues_list.append('Option "useTDewMaps" OFF and "useRelHumidityMaps" OFF: Missing "EActMaps" file(s).')
-                # ###############################################
-                # Check setup specific input variables
-                # ###############################################
-                if self.get_option('EFAS'):
-                    if not self.valid_files('RgdMaps'):
-                        issues_list.append('EFAS setup: Missing "RgdMaps" file(s).')
-                elif self.get_option('GLOFAS'):
-                    if not self.valid_files('RgdMaps'):
-                        issues_list.append('GLOFAS setup: Missing "RgdMaps" file(s).')
-                    if not self.valid_files('RNMaps'):
-                        issues_list.append('GLOFAS setup: Missing "RNMaps" file(s).')
-                elif self.get_option('CORDEX'):
-                    if not self.valid_files('PSurfMaps'):
-                        issues_list.append('CORDEX setup: Missing "PSurfMaps" file(s).')
-                    if not self.valid_files('QAirMaps'):
-                        issues_list.append('CORDEX setup: Missing "QAirMaps" file(s).')
-                    if not self.valid_files('RdsMaps'):
-                        issues_list.append('CORDEX setup: Missing "RdsMaps" file(s).')
-                    if not self.valid_files('RdlMaps'):
-                        issues_list.append('CORDEX setup: Missing "RdlMaps" file(s).')
-                    if not self.valid_files('RusMaps'):
-                        issues_list.append('CORDEX setup: Missing "RusMaps" file(s).')
-                    if not self.valid_files('RulMaps'):
-                        issues_list.append('CORDEX setup: Missing "RulMaps" file(s).')
+            if not self.get_option('useWindUVMaps'):
+                if not self.valid_files('WindMaps'):
+                    issues_list.append('Option "useWindUVMaps" OFF: Missing "WindMaps" file(s).')
+            else:
+                if not self.valid_files('WindUMaps'):
+                    issues_list.append('Option "useWindUVMaps" ON: Missing "WindUMaps" file(s).')
+                if not self.valid_files('WindVMaps'):
+                    issues_list.append('Option "useWindUVMaps" ON: Missing "WindVMaps" file(s).')
+
+            if not self.get_option('CORDEX'): # CORDEX calculates EAct from PSurf and Qair
+                if self.get_option('useTDewMaps'):
+                    if not self.valid_files('TDewMaps'):
+                        issues_list.append('Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
+                elif self.get_option('useRelHumidityMaps'):
+                    if not self.valid_files('RelHMaps'):
+                        issues_list.append('Option "useRelHumidityMaps" ON: Missing "RelHMaps" file(s).')
+                else:
+                    if not self.valid_files('EActMaps'):
+                        issues_list.append('Option "useTDewMaps" OFF and "useRelHumidityMaps" OFF: Missing "EActMaps" file(s).')
+            # ###############################################
+            # Check setup specific input variables
+            # ###############################################
+            if self.get_option('EFAS'):
+                if not self.valid_files('RgdMaps'):
+                    issues_list.append('EFAS setup: Missing "RgdMaps" file(s).')
+            elif self.get_option('GLOFAS'):
+                if not self.valid_files('RgdMaps'):
+                    issues_list.append('GLOFAS setup: Missing "RgdMaps" file(s).')
+                if not self.valid_files('RNMaps'):
+                    issues_list.append('GLOFAS setup: Missing "RNMaps" file(s).')
+            elif self.get_option('CORDEX'):
+                if not self.valid_files('PSurfMaps'):
+                    issues_list.append('CORDEX setup: Missing "PSurfMaps" file(s).')
+                if not self.valid_files('QAirMaps'):
+                    issues_list.append('CORDEX setup: Missing "QAirMaps" file(s).')
+                if not self.valid_files('RdsMaps'):
+                    issues_list.append('CORDEX setup: Missing "RdsMaps" file(s).')
+                if not self.valid_files('RdlMaps'):
+                    issues_list.append('CORDEX setup: Missing "RdlMaps" file(s).')
+                if not self.valid_files('RusMaps'):
+                    issues_list.append('CORDEX setup: Missing "RusMaps" file(s).')
+                if not self.valid_files('RulMaps'):
+                    issues_list.append('CORDEX setup: Missing "RulMaps" file(s).')
             # ###############################################
             # Check constants
             # ###############################################

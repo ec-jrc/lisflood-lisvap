@@ -93,47 +93,46 @@ class ReadMeteo(object):
         # ************************************************************
         # ***** READ METEOROLOGICAL DATA *****************************
         # ************************************************************
-        if self.settings.get_option('readNetcdfStack'):
-            self.read_temperature()
-            self.read_windspeed()
+        self.read_temperature()
+        self.read_windspeed()
 
-            if self.settings.get_option('TemperatureInKelvinFlag'):
-                self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
-                if not self.settings.get_option('useTAvg'):
-                    self.var.TMin = self.var.TMin - self.var.ZeroKelvin
-                    self.var.TMax = self.var.TMax - self.var.ZeroKelvin
+        if self.settings.get_option('TemperatureInKelvinFlag'):
+            self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
+            if not self.settings.get_option('useTAvg'):
+                self.var.TMin = self.var.TMin - self.var.ZeroKelvin
+                self.var.TMax = self.var.TMax - self.var.ZeroKelvin
 
-            # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
-            # the formula above returns value in pascal, not mbar
-            # Goudriaan equation (1977)
-            # saturated vapour pressure [mbar]
-            # TAvg [deg Celsius]
-            # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
-            self.var.ESat = 6.10588 * exp((17.32491 * self.var.TAvg) / (self.var.TAvg + 238.102))
+        # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
+        # the formula above returns value in pascal, not mbar
+        # Goudriaan equation (1977)
+        # saturated vapour pressure [mbar]
+        # TAvg [deg Celsius]
+        # exp is correct (e-power) (Van Der Goot, pers. comm 1999)
+        self.var.ESat = 6.10588 * exp((17.32491 * self.var.TAvg) / (self.var.TAvg + 238.102))
 
-            if self.settings.get_option('CORDEX'):
-                self.var.Psurf = readnetcdf(self.settings.binding['PSurfMaps'], self.var.currentTimeStep(), variable_binding='PSurfMaps', splitIO=self.splitIO)
-                self.var.Qair = readnetcdf(self.settings.binding['QAirMaps'], self.var.currentTimeStep(), variable_binding='QAirMaps', splitIO=self.splitIO)
-                # Downward  short wave radiation [W/m2]
-                self.var.Rds = readnetcdf(self.settings.binding['RdsMaps'], self.var.currentTimeStep(), variable_binding='RdsMaps', splitIO=self.splitIO)
-                # Down long wave radiation [W/m2]
-                self.var.Rdl = readnetcdf(self.settings.binding['RdlMaps'], self.var.currentTimeStep(), variable_binding='RdlMaps', splitIO=self.splitIO)
-                # upward  short wave radiation [W/m2]
-                self.var.Rus = readnetcdf(self.settings.binding['RusMaps'], self.var.currentTimeStep(), variable_binding='RusMaps', splitIO=self.splitIO)
-                # upward long wave radiation [W/m2]
-                self.var.Rul = readnetcdf(self.settings.binding['RulMaps'], self.var.currentTimeStep(), variable_binding='RulMaps', splitIO=self.splitIO)
-            else: # EFAS or GLOFAS
-                self.read_vapor_pressure()
+        if self.settings.get_option('CORDEX'):
+            self.var.Psurf = readnetcdf(self.settings.binding['PSurfMaps'], self.var.currentTimeStep(), variable_binding='PSurfMaps', splitIO=self.splitIO)
+            self.var.Qair = readnetcdf(self.settings.binding['QAirMaps'], self.var.currentTimeStep(), variable_binding='QAirMaps', splitIO=self.splitIO)
+            # Downward  short wave radiation [W/m2]
+            self.var.Rds = readnetcdf(self.settings.binding['RdsMaps'], self.var.currentTimeStep(), variable_binding='RdsMaps', splitIO=self.splitIO)
+            # Down long wave radiation [W/m2]
+            self.var.Rdl = readnetcdf(self.settings.binding['RdlMaps'], self.var.currentTimeStep(), variable_binding='RdlMaps', splitIO=self.splitIO)
+            # upward  short wave radiation [W/m2]
+            self.var.Rus = readnetcdf(self.settings.binding['RusMaps'], self.var.currentTimeStep(), variable_binding='RusMaps', splitIO=self.splitIO)
+            # upward long wave radiation [W/m2]
+            self.var.Rul = readnetcdf(self.settings.binding['RulMaps'], self.var.currentTimeStep(), variable_binding='RulMaps', splitIO=self.splitIO)
+        else: # EFAS or GLOFAS
+            self.read_vapor_pressure()
 
-                # calculated radiation [J/m2/day]
-                # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
-                # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
-                self.var.Rgd = readnetcdf(self.settings.binding['RgdMaps'], self.var.currentTimeStep(), variable_binding='RgdMaps', splitIO=self.splitIO)
+            # calculated radiation [J/m2/day]
+            # Incoming (downward surface) solar radiation [J/m2/d] (SSRD variable in ERA40)
+            # typical vale: 29410560 J/m2/day = 340.4 W/m2 (1 W = 1 J/s)
+            self.var.Rgd = readnetcdf(self.settings.binding['RgdMaps'], self.var.currentTimeStep(), variable_binding='RgdMaps', splitIO=self.splitIO)
 
-                if self.settings.get_option('GLOFAS'):
-                    # set of forcings (rg, rn, ta, td, wu, wv)
-                    # Net long wave radiation [J/m2/day]
-                    self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep(), variable_binding='RNMaps', splitIO=self.splitIO) * -1
+            if self.settings.get_option('GLOFAS'):
+                # set of forcings (rg, rn, ta, td, wu, wv)
+                # Net long wave radiation [J/m2/day]
+                self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep(), variable_binding='RNMaps', splitIO=self.splitIO) * -1
 
         if self.settings.get_option('CORDEX'):
             self.var.Rds = self.var.Rds * 86400

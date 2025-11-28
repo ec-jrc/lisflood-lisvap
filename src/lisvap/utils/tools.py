@@ -22,42 +22,12 @@ from bisect import bisect_left
 import cftime
 from dateutil import parser
 import numpy as np
-import pcraster
-from pcraster import numpy_operations, Nominal
-from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimum, mapmaximum
+from .operators import scalar, defined, ifthenelse
 from netCDF4 import num2date, date2num
 
 from . import LisfloodError
 from . import LisSettings
 from .decorators import counted
-
-
-def valuecell(coordx, coordstr):
-    """
-    to put a value into a pcraster map -> invert of cellvalue
-    pcraster map is converted into a numpy array first
-    """
-    coord = []
-    for xy in coordx:
-        try:
-            coord.append(float(xy))
-        except ValueError:
-            msg = 'Gauges: {} in {} is not a coordinate'.format(xy, coordstr)
-            raise LisfloodError(msg)
-
-    null = np.zeros((pcraster.clone().nrRows(), pcraster.clone().nrCols()))
-    null[null == 0] = -9999
-
-    for i in range(int(len(coord) / 2)):
-        col = int((coord[i * 2] - pcraster.clone().west()) / pcraster.clone().cellSize())
-        row = int((pcraster.clone().north() - coord[i * 2 + 1]) / pcraster.clone().cellSize())
-        if 0 <= col < pcraster.clone().nrCols() and 0 <= row < pcraster.clone().nrRows():
-            null[row, col] = i + 1
-        else:
-            msg = 'Coordinates: {}, {} to put value in is outside mask map - col,row: {}, {}'.format(coord[i * 2], coord[i * 2 + 1], col, row)
-            raise LisfloodError(msg)
-
-    return numpy_operations.numpy2pcr(Nominal, null, -9999)
 
 
 def take_closest(a_list, a_number):
@@ -483,54 +453,6 @@ class DynamicFrame():
         self._atEndOfScript()
 
 
-# @counted
-# def checkmap(name, value, npmap, flagmap, find):
-#     """ check maps if they fit to the mask map
-#     """
-#     s = [name, value]
-#     MMaskMap = 0
-#     if flagmap:
-#         amap = scalar(defined(MMaskMap))
-#         try:
-#             smap = scalar(defined(npmap))
-#         except:
-#             msg = "Map: " + name + " in " + value + " does not fit"
-#             if name == "LZAvInflowMap":
-#                 msg += "\nTry to execute the initial run first"
-#             raise LisfloodError(msg)
-#
-#         mvmap = maptotal(smap)
-#         mv = pcraster.cellvalue(mvmap, 1, 1)[0]
-#         s.append(mv)
-#
-#         less = maptotal(ifthenelse(defined(MMaskMap), amap - smap, scalar(0)))
-#         s.append(pcraster.cellvalue(less, 1, 1)[0])
-#         less = mapminimum(scalar(npmap))
-#         s.append(pcraster.cellvalue(less, 1, 1)[0])
-#         less = maptotal(scalar(npmap))
-#         s.append(pcraster.cellvalue(less, 1, 1)[0] / mv) if mv > 0 else s.append('0')
-#         less = mapmaximum(scalar(npmap))
-#         s.append(pcraster.cellvalue(less, 1, 1)[0])
-#         if find > 0:
-#             if find == 2:
-#                 s.append('last_Map_used')
-#             else:
-#                 s.append('')
-#
-#     else:
-#         s.append(0)
-#         s.append(0)
-#         s.append(float(npmap))
-#         s.append(float(npmap))
-#         s.append(float(npmap))
-#
-#     # called comes from the counted decorator and counts the number of times the function is called
-#     if checkmap.called == 1:
-#         print ("%-25s%-40s%11s%11s%11s%11s%11s" % ("Name", "File/Value", "nonMV", "MV", "min", "mean", "max"))
-#     print ("%-25s%-40s%11i%11i%11.2f%11.2f%11.2f" % (s[0], s[1][-39:], s[2], s[3], s[4], s[5], s[6]))
-#     return
-
-
 @counted
 def checkmap(name, value, npmap, flagmap, find):
     """ check maps if they fit to the mask map
@@ -538,7 +460,7 @@ def checkmap(name, value, npmap, flagmap, find):
     s = [name, value]
     MMaskMap = 0
     if flagmap:
-        amap = scalar(defined(MMaskMap)) # Set Maskmap to zeros
+        amap = scalar(MMaskMap) # Set Maskmap to zeros
         try:
             smap = scalar(defined(npmap)) # Get a boolean map containing the cells from npmap in the mask map area
         except:
@@ -547,24 +469,22 @@ def checkmap(name, value, npmap, flagmap, find):
                 msg += "\nTry to execute the initial run first"
             raise LisfloodError(msg)
 
-        mvmap = maptotal(smap) # sum all True values or the vales that are in the area
-        mv = pcraster.cellvalue(mvmap, 1, 1)[0] # Get the value result of the maptotal
+        mv = np.sum(smap) # sum all True values or the vales that are in the area
         s.append(mv)
 
-        less = maptotal(ifthenelse(defined(MMaskMap), amap - smap, scalar(0)))
-        s.append(pcraster.cellvalue(less, 1, 1)[0])
-        less = mapminimum(scalar(npmap))
-        s.append(pcraster.cellvalue(less, 1, 1)[0])
-        less = maptotal(scalar(npmap))
-        s.append(pcraster.cellvalue(less, 1, 1)[0] / mv) if mv > 0 else s.append('0')
-        less = mapmaximum(scalar(npmap))
-        s.append(pcraster.cellvalue(less, 1, 1)[0])
+        less = np.sum(ifthenelse(defined(scalar(MMaskMap)), amap - smap, scalar(0)))
+        s.append(less)
+        less = np.min(scalar(npmap))
+        s.append(less)
+        less = np.sum(scalar(npmap))
+        s.append(less / mv) if mv > 0 else s.append('0')
+        less = np.max(scalar(npmap))
+        s.append(less)
         if find > 0:
             if find == 2:
                 s.append('last_Map_used')
             else:
                 s.append('')
-
     else:
         s.append(0)
         s.append(0)

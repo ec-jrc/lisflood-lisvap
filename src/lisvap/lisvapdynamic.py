@@ -75,24 +75,15 @@ class LisvapModelDyn(DynamicModel):
         """
         ANGOT RADIATION
         """
-        np.set_printoptions(precision=16)
         # solar declination [degrees]
         declin = -23.45 * cos((360. * (self.calendar_day + 10)) / 365.)
         # solar constant at top of the atmosphere [J/m2/s]
         solar_constant = self.AvSolarConst * (1 + (0.033 * cos(360. * self.calendar_day / 365.)))
         bld = ((-sin(self.PD / 180.)) + sin(declin) * sin(self.Lat)) / (cos(declin) * cos(self.Lat))
         
-        print('self.PD / 180.=', self.PD / 180., 'self.PD / self.Pi=', self.PD / self.Pi)
-        print('sin(self.PD / 180.)=', sin(self.PD / 180.), 'np.sin(self.PD / self.Pi)=', np.sin(self.PD / self.Pi))
-        print('###### bld sin min:', np.nanmin(((-sin(self.PD / 180.)) + sin(declin) * sin(self.Lat))), 'bld sin max:', np.nanmax(((-sin(self.PD / 180.)) + sin(declin) * sin(self.Lat))))
-        print('###### bld cos max:', np.nanmin((cos(declin) * cos(self.Lat))), 'bld cos max:', np.nanmax((cos(declin) * cos(self.Lat))))
-        print('###### bld min:', np.nanmin(bld), 'bld max:', np.nanmax(bld))
-
         tmp2 = ifthenelse(bld < 0, scalar(asin(bld))-360., scalar(asin(bld)))
-        print('###### tmp2 min:', np.nanmin(tmp2), 'tmp2 max:', np.nanmax(tmp2))
 
         abs_bld = abs(bld)
-        abs_bld_gt_1 = abs_bld[abs_bld > 1]
         # daylength [hour]
         # abs(bld) > 1. corrects the day length at higher altitudes to 24h
         day_length = ifthenelse(abs_bld > 1., scalar(24.), 12. + (24. / 180.) * tmp2)

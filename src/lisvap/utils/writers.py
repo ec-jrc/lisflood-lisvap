@@ -63,15 +63,17 @@ def get_output_parameters_monthly(start_date, timestep, time_frequency, timestep
     seconds_between = (current_date - first_date_current_month).total_seconds()
     num_steps_done_in_current_month = int(seconds_between / timestep_stride) + 1
     last_date_last_month = first_date_current_month - datetime.timedelta(seconds=timestep_stride)
-    day_inside_last_month = last_date_last_month - datetime.timedelta(seconds=timestep_stride)
 
     if current_date == first_date_current_month:
         output_index = 0
     elif current_date == last_date_last_month:
+        day_inside_last_month = last_date_last_month - datetime.timedelta(seconds=timestep_stride)
         filename_suffix = day_inside_last_month.strftime('%Y%m')
-        first_date_last_month = day_inside_last_month.replace(day=1) + datetime.timedelta(seconds=(2 * timestep_stride))
-        num_steps_done_in_last_month = int((last_date_last_month - first_date_last_month).total_seconds() / timestep_stride) + 1
-        output_index = num_steps_done_in_last_month
+        # first_date_last_month = day_inside_last_month.replace(day=1) - datetime.timedelta(seconds=(2 * timestep_stride))
+        # num_steps_done_in_last_month = int((last_date_last_month - first_date_last_month).total_seconds() / timestep_stride) + 1
+        # output_index = num_steps_done_in_last_month - 1
+        # print(f'start_date: {start_date}\ncurrent_date: {current_date}\nfirst_date_current_month: {first_date_current_month}\nlast_date_last_month: {last_date_last_month}\nday_inside_last_month: {day_inside_last_month}')
+        # print(f'first_date_last_month: {first_date_last_month}\ntimestep: {timestep}\ncurrent_output_index: {current_output_index}\noutput_index: {output_index}\nnum_steps_done_in_current_month: {num_steps_done_in_current_month}\nnum_steps_done_in_last_month: {num_steps_done_in_last_month}')
     elif current_output_index >= num_steps_done_in_current_month:
         output_index = num_steps_done_in_current_month - 1
     return filename_suffix, output_index
@@ -86,15 +88,15 @@ def get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_
     seconds_between = (current_date - first_date_current_year).total_seconds()
     num_steps_done_in_current_year = int(seconds_between / timestep_stride) + 1
     last_date_last_year = first_date_current_year - datetime.timedelta(seconds=timestep_stride)
-    day_inside_last_year = last_date_last_year - datetime.timedelta(seconds=timestep_stride)
 
     if current_date == first_date_current_year:
         output_index = 0
     elif current_date == last_date_last_year:
+        day_inside_last_year = last_date_last_year - datetime.timedelta(seconds=timestep_stride)
         filename_suffix = day_inside_last_year.strftime('%Y')
-        first_date_last_year = first_date_current_year.replace(year=current_date.year - 1)
-        num_steps_done_in_last_year = int((last_date_last_year - first_date_last_year).total_seconds() / timestep_stride) + 1
-        output_index = num_steps_done_in_last_year - 1
+        # first_date_last_year = first_date_current_year.replace(year=current_date.year - 1)
+        # num_steps_done_in_last_year = int((last_date_last_year - first_date_last_year).total_seconds() / timestep_stride) + 1
+        # output_index = num_steps_done_in_last_year - 1
     elif current_output_index >= num_steps_done_in_current_year:
         output_index = num_steps_done_in_current_year - 1
     return filename_suffix, output_index

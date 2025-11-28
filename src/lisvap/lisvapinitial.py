@@ -21,7 +21,7 @@ import numpy as np
 
 from .utils import LisSettings, NetcdfMetadata, CutMap, FileNamesManager, DynamicModel
 from .utils.readers import loadsetclone
-from .utils.output import OutputTssMap
+from .utils.output import OutputMap
 from .utils.operators import scalar
 from .hydrological.miscinitial import MiscInitial
 from .hydrological.readmeteo import ReadMeteo
@@ -56,17 +56,15 @@ class LisvapModelIni(DynamicModel):
         elif self.settings.binding.get('TMinMaps'):
             map_for_metadata = fileManager.get_file_name('TMinMaps')
 
-        if self.settings.get_option('readNetcdfStack'):
-            # CutMap defines the extent to read from input netcdf data (cropping)
-            CutMap.register(map_for_metadata)
+        # CutMap defines the extent to read from input netcdf data (cropping)
+        CutMap.register(map_for_metadata)
 
-        if self.settings.get_option('writeNetcdfStack') or self.settings.get_option('writeNetcdf'):
-            # if NetCDF is written, the pr.nc is read to get the metadata
-            # like projection
-            NetcdfMetadata.register(map_for_metadata)
+        # if NetCDF is written, the pr.nc is read to get the metadata
+        # like projection
+        NetcdfMetadata.register(map_for_metadata)
 
         # ----------------------------------------
-        self.output_module = OutputTssMap(self)
+        self.output_module = OutputMap(self)
         self.misc_module = MiscInitial(self)
         self.readmeteo_module = ReadMeteo(self)
         self.ReportSteps = None
