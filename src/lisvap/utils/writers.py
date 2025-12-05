@@ -36,6 +36,9 @@ __DECIMAL_FORMAT = '{:.20f}'
 getcontext().prec = __DECIMAL_CASES
 
 
+__DAY_TIMESTEP_STRIDE__ = 86400
+
+
 def coordinates_range_from_array(coords):
     nelems = len(coords)
     elem_array = [Decimal(0.0)] * nelems
@@ -60,22 +63,15 @@ def get_output_parameters_monthly(start_date, timestep, time_frequency, timestep
     filename_suffix = current_date.strftime('%Y%m')
 
     first_date_current_month = start_date.replace(year=current_date.year, month=current_date.month)
-    seconds_between = (current_date - first_date_current_month).total_seconds()
-    num_steps_done_in_current_month = int(seconds_between / timestep_stride) + 1
     last_date_last_month = first_date_current_month - datetime.timedelta(seconds=timestep_stride)
 
-    if current_date == first_date_current_month:
-        output_index = 0
-    elif current_date == last_date_last_month:
-        day_inside_last_month = last_date_last_month - datetime.timedelta(seconds=timestep_stride)
+    if current_date == first_date_current_month or output_index is None:
+        output_index = -1
+    elif current_date <= last_date_last_month:
+        quantity_daily_steps = __DAY_TIMESTEP_STRIDE__ / timestep_stride
+        day_inside_last_month = last_date_last_month - datetime.timedelta(seconds=int(timestep_stride * quantity_daily_steps))
         filename_suffix = day_inside_last_month.strftime('%Y%m')
-        # first_date_last_month = day_inside_last_month.replace(day=1) - datetime.timedelta(seconds=(2 * timestep_stride))
-        # num_steps_done_in_last_month = int((last_date_last_month - first_date_last_month).total_seconds() / timestep_stride) + 1
-        # output_index = num_steps_done_in_last_month - 1
-        # print(f'start_date: {start_date}\ncurrent_date: {current_date}\nfirst_date_current_month: {first_date_current_month}\nlast_date_last_month: {last_date_last_month}\nday_inside_last_month: {day_inside_last_month}')
-        # print(f'first_date_last_month: {first_date_last_month}\ntimestep: {timestep}\ncurrent_output_index: {current_output_index}\noutput_index: {output_index}\nnum_steps_done_in_current_month: {num_steps_done_in_current_month}\nnum_steps_done_in_last_month: {num_steps_done_in_last_month}')
-    elif current_output_index >= num_steps_done_in_current_month:
-        output_index = num_steps_done_in_current_month - 1
+    output_index += 1
     return filename_suffix, output_index
 
 
@@ -85,20 +81,15 @@ def get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_
     filename_suffix = current_date.strftime('%Y')
 
     first_date_current_year = start_date.replace(year=current_date.year)
-    seconds_between = (current_date - first_date_current_year).total_seconds()
-    num_steps_done_in_current_year = int(seconds_between / timestep_stride) + 1
     last_date_last_year = first_date_current_year - datetime.timedelta(seconds=timestep_stride)
 
-    if current_date == first_date_current_year:
-        output_index = 0
-    elif current_date == last_date_last_year:
-        day_inside_last_year = last_date_last_year - datetime.timedelta(seconds=timestep_stride)
+    if current_date == first_date_current_year or output_index is None:
+        output_index = -1
+    elif current_date <= last_date_last_year:
+        quantity_daily_steps = __DAY_TIMESTEP_STRIDE__ / timestep_stride
+        day_inside_last_year = last_date_last_year - datetime.timedelta(seconds=int(timestep_stride * quantity_daily_steps))
         filename_suffix = day_inside_last_year.strftime('%Y')
-        # first_date_last_year = first_date_current_year.replace(year=current_date.year - 1)
-        # num_steps_done_in_last_year = int((last_date_last_year - first_date_last_year).total_seconds() / timestep_stride) + 1
-        # output_index = num_steps_done_in_last_year - 1
-    elif current_output_index >= num_steps_done_in_current_year:
-        output_index = num_steps_done_in_current_year - 1
+    output_index += 1
     return filename_suffix, output_index
 
 
@@ -109,11 +100,14 @@ def get_output_parameters(settings, netcdf_output_file, start_date, timestep, ti
     prefix = os.path.splitext(netfile.name)[0]
     splitIO = settings.get_option('splitOutput')
     if splitIO:
+        output_index_key = f'output_index_{prefix}'
+        output_index = None if not output_index_key in settings.binding else settings.binding[output_index_key]
         monthlyIO = settings.get_option('monthlyOutput')
         if monthlyIO:
-            filename_suffix, output_index = get_output_parameters_monthly(start_date, timestep, time_frequency, timestep_stride, current_output_index)
+            filename_suffix, output_index = get_output_parameters_monthly(start_date, timestep, time_frequency, timestep_stride, output_index)
         else:
-            filename_suffix, output_index = get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_stride, current_output_index)
+            filename_suffix, output_index = get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_stride, output_index)
+        settings.binding[output_index_key] = output_index
         netfile = Path(p.parent) / Path('{}_{}.nc'.format(p.name, filename_suffix) if not p.name.endswith('.nc') else p.name)
     return prefix, netfile, output_index
 
