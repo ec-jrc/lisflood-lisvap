@@ -204,10 +204,10 @@ report_maps_all: {report_maps_all}
     @staticmethod
     def config_flags():
         """ read flags - according to the flags the output is adjusted
-            quiet, veryquiet, loud, checkfiles, noheader, printtime
+            quiet, veryquiet, loud, checkfiles, printtime
         """
         flags = {'quiet': False, 'veryquiet': False, 'loud': False,
-                 'checkfiles': False, 'noheader': False, 'printtime': False}
+                 'checkfiles': False, 'printtime': False}
 
         @cached
         def _flags(argz):
@@ -221,7 +221,7 @@ report_maps_all: {report_maps_all}
                 for o, a in opts:
                     for opt in (('-q', '--quiet'), ('-v', '--veryquiet'),
                                 ('-l', '--loud'), ('-c', '--checkfiles'),
-                                ('-h', '--noheader'), ('-t', '--printtime')):
+                                ('-t', '--printtime')):
                         if o in opt:
                             flags[opt[1].lstrip('--')] = True
                             break
@@ -793,7 +793,6 @@ LisvapPy - Lisvap (Global)
     -v --veryquiet   no output progression is given
     -l --loud        output progression given as time step, date and discharge
     -c --checkfiles  input maps and stack maps are checked, output for each input map BUT no model run
-    -h --noheader    .tss file have no header and start immediately with the time series
     -t --printtime   the computation time for hydrological modules are printed\n
     """.format(version=__version__, date=__date__, status=__status__, authors=__authors__, maintainers=__maintainers__)
     )

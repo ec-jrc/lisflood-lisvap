@@ -387,21 +387,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
         <group>
             <comment>
                 **************************************************************
-                REPORTED OUTPUT TIME SERIES
-                **************************************************************
-            </comment>
-
-            <textvar name="E0TS" value="$(PathOut)/e0.tss">
-                <comment>
-                    Potential evaporation rate of a free water surface [mm/day]
-                </comment>
-            </textvar>
-
-        </group>
-
-        <group>
-            <comment>
-                **************************************************************
                 BASE INPUT MAPS
                 **************************************************************
             </comment>

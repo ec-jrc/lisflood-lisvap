@@ -392,39 +392,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <group>
             <comment>
                 **************************************************************
-                REPORTED OUTPUT TIME SERIES
-                **************************************************************
-            </comment>
-
-            <textvar name="TAvgTS" value="$(PathOut)/tAvg.tss">
-                <comment>
-                    Average temperature [deg C]
-                </comment>
-            </textvar>
-
-            <textvar name="ET0TS" value="$(PathOut)/et0.tss">
-                <comment>
-                    Potential reference evapotranspiration rate [mm/day]
-                </comment>
-            </textvar>
-
-            <textvar name="E0TS" value="$(PathOut)/e0.tss">
-                <comment>
-                    Potential evaporation rate of a free water surface [mm/day]
-                </comment>
-            </textvar>
-
-            <textvar name="ES0TS" value="$(PathOut)/es0.tss">
-                <comment>
-                    Potential evaporation rate from a bare soil surface [mm/day]
-                </comment>
-            </textvar>
-
-        </group>
-
-        <group>
-            <comment>
-                **************************************************************
                 BASE INPUT MAPS
                 **************************************************************
             </comment>

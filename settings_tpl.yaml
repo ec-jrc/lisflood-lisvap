@@ -167,16 +167,6 @@ output-maps:
     # daily reference evapotranspiration (crop) [mm/day]
     ET0Maps: $(PathOut)/$(PrefixET0)
 
-reported-output-timeseries:
-    # Average temperature [deg C]
-    TAvgTS: $(PathOut)/tAvg.tss
-    # Potential reference evapotranspiration rate [mm/day]
-    ET0TS: $(PathOut)/et0.tss
-    # Potential evaporation rate of a free water surface [mm/day]
-    E0TS: $(PathOut)/e0.tss
-    # Potential evaporation rate from a bare soil surface [mm/day]
-    ES0TS: $(PathOut)/es0.tss
-
 input-base-maps:
     # Clone map
     MaskMap: $(PathMeteoIn)/areaall.nc
