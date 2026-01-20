@@ -62,6 +62,7 @@ def setup_calendar(settings=None):
 
 
 def lisvapexe(settings):
+    setup_calendar(settings)
     tp = TimeProfiler()
     step_start = settings.binding['StepStart']
     step_end = settings.binding['StepEnd']
@@ -104,7 +105,7 @@ def main():
     fileManager = FileNamesManager(lissettings.binding.get('PathOut'))
     if not lissettings.valid():
         sys.exit(1)
-    setup_calendar(lissettings)
+    # setup_calendar(lissettings)
     # setting of global flag e.g checking input maps, producing more output information
     if not lissettings.flags['veryquiet'] and not lissettings.flags['quiet']:
         headerinfo()

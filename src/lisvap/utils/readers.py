@@ -133,9 +133,9 @@ def loadmap(name):
             mv = 0
         # mapnp[np.isnan(mapnp)] = mv
         maskmap = MaskMapMetadata.instance().get_maskmap()
+        mapnp[np.isnan(mapnp)] = np.nan
         mapnp[maskmap.mask] = np.nan
-        res = mapnp
-        # mapnp[np.isnan(mapnp)] = (nan_value - add_offset) * scale_factor
+        res = np.ma.masked_array(mapnp.flatten().reshape(maskmap.shape), mask=maskmap.mask, fill_value=np.nan)
 
         # if the map is a ldd
         if value.split('.')[0][-3:] == 'ldd':
@@ -288,7 +288,13 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     settings = LisSettings.instance()
     if settings.flags['checkfiles']:
         checkmap(timename, filename, mapnp, True, 1)
-    return mapnp
+    maskmap = MaskMapMetadata.instance().get_maskmap()
+    mapnp[np.isnan(mapnp)] = np.nan
+    mapnp[maskmap.mask] = np.nan
+    conversion_factor = settings.get_unit_conversion(variable_binding)
+    if conversion_factor is not None and conversion_factor != 1:
+        mapnp = mapnp * conversion_factor
+    return np.ma.masked_array(mapnp.flatten().reshape(maskmap.shape), mask=maskmap.mask, fill_value=np.nan)
 
 
 def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):

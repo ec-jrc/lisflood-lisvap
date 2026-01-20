@@ -19,8 +19,10 @@ See the Licence for the specific language governing permissions and limitations 
 
 import sys
 import datetime
+import cftime
 
 import numpy as np
+from netCDF4 import num2date, date2num
 
 from .utils.operators import exp, maximum, cos, sin, ifthenelse, asin, scalar, cover, tan, sqr, sqrt, abs
 from .utils import LisSettings, TimeProfiler, DynamicModel
@@ -34,6 +36,8 @@ class LisvapModelDyn(DynamicModel):
             initialization of the hydrological modules
         """
         # super(LisvapModelDyn, self).__init__()
+        self.gregorian_calendars_id = [u'standard', u'gregorian', u'proleptic_gregorian']
+        self.calendar_day_start_gregorian = None
         self.calendar_date = None
         self.calendar_day = None
         self.time_since_start = None
@@ -80,24 +84,23 @@ class LisvapModelDyn(DynamicModel):
         # solar constant at top of the atmosphere [J/m2/s]
         solar_constant = self.AvSolarConst * (1 + (0.033 * cos(360. * self.calendar_day / 365.)))
         bld = ((-sin(self.PD / 180.)) + sin(declin) * sin(self.Lat)) / (cos(declin) * cos(self.Lat))
-        
-        tmp2 = ifthenelse(bld < 0, scalar(asin(bld))-360., scalar(asin(bld)))
-
+        asin_bld = asin(bld)
+        tmp2 = ifthenelse(bld < 0, asin_bld-360., asin_bld)
         abs_bld = abs(bld)
         # daylength [hour]
         # abs(bld) > 1. corrects the day length at higher altitudes to 24h
         day_length = ifthenelse(abs_bld > 1., scalar(24.), 12. + (24. / 180.) * tmp2)
         # Daylength equation can produce MV at high latitudes, this statements sets day length to 0 in that case  
-        day_length = cover(day_length, 0.0)
+        day_length = cover(day_length, mv=0.0)
         # integral of solar height [s] over the day
         # abs(bld) > 1. allows correcting the integral of solar height at higher altitudes (north pole)
         int_solar_height = ifthenelse(abs_bld > 1., self.int_solar_height_north_pole(day_length, declin), self.int_solar_height_main(day_length, declin))
         # Integral of solar height cannot be negative, so truncate at 0
         int_solar_height = maximum(int_solar_height, scalar(0.0))
-        int_solar_height = cover(int_solar_height, 0.0)
+        int_solar_height = cover(int_solar_height, mv=0.0)
         # daily extra-terrestrial radiation (Angot radiation) [J/m2/d]
-        RadiationAngot = int_solar_height * solar_constant
-        return RadiationAngot
+        radiation_angot = int_solar_height * solar_constant
+        return radiation_angot
 
     def net_absorbed_radiation(self, solar_radiation, radiation_angot):
         """
@@ -115,7 +118,7 @@ class LisvapModelDyn(DynamicModel):
         EmNet = (0.56 - 0.079 * sqrt(self.EAct))
         Rso = radiation_angot * (0.75 + (2 * 10 ** -5 * self.Dem))
         TransAtm_Allen = solar_radiation / Rso
-        TransAtm_Allen = cover(TransAtm_Allen, 0)
+        TransAtm_Allen = cover(TransAtm_Allen, mv=0)
         AdjCC = 1.8 * TransAtm_Allen - 0.35
         AdjCC = ifthenelse(AdjCC < 0, 0.05, AdjCC)
         AdjCC = ifthenelse(AdjCC > 1, 1, AdjCC)
@@ -125,6 +128,26 @@ class LisvapModelDyn(DynamicModel):
         return RN
 
     # =========== DYNAMIC ====================================================
+
+    def convert_calendar_date_to_gregorian(self, init_t_cal):
+        """
+        Convert calendar_day_start to the default gregorian calendar.
+        The calculation of the day of the year need to be done using
+        the gregorian calendar for the angot equation.
+        """
+        calendar_date_gregorian = self.calendar_date
+        if (isinstance(self.calendar_date, cftime.datetime) and
+            not init_t_cal in self.gregorian_calendars_id):
+            if self.calendar_day_start_gregorian is None:
+                self.calendar_day_start_gregorian = datetime.datetime(year=self.calendar_date.year,
+                                                                      month=self.calendar_date.month,
+                                                                      day=self.calendar_date.day,
+                                                                      hour=self.calendar_date.hour,
+                                                                      minute=self.calendar_date.minute,
+                                                                      second=self.calendar_date.second)
+            calendar_date_gregorian = (self.calendar_day_start_gregorian +
+                                       datetime.timedelta(seconds=(self.currentTimeStep()-1) * self.DtSec))
+        return calendar_date_gregorian
 
     def dynamic(self):
         """ Dynamic part of LISVAP
@@ -136,12 +159,14 @@ class LisvapModelDyn(DynamicModel):
         tp.timemeasure('Start dynamic')
         # CM: date corresponding to the model time step (yyyy-mm-dd hh:mm:ss)
         self.calendar_date = self.calendar_day_start + datetime.timedelta(seconds=(self.currentTimeStep()) * self.DtSec)
+
+        # To get the day of the year we need to convert to gregorian whatever calendar type (360_day, no_leap) so the
+        # radiation is calculated for the full range 1..365
+        calendar_date_gregorian = self.convert_calendar_date_to_gregorian(settings.binding['internal.time.calendar'])
         # CM: day of the year corresponding to the model time step
-        self.calendar_day = int(self.calendar_date.strftime("%j"))
+        self.calendar_day = int(calendar_date_gregorian.strftime("%j"))
 
-        # correct method to calculate the day of the year
         # CM: model time step
-
         i = self.currentTimeStep()
         self.time_since_start = self.currentTimeStep() - self.firstTimeStep() + 1
 

@@ -296,7 +296,7 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
         nf1 = Dataset(netfile, 'a')
 
     slices = cutmap.slices
-    mapnp = inputmap[slices[0], slices[1]]
+    mapnp = inputmap.filled(np.nan)[slices[0], slices[1]]
     # Pack NAN values into short
     mapnp[np.isnan(mapnp)] = (nan_value - add_offset) * scale_factor
     if flag_time:

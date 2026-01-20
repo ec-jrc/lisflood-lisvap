@@ -113,13 +113,13 @@ class ReadMeteo(object):
         if self.settings.get_option('CORDEX'):
             self.var.Psurf = readnetcdf(self.settings.binding['PSurfMaps'], self.var.currentTimeStep(), variable_binding='PSurfMaps', splitIO=self.splitIO)
             self.var.Qair = readnetcdf(self.settings.binding['QAirMaps'], self.var.currentTimeStep(), variable_binding='QAirMaps', splitIO=self.splitIO)
-            # Downward  short wave radiation [W/m2]
+            # Downward  short wave radiation [J/m2]
             self.var.Rds = readnetcdf(self.settings.binding['RdsMaps'], self.var.currentTimeStep(), variable_binding='RdsMaps', splitIO=self.splitIO)
-            # Down long wave radiation [W/m2]
+            # Down long wave radiation [J/m2]
             self.var.Rdl = readnetcdf(self.settings.binding['RdlMaps'], self.var.currentTimeStep(), variable_binding='RdlMaps', splitIO=self.splitIO)
-            # upward  short wave radiation [W/m2]
+            # upward  short wave radiation [J/m2]
             self.var.Rus = readnetcdf(self.settings.binding['RusMaps'], self.var.currentTimeStep(), variable_binding='RusMaps', splitIO=self.splitIO)
-            # upward long wave radiation [W/m2]
+            # upward long wave radiation [J/m2]
             self.var.Rul = readnetcdf(self.settings.binding['RulMaps'], self.var.currentTimeStep(), variable_binding='RulMaps', splitIO=self.splitIO)
         else: # EFAS or GLOFAS
             self.read_vapor_pressure()
@@ -132,13 +132,12 @@ class ReadMeteo(object):
             if self.settings.get_option('GLOFAS'):
                 # set of forcings (rg, rn, ta, td, wu, wv)
                 # Net long wave radiation [J/m2/day]
-                self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep(), variable_binding='RNMaps', splitIO=self.splitIO) * -1
+                self.var.Rnl = readnetcdf(self.settings.binding['RnlMaps'], self.var.currentTimeStep(), variable_binding='RnlMaps', splitIO=self.splitIO)
+                # For GLOFAS we need to invert the signal of the files that come from ERA5
+                # so it fits the formulas we are using in Lisvap
+                self.var.Rnl = self.var.Rnl * -1
 
         if self.settings.get_option('CORDEX'):
-            self.var.Rds = self.var.Rds * 86400
-            self.var.Rdl = self.var.Rdl * 86400
-            self.var.Rus = self.var.Rus * 86400
-            self.var.Rul = self.var.Rul * 86400
             self.var.EAct = (self.var.Psurf * self.var.Qair) / 62.2
             # [KPA] * [kg/kg] = KPa
 

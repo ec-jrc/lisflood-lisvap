@@ -205,6 +205,21 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
         <setoption name="useWindUVMaps" choice="1"/>
     </lfoptions>
 
+    <lfconversions>
+        <comment>
+            **************************************************************
+            UNITS CONVERSION FACTORS FOR INPUT VARIABLES 
+            **************************************************************
+        </comment>
+            
+        <setconversion name="RnlMaps" value="">
+            <comment>
+                rnl - net long wave radiation [J/m2]
+                Used when the "GLOFAS" option is switched on.
+            </comment>
+        </setconversion>
+    </lfconversions>
+
 
     <lfbinding>
         <!--
@@ -355,13 +370,13 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
 
             <textvar name="RgdMaps" value="$(PathMeteoIn)/$(PrefixRgd)">
                 <comment>
-                    Downward surface solar radiation [J/m2/d]
+                    Downward surface solar radiation [J/m2]
                 </comment>
             </textvar>
 
-            <textvar name="RNMaps" value="$(PathMeteoIn)/$(PrefixRN)">
+            <textvar name="RnlMaps" value="$(PathMeteoIn)/$(PrefixRN)">
                 <comment>
-                    Net thermal radiation [J/m2/d]
+                    Net thermal radiation [J/m2]
                     Note: values should always be negative (in ERA40 net outgoing flux is taken as a negative number)
                 </comment>
             </textvar>

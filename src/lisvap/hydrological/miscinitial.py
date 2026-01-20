@@ -87,6 +87,7 @@ class MiscInitial(object):
         self.var.Qair = None
         self.var.Wind = None
         
+        self.var.RelH = None
         self.var.ESat = None
 
         self.var.Rds = None

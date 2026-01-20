@@ -142,6 +142,140 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="useRelHumidityMaps" choice="1"/>
     </lfoptions>
 
+    <lfconversions>
+        <comment>
+            **************************************************************
+            UNITS CONVERSION FACTORS FOR INPUT VARIABLES 
+            **************************************************************
+        </comment>
+
+        <setconversion name="TMaxMaps" value="">
+            <comment>
+                Maximum daily temperature
+                Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+            </comment>
+        </setconversion>
+
+        <setconversion name="TMinMaps" value="">
+            <comment>
+                Minimum daily temperature 
+                Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+            </comment>
+        </setconversion>
+        
+        <setconversion name="TDewMaps" value="">
+            <comment>
+                TDew - Dew point Temperature used for actual vap pressure 
+                Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+                Used when the "GLOFAS" option is switched on.
+                
+            </comment>
+        </setconversion>
+        
+        <setconversion name="RelHMaps" value="">
+            <comment>
+                RelHMaps - Relative Humidity used for actual vap pressure 
+                Units: [%]
+                Used when the "EFAS" option is switched on.
+                
+            </comment>
+        </setconversion>
+
+        <setconversion name="EActMaps" value="">
+            <comment>
+                Actual vapour pressure [mbar]
+                Used when the "EFAS" option is switched on.
+                If the "CORDEX" option is on, "QairMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="WindMaps" value="">
+            <comment>
+                Wind speed at 10 m from surface [m/s]
+            </comment>
+        </setconversion>
+        
+        <setconversion name="WindMapsU" value="">
+            <comment>
+                Wind speed U component at 10 m from surface [m/s]
+            </comment>
+        </setconversion>
+        
+        <setconversion name="WindMapsV" value="">
+            <comment>
+                Wind speed V component at 10 m from surface [m/s]
+            </comment>
+        </setconversion>
+
+        <setconversion name="TAvgMaps" value="">
+            <comment>
+                average daily temperature 
+                Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+            </comment>
+        </setconversion>
+
+        <setconversion name="PSurfMaps" value="">
+            <comment>
+                Instantaneous sea level pressure [Pa]
+            </comment>
+        </setconversion>
+
+        <setconversion name="QAirMaps" value="">
+            <comment>
+                2 m instantaneous specific humidity [kg/kg]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "EActMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RgdMaps" value="">
+            <comment>
+                rgd - calculated solar radiation [J/m2]
+                Used when the "EFAS" option is switched on.
+                If the "CORDEX" option is on, the following are used instead: "RdsMaps", "RdlMaps", "RusMaps", "RulMaps".
+            </comment>
+        </setconversion>
+
+        <setconversion name="RdsMaps" value="86400">
+            <comment>
+                rds - Downward short wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RdlMaps" value="86400">
+            <comment>
+                rdl - Down long wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RusMaps" value="86400">
+            <comment>
+                rus - up short wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RulMaps" value="86400">
+            <comment>
+                rul - up long wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+            
+        <setconversion name="RnlMaps" value="">
+            <comment>
+                rnl - net long wave radiation [J/m2]
+                Used when the "GLOFAS" option is switched on.
+            </comment>
+        </setconversion>
+    </lfconversions>
+
 
     <lfbinding>
         <!--
@@ -325,7 +459,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="RgdMaps" value="$(PathMeteoIn)/EMO-5-rg_1990_2017">
                 <comment>
-                    rgd - calculated solar radiation [J/day/m2]
+                    rgd - calculated solar radiation [J/m2]
                     Used when the "EFAS" option is switched on.
                     If the "CORDEX" option is on, the following are used instead: "RdsMaps", "RdlMaps", "RusMaps", "RulMaps".
                 </comment>
@@ -354,7 +488,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="RdsMaps" value="$(PathMeteoIn)/rsds_1_15">
                 <comment>
-                    rds - Downward short wave radiation [W/m2]
+                    rds - Downward short wave radiation [J/m2]
                     Used when the "CORDEX" option is switched on.
                     If the "EFAS" option is on, "RgdMaps" is used instead.
                 </comment>
@@ -362,7 +496,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="RdlMaps" value="$(PathMeteoIn)/rlds_1_15">
                 <comment>
-                    rdl - Down long wave radiation [W/m2]
+                    rdl - Down long wave radiation [J/m2]
                     Used when the "CORDEX" option is switched on.
                     If the "EFAS" option is on, "RgdMaps" is used instead.
                 </comment>
@@ -370,7 +504,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="RusMaps" value="$(PathMeteoIn)/rsus_1_15">
                 <comment>
-                    rus - up short wave radiation [W/m2]
+                    rus - up short wave radiation [J/m2]
                     Used when the "CORDEX" option is switched on.
                     If the "EFAS" option is on, "RgdMaps" is used instead.
                 </comment>
@@ -378,7 +512,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="RulMaps" value="$(PathMeteoIn)/rlus_1_15">
                 <comment>
-                    rul - up long wave radiation [W/m2]
+                    rul - up long wave radiation [J/m2]
                     Used when the "CORDEX" option is switched on.
                     If the "EFAS" option is on, "RgdMaps" is used instead.
                 </comment>
@@ -386,7 +520,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 
             <textvar name="RnlMaps" value="$(PathMeteoIn)/rlus_1_15">
                 <comment>
-                    rnl - net long wave radiation [W/m2]
+                    rnl - net long wave radiation [J/m2]
                     Used when the "GLOFAS" option is switched on.
                 </comment>
             </textvar>

@@ -129,7 +129,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="PrefixRgd" value="rg">
                 <comment>
-                    prefix down solar radiation maps [W/m2]
+                    prefix down solar radiation maps [J/m2]
                 </comment>
             </textvar>
 
@@ -345,7 +345,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="RgdMaps" value="$(PathMeteoIn)/rg_1_15">
                 <comment>
-                    rgd - calculated solar radiation [W/m2]
+                    rgd - calculated solar radiation [J/m2]
                 </comment>
             </textvar>
             <textvar name="PSurfMaps" value="0">

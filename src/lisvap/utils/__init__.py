@@ -105,11 +105,19 @@ class LisSettings(metaclass=Singleton):
 
         self.binding = bindings
         self.options = self.get_options(dom)
+        self.unit_conversions = self.get_unit_conversions(dom)
         self.report_steps = self._report_steps(user_settings, bindings)
         self.report_maps_all = self._reported_maps()
 
     def get_option(self, option_key=''):
         return self.options[option_key.lower()]
+
+    def get_unit_conversion(self, variable_name=''):
+        if variable_name is not None:
+            var_name = variable_name.lower()
+            if var_name in self.unit_conversions:
+                return self.unit_conversions[var_name]
+        return None
 
     def get_binding(self, dom):
         binding = {}
@@ -245,6 +253,26 @@ report_maps_all: {report_maps_all}
         options.update(option_setting)
         return options
 
+    @staticmethod
+    def get_unit_conversions(dom):
+        # getting unit conversion values for each variable whose units are
+        # different than the ones expected by Lisvap
+        lfconversions_elem = dom.getElementsByTagName('lfconversions')
+        conversion_setting = {}
+        if len(lfconversions_elem) == 0: # No conversions defined
+            return conversion_setting
+        lfconversions_elem = lfconversions_elem[0]
+        for conversionset in lfconversions_elem.getElementsByTagName('setconversion'):
+            variable_name = conversionset.attributes['name'].value
+            try:
+                conversion_factor = conversionset.attributes['value'].value.replace(" ", "")
+                if len(conversion_factor) > 0:
+                    conversion_setting[str(variable_name).lower()] = float(conversion_factor)
+            except Exception as e:
+                msg = f'Invalid conversion factor for variable {variable_name} in the settings file.'
+                raise LisfloodError(msg)
+        return conversion_setting
+
     def valid_files(self, variable_binding):
         if variable_binding not in self.binding:
             return False
@@ -307,8 +335,8 @@ report_maps_all: {report_maps_all}
             elif self.get_option('GLOFAS'):
                 if not self.valid_files('RgdMaps'):
                     issues_list.append('GLOFAS setup: Missing "RgdMaps" file(s).')
-                if not self.valid_files('RNMaps'):
-                    issues_list.append('GLOFAS setup: Missing "RNMaps" file(s).')
+                if not self.valid_files('RnlMaps'):
+                    issues_list.append('GLOFAS setup: Missing "RnlMaps" file(s).')
             elif self.get_option('CORDEX'):
                 if not self.valid_files('PSurfMaps'):
                     issues_list.append('CORDEX setup: Missing "PSurfMaps" file(s).')
@@ -316,12 +344,20 @@ report_maps_all: {report_maps_all}
                     issues_list.append('CORDEX setup: Missing "QAirMaps" file(s).')
                 if not self.valid_files('RdsMaps'):
                     issues_list.append('CORDEX setup: Missing "RdsMaps" file(s).')
+                elif self.get_unit_conversion('RdsMaps') is None:
+                    issues_list.append('CORDEX setup: Variable "RdsMaps" is expected to have a conversion factor of 86400.')
                 if not self.valid_files('RdlMaps'):
                     issues_list.append('CORDEX setup: Missing "RdlMaps" file(s).')
+                elif self.get_unit_conversion('RdlMaps') is None:
+                    issues_list.append('CORDEX setup: Variable "RdlMaps" is expected to have a conversion factor of 86400.')
                 if not self.valid_files('RusMaps'):
                     issues_list.append('CORDEX setup: Missing "RusMaps" file(s).')
+                elif self.get_unit_conversion('RusMaps') is None:
+                    issues_list.append('CORDEX setup: Variable "RusMaps" is expected to have a conversion factor of 86400.')
                 if not self.valid_files('RulMaps'):
                     issues_list.append('CORDEX setup: Missing "RulMaps" file(s).')
+                elif self.get_unit_conversion('RulMaps') is None:
+                    issues_list.append('CORDEX setup: Variable "RulMaps" is expected to have a conversion factor of 86400.')
             # ###############################################
             # Check constants
             # ###############################################
