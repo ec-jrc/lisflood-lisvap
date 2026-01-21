@@ -21,9 +21,6 @@ import sys
 import datetime
 import cftime
 
-import numpy as np
-from netCDF4 import num2date, date2num
-
 from .utils.operators import exp, maximum, cos, sin, ifthenelse, asin, scalar, cover, tan, sqr, sqrt, abs
 from .utils import LisSettings, TimeProfiler, DynamicModel
 

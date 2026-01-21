@@ -77,7 +77,7 @@ def get_calendar_configuration(netcdf_file_obj, settings=None):
         settings.binding['internal.time.unit'] = t_unit
         settings.binding['internal.time.calendar'] = t_cal
         settings.binding['internal.time.frequency'] = t_frequency
-    return t_unit, t_cal
+    return t_unit, t_cal, t_frequency
 
 
 def date2calendar(date, settings=None):

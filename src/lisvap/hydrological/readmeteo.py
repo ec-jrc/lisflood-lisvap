@@ -17,8 +17,6 @@ See the Licence for the specific language governing permissions and limitations 
 
 import datetime
 
-from netCDF4 import date2num, num2date
-
 from ..utils.operators import scalar, sqrt, sqr, exp
 from ..utils.readers import readnetcdf
 from ..utils.tools import calendar

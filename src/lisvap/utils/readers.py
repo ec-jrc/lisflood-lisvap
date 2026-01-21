@@ -311,7 +311,7 @@ def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):
     """
     t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
     settings = LisSettings.instance()
-    t_unit, t_cal = get_calendar_configuration(nf1, settings)
+    t_unit, t_cal, _ = get_calendar_configuration(nf1, settings)
 
     # get date of current simulation step
     current_date = get_current_date(timestep)
@@ -368,7 +368,7 @@ def checknetcdf(name, start, end):
 
     # read information from netCDF file
     t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
-    t_unit, t_cal = get_calendar_configuration(nf1)
+    t_unit, t_cal, _ = get_calendar_configuration(nf1)
 
     # get date of first available timestep in netcdf file
     date_first_step_in_ncdf = num2date(t_steps[0], units=t_unit, calendar=t_cal)
