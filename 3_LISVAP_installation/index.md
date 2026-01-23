@@ -8,7 +8,14 @@ There are three possibilites to get LISVAP:
 2. Install LISVAP python module using pip tool
 3. Clone the repository from github
 
-If you want to run LISVAP as python package (option 2) or directly from code (option 3) you need Python, some scientific python packages and a recent version of PCRaster. The use of a recent Python distribution (>=3.5 works) is strongly recommended; albeit LISVAP also works with Python 2.7, the support for this version will cease late in 2020.
+For LISVAP < 1.4.0:
+
+If you want to run LISVAP as python package (option 2) or directly from code (option 3) you need Python, some scientific python packages and a recent version of PCRaster. The use of a recent Python distribution (>=3.8 works) is strongly recommended; albeit LISVAP also works with Python 2.7, the support for this version will cease late in 2020.
+
+For LISVAP >= 1.4.0:
+
+If you want to run LISVAP as python package (option 2) or directly from code (option 3) you need Python, some scientific python packages. The use of a recent Python distribution (>=3.8 works) is strongly recommended; LISVAP does not support anymore Python 2.7 and PCRaster.
+
 In case you need some exemplary data to run it (basemaps, meteo input etc.), we suggest to install using Docker or by cloning the repository to have access to all those assets.
 
 
@@ -50,10 +57,9 @@ Easiest and quickest way to get LISVAP is to install its python package into you
 LISVAP module is distributed as a [python pip package](https://pypi.org/project/lisflood-lisvap/) and regularly published to pypi repository. 
 Pip is the tool to install python packages/libraries into your python environment, and it manages versions and dependencies.  
 
-Ensure you have a recent Python distribution (>=3.5 works) for your system [from this page](https://www.python.org/downloads/release/python-2716/) along with the pip tool (which is usually already installed).
-LISVAP works also with Python 2.7 but keep in mind that its support will be dropped late in 2020.
+Ensure you have a recent Python distribution (>=3.8 works) for your system [from this page](https://www.python.org/downloads/release/python-2716/) along with the pip tool (which is usually already installed).
 
-Pip will install LISVAP python dependencies as well but you still need to compile and install PCRaster and its python interface manually.
+Pip will install LISVAP python dependencies as well but if you install LISVAP < 1.4.0 you still need to compile and install PCRaster and its python interface manually.
 For details on how to install PCRaster the reader is referred to the PCRaster installation guide [for Windows](http://pcraster.geo.uu.nl/quick-start-guide/) 
 or [Linux](http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/).
 
@@ -91,7 +97,7 @@ After activated the LISVAP virtualenv, you may install dependencies:
 pip install -r requirements.txt
 ```
 
-To install PCRaster, follow official guides:
+Only for LISVAP < 1.4.0, to install PCRaster, follow official guides:
 
 * [Windows](http://pcraster.geo.uu.nl/quick-start-guide/) 
 * [Linux](http://pcraster.geo.uu.nl/getting-started/pcraster-on-linux/)

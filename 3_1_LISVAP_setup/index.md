@@ -6,7 +6,7 @@ Before you can run LISVAP, you need to:
 2. Prepare input dataset
 3. [Prepare the XML settings file](/lisflood-lisvap/3_2_LISVAP_settingsfile/)
 
-All input to LISVAP is provided as maps (grid files in PCRaster format or maps in netCDF format). 
+All input to LISVAP is provided as maps (in netCDF format). 
 
 ### 1. Base maps
 
@@ -67,10 +67,10 @@ The Table below lists all **meteorological input variables** that LISVAP can dig
 | **RADIATION**       |                |                                                      |
 | RgdMaps             | rg             | Downward  surface solar radiation [J/m^2/d]          |
 | RNMaps              | rn             | Net thermal radiation [J/m^2/d] (always negative!)   |
-| RdsMaps             | rds            | Downward short wave radiation [W/m^2]                |
-| RdlMaps             | rdl            | Down long wave radiation [W/m^2]                     |
-| RusMaps             | rus            | rus - up short wave radiation [W/m^2]                |
-| RulMaps             | rul            | rul - up long wave radiation [W/m^2]                 |
+| RdsMaps             | rds            | Downward short wave radiation [J/m^2/d]              |
+| RdlMaps             | rdl            | Down long wave radiation [J/m^2/d]                   |
+| RusMaps             | rus            | rus - up short wave radiation [J/m^2/d]              |
+| RulMaps             | rul            | rul - up long wave radiation [J/m^2/d]               |
 | **HUMIDITY**        |                |                                                      |
 | QAirMaps            | huss           | 2 m instantaneous specific humidity [kg/kg]          |
 
@@ -81,13 +81,13 @@ The tables below provide two examples of datasets that are used to run LISVAP. T
 
    **Table:** *Meteorological input variables from EFAS data collection*
 
-| Variable name                     |  Description                             |
-| --------------------------------- | ---------------------------------------- |
-| PD                                | Actual vapour pressure \[mbar\]          |
-| RG                                | rgd - calculated solar radiation \[W/m2\]|
-| TN                                | Minimum daily temperature \[deg C\]      |
-| TX                                | Maximum daily temperature \[deg C\]      |
-| WS                                | Wind speed at 10 m from surface \[m/s\]  |
+| Variable name                     |  Description                                 |
+| --------------------------------- | -------------------------------------------- |
+| PD                                | Actual vapour pressure \[mbar\]              |
+| RG                                | rgd - calculated solar radiation \[\J/m^2/d] |
+| TN                                | Minimum daily temperature \[deg C\]          |
+| TX                                | Maximum daily temperature \[deg C\]          |
+| WS                                | Wind speed at 10 m from surface \[m/s\]      |
 
 
 
@@ -102,10 +102,10 @@ The tables below provide two examples of datasets that are used to run LISVAP. T
 | tmin                              | Minimum daily temperature \[K\]                 |
 | tmax                              | Maximum daily temperature \[K\]                 |
 | sfcWind                           | Wind speed at 10 m from surface \[m/s\]         |
-| RSDS                              | Downward short wave radiation \[W/m^2\]         |
-| RLDS                              | Down long wave radiation \[W/m^2\]              |
-| RSUS                              | Up short wave radiation \[W/m^2\]               |
-| RLUS                              | Up long wave radiation \[W/m^2\]                |
+| RSDS                              | Downward short wave radiation \[J/m^2/d\]       |
+| RLDS                              | Down long wave radiation \[J/m^2/d\]            |
+| RSUS                              | Up short wave radiation \[J/m^2/d\]             |
+| RLUS                              | Up long wave radiation \[J/m^2/d\]              |
 
 
 

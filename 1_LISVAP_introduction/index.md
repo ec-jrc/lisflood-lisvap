@@ -50,7 +50,7 @@ Some data suppliers do not offer this kind of information, but provide pre-calcu
 Wind speed is sometimes provided in the form of *U* and *V* components. Vapour pressure is sometimes substituted by dew point temperature. 
 LISVAP has been designed to handle this heterogeneity in a straightforward way. 
 It contains various options that allow the user to select which data to use, and combinations of different data sources (e.g. vapour pressure and dew point temperature) can be used within one LISVAP run. 
-LISVAP is implemented in Python and uses PCRaster python framework for model running (Wesseling *et al*., 1996). It will run on any operating system for which Python and PCRaster are available. 
+For LISVAP versions prior to v1.4.0 is implemented in Python and uses PCRaster python framework for model running (Wesseling *et al*., 1996). It will run on any operating system for which Python and PCRaster are available. After LISVAP v1.4.0 it uses only Python and NumPy.
 Currently these include 64-bits Windows and Linux distributions. A docker image with all dependencies and requirements is also publicly available. 
 
 ## About this User Manual

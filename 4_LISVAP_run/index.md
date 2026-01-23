@@ -33,13 +33,13 @@ Note that in the above command we added two options (arguments) at the end. You 
 You can print the usage dialogue by typing `docker run jrce1/lisvap:latest`, which is the equivalent to calling LISVAP without any arguments.
 
  ```console
-LisvapPy - Lisvap (Global) using pcraster Python framework
+LisvapPy - Lisvap (Global)
 
-    Version      : 0.3.4
-    Last updated : 23/05/2019
+    Version      : 1.4.0
+    Last updated : 05/12/2025
     Status       : Development
     Authors      : Peter Burek, Johan van der Knijff, Ad de Roo
-    Maintainers  : Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi
+    Maintainers  : Goncalo Gomes, Domenico Nappo, Valerio Lorini, Lorenzo Mentaschi
 
     Arguments list:
 
@@ -49,7 +49,6 @@ LisvapPy - Lisvap (Global) using pcraster Python framework
     -v --veryquiet   no output progression is given
     -l --loud        output progression given as time step, date and discharge
     -c --checkfiles  input maps and stack maps are checked, output for each input map BUT no model run
-    -h --noheader    .tss file have no header and start immediately with the time series
     -t --printtime   the computation time for hydrological modules are printed
 
  ```

@@ -293,3 +293,58 @@ These options all act as switches (1= on,  0=off). The panel below shows an exam
 Note that each option generally requires additional items in the settings file. 
 For instance, using the dew point temperature option (*useTDewMaps=1*) requires that the corresponding map stack is defined in the settings file and provided as [input data](https://ec-jrc.github.io/lisflood-lisvap/3_1_LISVAP_setup/) in the appropriate folder. 
 The template settings file that is provided with LISVAP always contains file definitions for all implemented options.
+
+
+## <a id="conversions"></a>LISVAP input files unit conversions
+
+LISVAP expects the input netCDF files to use specific measurement units indicated in their metadata.
+From Lisvap v1.4.0 the units in the input files are validated to avoid getting unknowingly wrong results.
+In case there is the need to process files using different units, a conversion factor can be set in the settings file’s `lfconversions` element.
+It will allow converting all the grids inside the input netCDF files for each variable to the expected measurement units.
+The table below shows an example of conversions to be used when using CORDEX to convert the radiation variables from W/m^2 to the expected J/m^2/day.
+
+```xml
+
+    <lfconversions>
+        <comment>
+            **************************************************************
+            UNITS CONVERSION FACTORS FOR INPUT VARIABLES 
+            **************************************************************
+        </comment>
+
+        <setconversion name="RdsMaps" value="86400">
+            <comment>
+                rds - Downward short wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RdlMaps" value="86400">
+            <comment>
+                rdl - Down long wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RusMaps" value="86400">
+            <comment>
+                rus - up short wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RulMaps" value="86400">
+            <comment>
+                rul - up long wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+    </lfconversions>
+
+```
+
+
