@@ -268,7 +268,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
             </comment>
         </setconversion>
             
-        <setconversion name="RnlMaps" value="">
+        <setconversion name="RNMaps" value="">
             <comment>
                 rnl - net long wave radiation [J/m2]
                 Used when the "GLOFAS" option is switched on.
@@ -518,7 +518,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 </comment>
             </textvar>
                 
-            <textvar name="RnlMaps" value="$(PathMeteoIn)/rlus_1_15">
+            <textvar name="RNMaps" value="$(PathMeteoIn)/rlus_1_15">
                 <comment>
                     rnl - net long wave radiation [J/m2]
                     Used when the "GLOFAS" option is switched on.

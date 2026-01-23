@@ -107,7 +107,10 @@ class TestLis(object):
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
-        lisvapexe(settings)
+        valid_settings = settings.valid()
+        if valid_settings:
+            lisvapexe(settings)
+        assert valid_settings, 'Could not setup the settings due to an error in it or the input files'
 
     @classmethod
     def teardown_class(cls):

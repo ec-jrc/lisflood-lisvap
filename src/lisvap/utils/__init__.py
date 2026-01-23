@@ -108,6 +108,40 @@ class LisSettings(metaclass=Singleton):
         self.unit_conversions = self.get_unit_conversions(dom)
         self.report_steps = self._report_steps(user_settings, bindings)
         self.report_maps_all = self._reported_maps()
+        self.set_default_units()
+        self.issues_list = []
+        self.issues_list_new_issue_identation = '        - '
+        self.issues_list_line_break_identation = '\n          '
+
+    def set_default_units(self):
+        self.kelvin_units = ['kelvin', 'k']
+        # IMPORTANT: Keys and values need to be in lower case
+        self.default_units = {
+            'tdewmaps': {'is_temperature': True, 'unit': 'degree_celsius', 'defaults': ['c', 'celsius', '°c'], 'conversions': {}},
+            'tavgmaps': {'is_temperature': True, 'unit': 'degree_celsius', 'defaults': ['c', 'celsius', '°c'], 'conversions': {}},
+            'tminmaps': {'is_temperature': True, 'unit': 'degree_celsius', 'defaults': ['c', 'celsius', '°c'], 'conversions': {}},
+            'tmaxmaps': {'is_temperature': True, 'unit': 'degree_celsius', 'defaults': ['c', 'celsius', '°c'], 'conversions': {}},
+            'relhmaps': {'is_temperature': False, 'unit': '%', 'defaults': [], 'conversions': {}},
+            'windmaps': {'is_temperature': False, 'unit': 'm/s', 'defaults': ['ms-1', 'ms^1', 'mps'], 'conversions': {'km/h': 0.277777778, 'kph': 0.277777778, 'mph': 0.44704}},
+            'windumaps': {'is_temperature': False, 'unit': 'm/s', 'defaults': ['ms-1', 'ms^1', 'mps'], 'conversions': {'km/h': 0.277777778, 'kph': 0.277777778, 'mph': 0.44704}},
+            'windvmaps': {'is_temperature': False, 'unit': 'm/s', 'defaults': ['ms-1', 'ms^1', 'mps'], 'conversions': {'km/h': 0.277777778, 'kph': 0.277777778, 'mph': 0.44704}},
+            'eactmaps': {'is_temperature': False, 'unit': 'hpa', 'defaults': ['mb', 'milibar'], 'conversions': {'kpa': 10.0, 'pa': 0.01, 'b': 1000.0, 'bar': 1000.0, 'psi': 68.95, 'in.hg': 33.86}},
+            'psurfmaps': {'is_temperature': False, 'unit': 'pa', 'defaults': ['n/m2', 'nm-2', 'nm^-2'],
+                          'conversions': {'kpa': 1000.0, 'hpa': 100.0, 'mb': 100.0, 'milibar': 100.0, 'b': 100000.0, 'bar': 100000.0, 'psi': 6894.76, 'in.hg': 3386.39}},
+            'qairmaps': {'is_temperature': False, 'unit': 'kg/kg', 'defaults': ['kilograms/kilograms'], 'conversions': {'g/kg': 1000.0, 'gr/kg': 1000.0, 'grams/kilograms': 1000.0}},
+            'rgdmaps': {'is_temperature': False, 'unit': 'j/m2', 'defaults': ['jm-2', 'j/m^2', 'jm^-2', 'j/m2/d', 'j/m2/day', 'j/d/m2', 'j/day/m2', 'j/m2/24h', 'j/24h/m2'],
+                        'conversions': {'j/s/m2': 86400.0, 'w/m2': 86400.0, 'wm-2': 86400.0, 'w/m^2': 86400.0, 'wm^-2': 86400.0}},
+            'rnmaps': {'is_temperature': False, 'unit': 'j/m2', 'defaults': ['jm-2', 'j/m^2', 'jm^-2', 'j/m2/d', 'j/m2/day', 'j/d/m2', 'j/day/m2', 'j/m2/24h', 'j/24h/m2'],
+                        'conversions': {'j/s/m2': 86400.0, 'w/m2': 86400.0, 'wm-2': 86400.0, 'w/m^2': 86400.0, 'wm^-2': 86400.0}},
+            'rdsmaps': {'is_temperature': False, 'unit': 'j/m2', 'defaults': ['jm-2', 'j/m^2', 'jm^-2', 'j/m2/d', 'j/m2/day', 'j/d/m2', 'j/day/m2', 'j/m2/24h', 'j/24h/m2'],
+                        'conversions': {'j/s/m2': 86400.0, 'w/m2': 86400.0, 'wm-2': 86400.0, 'w/m^2': 86400.0, 'wm^-2': 86400.0}},
+            'rdlmaps': {'is_temperature': False, 'unit': 'j/m2', 'defaults': ['jm-2', 'j/m^2', 'jm^-2', 'j/m2/d', 'j/m2/day', 'j/d/m2', 'j/day/m2', 'j/m2/24h', 'j/24h/m2'],
+                        'conversions': {'j/s/m2': 86400.0, 'w/m2': 86400.0, 'wm-2': 86400.0, 'w/m^2': 86400.0, 'wm^-2': 86400.0}},
+            'rusmaps': {'is_temperature': False, 'unit': 'j/m2', 'defaults': ['jm-2', 'j/m^2', 'jm^-2', 'j/m2/d', 'j/m2/day', 'j/d/m2', 'j/day/m2', 'j/m2/24h', 'j/24h/m2'],
+                        'conversions': {'j/s/m2': 86400.0, 'w/m2': 86400.0, 'wm-2': 86400.0, 'w/m^2': 86400.0, 'wm^-2': 86400.0}},
+            'rulmaps': {'is_temperature': False, 'unit': 'j/m2', 'defaults': ['jm-2', 'j/m^2', 'jm^-2', 'j/m2/d', 'j/m2/day', 'j/d/m2', 'j/day/m2', 'j/m2/24h', 'j/24h/m2'],
+                        'conversions': {'j/s/m2': 86400.0, 'w/m2': 86400.0, 'wm-2': 86400.0, 'w/m^2': 86400.0, 'wm^-2': 86400.0}},
+        }
 
     def get_option(self, option_key=''):
         return self.options[option_key.lower()]
@@ -273,152 +307,205 @@ report_maps_all: {report_maps_all}
                 raise LisfloodError(msg)
         return conversion_setting
 
-    def valid_files(self, variable_binding):
+    def existing_files(self, variable_binding):
         if variable_binding not in self.binding:
             return False
         file_pattern = FileNamesManager.process_file_pattern(self.binding[variable_binding])
         file_list = glob.glob(file_pattern)
         return len(file_list) > 0
 
+    @staticmethod
+    def get_netcdf_meteo_variable_name(nc_file_obj):
+        # Only one variable must be present in netcdf files
+        num_dims = 3 if 'time' in nc_file_obj.variables else 2
+        varname = [v for v in nc_file_obj.variables if len(nc_file_obj.variables[v].dimensions) == num_dims][0]
+        return varname
+
+    def valid_units(self, variable_binding):
+        """
+        Validates the first file of a variable to guarantee it contains the correct units.
+        Returns (bool, message_str)
+        (True, _) if the meteo unit is correct and the message should be ignored
+        (False, error_msg) in case the unit is incorrect or undefined and the error_message will contain the reason it is not valid.
+        """
+        file_pattern = FileNamesManager.process_file_pattern(self.binding[variable_binding])
+        file_list = glob.glob(file_pattern)
+        for filename in file_list:
+            nf1 = Dataset(filename, 'r')
+            var_name = self.get_netcdf_meteo_variable_name(nf1)
+            var_unit_original = nf1.variables[var_name].units
+            nf1.close()
+            var_unit = var_unit_original.lower().replace(' ', '')
+            default_units_key = variable_binding.lower()
+            if default_units_key not in self.default_units:
+                return False, f'ERROR: Variable [{variable_binding}] is not available in Lisvap.'
+            units_config = self.default_units[default_units_key]
+            is_temperature = units_config['is_temperature']
+            unit = units_config['unit']
+            unit_defaults = units_config['defaults']
+            unit_conversions = units_config['conversions']
+            option_temperature_kelvin = self.get_option('TemperatureInKelvinFlag')
+            if var_unit == unit or var_unit in unit_defaults:
+                return True, ''
+            if is_temperature and option_temperature_kelvin:
+                error_msg = f'ERROR: Variable {variable_binding} have units [{var_unit_original}] and it is expected to have one of {self.kelvin_units}.'
+                # If the units are actually in kelvin the error message should be ignored because this expression will return True
+                return var_unit in self.kelvin_units, error_msg
+            settings_conversion_factor = self.get_unit_conversion(variable_binding)
+            error_msg = f'ERROR: Variable {variable_binding} is expected to be in [{unit}] units but it is in [{var_unit_original}] units.'
+            if var_unit in unit_conversions:
+                conversion_factor = unit_conversions[var_unit]
+                if settings_conversion_factor is None: # No conversion factor setup yet
+                    error_msg += f'{self.issues_list_line_break_identation}It can be converted to [{unit}] using the conversion factor of [{conversion_factor}]'
+                    error_msg += f'{self.issues_list_line_break_identation}Add to the <lfconversions><lfconversions/> section in the settings file:'
+                    error_msg += f'{self.issues_list_line_break_identation}    <setconversion name="{variable_binding}" value="{conversion_factor}"/>'
+                elif conversion_factor != settings_conversion_factor: # Conversion factor is setup but is wrong
+                    error_msg += f'{self.issues_list_line_break_identation}Found in settings an eventually wrong conversion factor of {settings_conversion_factor}'
+                    error_msg += f' when it should be {conversion_factor} to convert from [{var_unit_original}] to [{unit}]'
+                else: # Conversion factor is setup and corresponds to one of the defined conversions
+                    return True, ''
+                return False, error_msg
+            else: # Unknown units or no conversion factor defined for these units
+                if settings_conversion_factor is None: # No conversion factor setup yet
+                    error_msg += f'{self.issues_list_line_break_identation}If you are sure this file is correct and want to ignore this validation, please'
+                    error_msg += f' setup a conversion factor of 1 for this variable.'
+                    error_msg += f'{self.issues_list_line_break_identation}Add to the <lfconversions><lfconversions/> section in the settings file:'
+                    error_msg += f'{self.issues_list_line_break_identation}    <setconversion name="{variable_binding}" value="1"/>'
+                elif settings_conversion_factor == 1:
+                    # Conversion factor exists and is equal to 1 which means no conversion will be applied and lisvap can proceed 
+                    return True, ''
+                return False, error_msg
+        return False, f'ERROR: No file was found for variable {variable_binding} to validate the units.'
+    
+    def validate_variable(self, variable_binding, unexisting_files_msg=''):
+        if not self.existing_files(variable_binding):
+            self.issues_list.append(unexisting_files_msg)
+        valid_units, error_msg = self.valid_units(variable_binding)
+        if not valid_units:
+            self.issues_list.append(error_msg)
+
     def valid(self):
         """
         Validates if the setup in the settings file is correct and coherent.
         Prints the error list and returns FALSE if there were errors or TRUE otherwise.
         """
-        issues_list = []
+        self.issues_list = []
 
         selected_setups = int(self.get_option('EFAS')) + int(self.get_option('GLOFAS')) + int(self.get_option('CORDEX'))
         if selected_setups > 1:
-            issues_list.append('Only one setup can be selected from: EFAS, GLOFAS or CORDEX')
+            self.issues_list.append('Only one setup can be selected from: EFAS, GLOFAS or CORDEX')
         elif selected_setups == 0:
-            issues_list.append('One setup needs to be selected from: EFAS, GLOFAS or CORDEX')
+            self.issues_list.append('One setup needs to be selected from: EFAS, GLOFAS or CORDEX')
         else:
             # ###############################################
             # Check input variables
             # ###############################################
             if self.get_option('useTAvg'):
                 if self.get_option('repTAvgMaps'):
-                    issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
-                elif not self.valid_files('TAvgMaps'):
-                    issues_list.append('Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
+                    self.issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
+                else:
+                    self.validate_variable('TAvgMaps', 'Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
             else:
-                if not self.valid_files('TMinMaps'):
-                    issues_list.append('Option "useTAvg" OFF: Missing "TMinMaps" file(s).')
-                if not self.valid_files('TMaxMaps'):
-                    issues_list.append('Option "useTAvg" OFF: Missing "TMaxMaps" file(s).')
+                self.validate_variable('TMinMaps', 'Option "useTAvg" OFF: Missing "TMinMaps" file(s).')
+                self.validate_variable('TMaxMaps', 'Option "useTAvg" OFF: Missing "TMaxMaps" file(s).')
 
             if not self.get_option('useWindUVMaps'):
-                if not self.valid_files('WindMaps'):
-                    issues_list.append('Option "useWindUVMaps" OFF: Missing "WindMaps" file(s).')
+                self.validate_variable('WindMaps', 'Option "useWindUVMaps" OFF: Missing "WindMaps" file(s).')
             else:
-                if not self.valid_files('WindUMaps'):
-                    issues_list.append('Option "useWindUVMaps" ON: Missing "WindUMaps" file(s).')
-                if not self.valid_files('WindVMaps'):
-                    issues_list.append('Option "useWindUVMaps" ON: Missing "WindVMaps" file(s).')
+                self.validate_variable('WindUMaps', 'Option "useWindUVMaps" ON: Missing "WindUMaps" file(s).')
+                self.validate_variable('WindVMaps', 'Option "useWindUVMaps" ON: Missing "WindVMaps" file(s).')
 
             if not self.get_option('CORDEX'): # CORDEX calculates EAct from PSurf and Qair
                 if self.get_option('useTDewMaps'):
-                    if not self.valid_files('TDewMaps'):
-                        issues_list.append('Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
+                    self.validate_variable('TDewMaps', 'Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
                 elif self.get_option('useRelHumidityMaps'):
-                    if not self.valid_files('RelHMaps'):
-                        issues_list.append('Option "useRelHumidityMaps" ON: Missing "RelHMaps" file(s).')
+                    self.validate_variable('RelHMaps', 'Option "useRelHumidityMaps" ON: Missing "RelHMaps" file(s).')
                 else:
-                    if not self.valid_files('EActMaps'):
-                        issues_list.append('Option "useTDewMaps" OFF and "useRelHumidityMaps" OFF: Missing "EActMaps" file(s).')
+                    self.validate_variable('EActMaps', 'Option "useTDewMaps" OFF and "useRelHumidityMaps" OFF: Missing "EActMaps" file(s).')
             # ###############################################
             # Check setup specific input variables
             # ###############################################
             if self.get_option('EFAS'):
-                if not self.valid_files('RgdMaps'):
-                    issues_list.append('EFAS setup: Missing "RgdMaps" file(s).')
+                self.validate_variable('RgdMaps', 'EFAS setup: Missing "RgdMaps" file(s).')
             elif self.get_option('GLOFAS'):
-                if not self.valid_files('RgdMaps'):
-                    issues_list.append('GLOFAS setup: Missing "RgdMaps" file(s).')
-                if not self.valid_files('RnlMaps'):
-                    issues_list.append('GLOFAS setup: Missing "RnlMaps" file(s).')
+                self.validate_variable('RgdMaps', 'GLOFAS setup: Missing "RgdMaps" file(s).')
+                self.validate_variable('RNMaps', 'GLOFAS setup: Missing "RNMaps" file(s).')
             elif self.get_option('CORDEX'):
-                if not self.valid_files('PSurfMaps'):
-                    issues_list.append('CORDEX setup: Missing "PSurfMaps" file(s).')
-                if not self.valid_files('QAirMaps'):
-                    issues_list.append('CORDEX setup: Missing "QAirMaps" file(s).')
-                if not self.valid_files('RdsMaps'):
-                    issues_list.append('CORDEX setup: Missing "RdsMaps" file(s).')
-                elif self.get_unit_conversion('RdsMaps') is None:
-                    issues_list.append('CORDEX setup: Variable "RdsMaps" is expected to have a conversion factor of 86400.')
-                if not self.valid_files('RdlMaps'):
-                    issues_list.append('CORDEX setup: Missing "RdlMaps" file(s).')
-                elif self.get_unit_conversion('RdlMaps') is None:
-                    issues_list.append('CORDEX setup: Variable "RdlMaps" is expected to have a conversion factor of 86400.')
-                if not self.valid_files('RusMaps'):
-                    issues_list.append('CORDEX setup: Missing "RusMaps" file(s).')
-                elif self.get_unit_conversion('RusMaps') is None:
-                    issues_list.append('CORDEX setup: Variable "RusMaps" is expected to have a conversion factor of 86400.')
-                if not self.valid_files('RulMaps'):
-                    issues_list.append('CORDEX setup: Missing "RulMaps" file(s).')
-                elif self.get_unit_conversion('RulMaps') is None:
-                    issues_list.append('CORDEX setup: Variable "RulMaps" is expected to have a conversion factor of 86400.')
+                self.validate_variable('PSurfMaps', 'CORDEX setup: Missing "PSurfMaps" file(s).')
+                self.validate_variable('QAirMaps', 'CORDEX setup: Missing "QAirMaps" file(s).')
+                self.validate_variable('RdsMaps', 'CORDEX setup: Missing "RdsMaps" file(s).')
+                if self.get_unit_conversion('RdsMaps') is None:
+                    self.issues_list.append('CORDEX setup: Variable "RdsMaps" is expected to have a conversion factor of 86400.')
+                self.validate_variable('RdlMaps', 'CORDEX setup: Missing "RdlMaps" file(s).')
+                if self.get_unit_conversion('RdlMaps') is None:
+                    self.issues_list.append('CORDEX setup: Variable "RdlMaps" is expected to have a conversion factor of 86400.')
+                self.validate_variable('RusMaps', 'CORDEX setup: Missing "RusMaps" file(s).')
+                if self.get_unit_conversion('RusMaps') is None:
+                    self.issues_list.append('CORDEX setup: Variable "RusMaps" is expected to have a conversion factor of 86400.')
+                self.validate_variable('RulMaps', 'CORDEX setup: Missing "RulMaps" file(s).')
+                if self.get_unit_conversion('RulMaps') is None:
+                    self.issues_list.append('CORDEX setup: Variable "RulMaps" is expected to have a conversion factor of 86400.')
             # ###############################################
             # Check constants
             # ###############################################
             if 'AvSolarConst' not in self.binding:
-                issues_list.append('Missing "AvSolarConst" parameter.')
+                self.issues_list.append('Missing "AvSolarConst" parameter.')
             if 'StefBolt' not in self.binding:
-                issues_list.append('Missing "StefBolt" parameter.')
+                self.issues_list.append('Missing "StefBolt" parameter.')
             if 'Press0' not in self.binding:
-                issues_list.append('Missing "Press0" parameter.')
+                self.issues_list.append('Missing "Press0" parameter.')
             if 'PD' not in self.binding:
-                issues_list.append('Missing "PD" parameter.')
+                self.issues_list.append('Missing "PD" parameter.')
             if 'AlbedoSoil' not in self.binding:
-                issues_list.append('Missing "AlbedoSoil" parameter.')
+                self.issues_list.append('Missing "AlbedoSoil" parameter.')
             if 'AlbedoWater' not in self.binding:
-                issues_list.append('Missing "AlbedoWater" parameter.')
+                self.issues_list.append('Missing "AlbedoWater" parameter.')
             if 'AlbedoCanopy' not in self.binding:
-                issues_list.append('Missing "AlbedoCanopy" parameter.')
+                self.issues_list.append('Missing "AlbedoCanopy" parameter.')
             if 'FactorSoil' not in self.binding:
-                issues_list.append('Missing "FactorSoil" parameter.')
+                self.issues_list.append('Missing "FactorSoil" parameter.')
             if 'FactorWater' not in self.binding:
-                issues_list.append('Missing "FactorWater" parameter.')
+                self.issues_list.append('Missing "FactorWater" parameter.')
             if 'FactorCanopy' not in self.binding:
-                issues_list.append('Missing "FactorCanopy" parameter.')
+                self.issues_list.append('Missing "FactorCanopy" parameter.')
             # ###############################################
             # Checking output definition
             # ###############################################
             if self.get_option('repE0Maps') and 'E0Maps' not in self.binding:
-                issues_list.append('OUTPUT: Missing "E0Maps" file path.')
+                self.issues_list.append('OUTPUT: Missing "E0Maps" file path.')
             if self.get_option('repES0Maps') and 'ES0Maps' not in self.binding:
-                issues_list.append('OUTPUT: Missing "ES0Maps" file path.')
+                self.issues_list.append('OUTPUT: Missing "ES0Maps" file path.')
             if self.get_option('repET0Maps') and 'ET0Maps' not in self.binding:
-                issues_list.append('OUTPUT: Missing "ET0Maps" file path.')
+                self.issues_list.append('OUTPUT: Missing "ET0Maps" file path.')
             if self.get_option('repTAvgMaps') and 'TAvgMaps' not in self.binding:
-                issues_list.append('OUTPUT: Missing "TAvgMaps" file path.')
+                self.issues_list.append('OUTPUT: Missing "TAvgMaps" file path.')
             if self.get_option('monthlyOutput') and not self.get_option('splitOutput'):
-                issues_list.append('OUTPUT: If "monthlyOutput" is True, "splitOutput" needs also to be True.')
+                self.issues_list.append('OUTPUT: If "monthlyOutput" is True, "splitOutput" needs also to be True.')
             # ###############################################
             # Checking Base Maps definition
             # ###############################################
-            if not self.valid_files('MaskMap'):
-                issues_list.append('BaseMap: Missing "MaskMap" file.')
-            if not self.valid_files('Dem'):
-                issues_list.append('BaseMap: Missing "Dem" file.')
-            if not self.valid_files('Lat'):
-                issues_list.append('BaseMap: Missing "Lat" file.')
+            if not self.existing_files('MaskMap'):
+                self.issues_list.append('BaseMap: Missing "MaskMap" file.')
+            if not self.existing_files('Dem'):
+                self.issues_list.append('BaseMap: Missing "Dem" file.')
+            if not self.existing_files('Lat'):
+                self.issues_list.append('BaseMap: Missing "Lat" file.')
             # ###############################################
             # Checking TIME-RELATED CONSTANTS
             # ###############################################
-#             if 'CalendarDayStart' not in self.binding:
-#                 issues_list.append('TIME-CONST: Missing "CalendarDayStart" value.')
-#             if 'DtSec' not in self.binding:
-#                 issues_list.append('TIME-CONST: Missing "DtSec" value.')
-#             if 'StepStart' not in self.binding:
-#                 issues_list.append('TIME-CONST: Missing "StepStart" value.')
-#             if 'StepEnd' not in self.binding:
-#                 issues_list.append('TIME-CONST: Missing "StepEnd" value.')
-#             if 'ReportSteps' not in self.binding:
-#                 issues_list.append('TIME-CONST: Missing "ReportSteps" value.')
+            if 'CalendarDayStart' not in self.binding:
+                self.issues_list.append('TIME-CONST: Missing "CalendarDayStart" value.')
+            if 'DtSec' not in self.binding:
+                self.issues_list.append('TIME-CONST: Missing "DtSec" value.')
+            if 'StepStart' not in self.binding:
+                self.issues_list.append('TIME-CONST: Missing "StepStart" value.')
+            if 'StepEnd' not in self.binding:
+                self.issues_list.append('TIME-CONST: Missing "StepEnd" value.')
+            if 'ReportSteps' not in self.binding:
+                self.issues_list.append('TIME-CONST: Missing "ReportSteps" value.')
 
-        if len(issues_list) > 0:
-            issues_str = '\n'.join(map(lambda s: '        - ' + s, issues_list))
+        if len(self.issues_list) > 0:
+            issues_str = '\n'.join(map(lambda s: self.issues_list_new_issue_identation + s, self.issues_list))
             print("""\n\n
 LisvapPy - Lisvap (Global)
 

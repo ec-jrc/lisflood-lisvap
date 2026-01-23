@@ -1,19 +1,19 @@
 <!--
 #######################################################
 
-  ##       ####  ######  ##     ##    ###    ########
-  ##        ##  ##    ## ##     ##   ## ##   ##     ##
-  ##        ##  ##       ##     ##  ##   ##  ##     ##
-  ##        ##   ######  ##     ## ##     ## ########
-  ##        ##        ##  ##   ##  ######### ##
-  ##        ##  ##    ##   ## ##   ##     ## ##
-  ######## ####  ######     ###    ##     ## ##
-
+  ##       ####  ######  ##     ##    ###    ########  
+  ##        ##  ##    ## ##     ##   ## ##   ##     ## 
+  ##        ##  ##       ##     ##  ##   ##  ##     ## 
+  ##        ##   ######  ##     ## ##     ## ########  
+  ##        ##        ##  ##   ##  ######### ##        
+  ##        ##  ##    ##   ## ##   ##     ## ##        
+  ######## ####  ######     ###    ##     ## ##  
+  
 #######################################################
 
-TIPs:
+TIP:
 You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this XML settings, to refer Lisvap project folder (in case you work with source code)
-You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this XML settings.
+You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the XML settings.
 -->
 
 <lfsettings>
@@ -28,7 +28,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 **************************************************************
             </comment>
 
-            <textvar name="CalendarDayStart" value="11/01/1999 00:00">
+            <textvar name="CalendarDayStart" value="01/01/1980 00:00">
                 <comment>
                     calendar day number of 1st day in model run
                     e.g. 1st of January: 1; 1st of June: 151 (or 152 in leap year)
@@ -41,24 +41,22 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 </comment>
             </textvar>
 
-            <textvar name="StepStart" value="11/01/1999 00:00">
+            <textvar name="StepStart" value="01/01/1980 00:00">
                 <comment>
                     Number of first time step in simulation
                 </comment>
             </textvar>
 
-            <textvar name="StepEnd" value="27/01/1999 00:00">
+            <textvar name="StepEnd" value="05/01/1981 00:00">
                 <comment>
                     Number of last time step
                 </comment>
             </textvar>
 
-            <textvar name="ReportSteps" value="10..26">
+            <textvar name="ReportSteps" value="1..365">
                 <comment>
                 </comment>
             </textvar>
-
-
         </group>
 
         <group>
@@ -69,7 +67,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 **************************************************************
             </comment>
 
-            <textvar name="PathOut" value="$(SettingsDir)/output/glofas">
+            <textvar name="PathOut" value="$(SettingsPath)/output/rel_humidity_360_cal">
                 <comment>
                     Output path
                     for Docker: /output
@@ -77,7 +75,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 </comment>
             </textvar>
 
-            <textvar name="PathBaseMapsIn" value="$(SettingsDir)/../../basemaps/global">
+            <textvar name="PathBaseMapsIn" value="$(SettingsPath)/../../basemaps">
                 <comment>
                     Path to input base maps
                     for Docker: /input/basemaps
@@ -85,15 +83,17 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 </comment>
             </textvar>
 
-            <textvar name="PathMeteoIn" value="$(SettingsDir)/input/glofas">
+            <textvar name="PathMeteoIn" value="$(SettingsPath)/input/rel_humidity_360_cal">
                 <comment>
                     Path to input raw meteo maps
-                    for Docker: /input/cordex
-                    from local host: e.g. E:/lisflood_test/Lisvap/input/cordex
+                    for Docker: /input/efas
+                    from local host: e.g. E:/lisflood_test/Lisvap/input/efas
                 </comment>
             </textvar>
 
         </group>
+
+
         <group>
 
             <comment>
@@ -104,59 +104,31 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
 
             <textvar name="PrefixTMax" value="tx">
                 <comment>
-                    prefix maximum temperature maps
+                    prefix maximum temperature maps [k]
                 </comment>
             </textvar>
 
             <textvar name="PrefixTMin" value="tn">
                 <comment>
-                    prefix minimum temperature maps
+                    prefix minimum temperature maps [K]
                 </comment>
             </textvar>
 
-            <textvar name="PrefixTDew" value="td">
+            <textvar name="PrefixRelH" value="rh">
                 <comment>
-                    prefix dew point temperature maps
-                </comment>
-            </textvar>
-            <textvar name="PrefixTAvg" value="ta">
-                <comment>
-                    prefix average temperature maps
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixEAct" value="pd">
-                <comment>
-                    prefix vapour pressure maps
+                    prefix relative humidity maps [%]
                 </comment>
             </textvar>
 
             <textvar name="PrefixWind" value="ws">
                 <comment>
-                    prefix wind speed maps
+                    prefix wind speed maps at 10m [m/s]
                 </comment>
             </textvar>
 
-            <textvar name="PrefixWindU" value="wu">
-                <comment>
-                    prefix wind speed U-component maps
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixWindV" value="wv">
-                <comment>
-                    prefix wind speed V-component maps
-                </comment>
-            </textvar>
             <textvar name="PrefixRgd" value="rg">
                 <comment>
-                    prefix incoming solar radiation maps
-                </comment>
-            </textvar>
-
-            <textvar name="PrefixRN" value="rn">
-                <comment>
-                    prefix net longwave radiation maps
+                    prefix down solar radiation maps [W/m2]
                 </comment>
             </textvar>
 
@@ -176,6 +148,23 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 </comment>
             </textvar>
 
+            <textvar name="PrefixES0" value="es">
+                <comment>
+                    prefix ES0 maps
+                </comment>
+            </textvar>
+
+            <textvar name="PrefixET0" value="et">
+                <comment>
+                    prefix ET0 maps
+                </comment>
+            </textvar>
+             <textvar name="PrefixTAvg" value="tair">
+                <comment>
+                    prefix average temperature maps [C]
+                </comment>
+            </textvar>
+             
         </group>
 
 
@@ -183,27 +172,77 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
 
     <lfoptions>
 
-        <setoption name="TemperatureInKelvinFlag" choice="0"/>
-
-        <setoption name="repE0Maps" choice="1"/>
+        <setoption name="readNetcdfStack" choice="1" />
+        <setoption name="writeNetcdfStack" choice="1" />
+        <setoption name="TemperatureInKelvinFlag" choice="1" />
+        <setoption name="repE0Maps" choice="0" />
         <setoption name="repES0Maps" choice="0" />
-        <setoption name="repET0Maps" choice="0" />
-        <setoption name="repTAvgMaps" choice="0"/>
-
-        <setoption name="output6hourly" choice="0"/>
+        <setoption name="repET0Maps" choice="1" />
+        <setoption name="repTAvgMaps" choice="1"/>
+        
+        <setoption name="EFAS" choice="1" />
+        <setoption name="CORDEX" choice="0" />
+        <setoption name="GLOFAS" choice="0" />
+		
+	<setoption name="output6hourly" choice="0"/>
         <setoption name="splitInput" choice="0"/>
         <setoption name="splitOutput" choice="0"/>
         <setoption name="monthlyOutput" choice="0"/>
+		
+	<setoption name="useTAvg" choice="0" />
+        <setoption name="useTDewMaps" choice="0" />
+        <setoption name="useWindUVMaps" choice="0" />
+        <setoption name="useRelHumidityMaps" choice="1" />
 
-        <setoption name="EFAS" choice="0"/>
-        <setoption name="CORDEX" choice="0"/>
-        <setoption name="GLOFAS" choice="1"/>
-
-        <setoption name="useTAvg" choice="1"/>
-        <setoption name="useTDewMaps" choice="1"/>
-        <setoption name="useRelHumidityMaps" choice="0" />
-        <setoption name="useWindUVMaps" choice="1"/>
     </lfoptions>
+
+    <lfconversions>
+        <comment>
+            **************************************************************
+            UNITS CONVERSION FACTORS FOR INPUT VARIABLES 
+            **************************************************************
+        </comment>
+
+        <setconversion name="RgdMaps" value="86400">
+            <comment>
+                rgd - calculated solar radiation [J/m2]
+                Used when the "EFAS" option is switched on.
+                If the "CORDEX" option is on, the following are used instead: "RdsMaps", "RdlMaps", "RusMaps", "RulMaps".
+            </comment>
+        </setconversion>
+
+        <setconversion name="RdsMaps" value="86400">
+            <comment>
+                rds - Downward short wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RdlMaps" value="86400">
+            <comment>
+                rdl - Down long wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RusMaps" value="86400">
+            <comment>
+                rus - up short wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RulMaps" value="86400">
+            <comment>
+                rul - up long wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+    </lfconversions>
 
 
     <lfbinding>
@@ -320,7 +359,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
 
         </group>
 
-
         <group>
             <comment>
                 **************************************************************
@@ -328,41 +366,38 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 **************************************************************
             </comment>
 
-
-            <textvar name="TDewMaps" value="$(PathMeteoIn)/$(PrefixTDew)">
+            <textvar name="TMaxMaps" value="$(PathMeteoIn)/tasmax_360_day_calendar_1980.nc">
                 <comment>
-                    Dewpoint temperature [C or K]
+                    Maximum daily temperature [deg C]
                 </comment>
             </textvar>
 
-            <textvar name="TAvgMaps" value="$(PathMeteoIn)/$(PrefixTAvg)">
+            <textvar name="TMinMaps" value="$(PathMeteoIn)/tasmin_360_day_calendar_1980.nc">
                 <comment>
-                    Average daily temperature [C or K]
+                    Minimum daily temperature [deg C]
+                </comment>
+            </textvar>
+            
+            <textvar name="RelHMaps" value="$(PathMeteoIn)/hurs_360_day_calendar_1980.nc">
+                <comment>
+                    Relative humidity [%]
                 </comment>
             </textvar>
 
-            <textvar name="WindUMaps" value="$(PathMeteoIn)/$(PrefixWindU)">
+            <textvar name="WindMaps" value="$(PathMeteoIn)/sfcWind_360_day_calendar_1980.nc">
                 <comment>
-                    Windspeed U component at 10 m altitude [m/s]
+                    Wind speed at 10 m from surface [m/s]
                 </comment>
             </textvar>
 
-            <textvar name="WindVMaps" value="$(PathMeteoIn)/$(PrefixWindV)">
+            <textvar name="RgdMaps" value="$(PathMeteoIn)/rsds_360_day_calendar_1980.nc">
                 <comment>
-                    Windspeed V component at 10 m altitude [m/s]
+                    rgd - calculated solar radiation [W/m2]
                 </comment>
             </textvar>
-
-            <textvar name="RgdMaps" value="$(PathMeteoIn)/$(PrefixRgd)">
+            <textvar name="PSurfMaps" value="0">
                 <comment>
-                    Downward surface solar radiation [J/m2]
-                </comment>
-            </textvar>
-
-            <textvar name="RNMaps" value="$(PathMeteoIn)/$(PrefixRN)">
-                <comment>
-                    Net thermal radiation [J/m2]
-                    Note: values should always be negative (in ERA40 net outgoing flux is taken as a negative number)
+                    Instantaneous sea level pressure [Pa]
                 </comment>
             </textvar>
 
@@ -382,6 +417,56 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 </comment>
             </textvar>
 
+            <textvar name="ES0Maps" value="$(PathOut)/$(PrefixES0)">
+                <comment>
+                    daily reference evaporation (soil) [mm/day]
+                </comment>
+            </textvar>
+
+            <textvar name="ET0Maps" value="$(PathOut)/$(PrefixET0)">
+                <comment>
+                    daily reference evapotranspiration (crop) [mm/day]
+                </comment>
+            </textvar>
+            <textvar name="TAvgMaps" value="$(PathOut)/$(PrefixTAvg)">
+                <comment>
+                    Daily Average Temperature [deg C]
+                </comment>
+            </textvar>
+            
+        </group>
+
+        <group>
+            <comment>
+                **************************************************************
+                REPORTED OUTPUT TIME SERIES
+                **************************************************************
+            </comment>
+
+            <textvar name="TAvgTS" value="$(PathOut)/tAvg.tss">
+                <comment>
+                    Average temperature [deg C]
+                </comment>
+            </textvar>
+
+            <textvar name="ET0TS" value="$(PathOut)/et0.tss">
+                <comment>
+                    Potential reference evapotranspiration rate [mm/day]
+                </comment>
+            </textvar>
+
+            <textvar name="E0TS" value="$(PathOut)/e0.tss">
+                <comment>
+                    Potential evaporation rate of a free water surface [mm/day]
+                </comment>
+            </textvar>
+
+            <textvar name="ES0TS" value="$(PathOut)/es0.tss">
+                <comment>
+                    Potential evaporation rate from a bare soil surface [mm/day]
+                </comment>
+            </textvar>
+
         </group>
 
         <group>
@@ -391,19 +476,19 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
                 **************************************************************
             </comment>
 
-            <textvar name="MaskMap" value="$(PathBaseMapsIn)/area.nc">
+            <textvar name="MaskMap" value="$(PathBaseMapsIn)/grid_0.25_deg/area.nc">
                 <comment>
                     Clone map
                 </comment>
             </textvar>
 
-            <textvar name="Dem" value="$(PathBaseMapsIn)/dem.nc">
+            <textvar name="Dem" value="$(PathBaseMapsIn)/grid_0.25_deg/dem.nc">
                 <comment>
                     Digital elevation model [meters a.s.l.]
                 </comment>
             </textvar>
 
-            <textvar name="Lat" value="$(PathBaseMapsIn)/lat.nc">
+            <textvar name="Lat" value="$(PathBaseMapsIn)/grid_0.25_deg/lat.nc">
                 <comment>
                     Latitude [decimal degrees]
                 </comment>

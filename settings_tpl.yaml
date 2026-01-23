@@ -157,7 +157,7 @@ input-maps:
     RulMaps: $(PathMeteoIn)/rlus_1_15
     # rnl - net long wave radiation [J/m2]
     # Used when the "GLOFAS" option is switched on.
-    RnlMaps: $(PathMeteoIn)/rlus_1_15
+    RNMaps: $(PathMeteoIn)/rlus_1_15
 
 output-maps:
     # daily reference evaporation (free water) [mm/day]

@@ -130,9 +130,12 @@ class ReadMeteo(object):
             if self.settings.get_option('GLOFAS'):
                 # set of forcings (rg, rn, ta, td, wu, wv)
                 # Net long wave radiation [J/m2/day]
-                self.var.Rnl = readnetcdf(self.settings.binding['RnlMaps'], self.var.currentTimeStep(), variable_binding='RnlMaps', splitIO=self.splitIO)
+                self.var.Rnl = readnetcdf(self.settings.binding['RNMaps'], self.var.currentTimeStep(), variable_binding='RNMaps', splitIO=self.splitIO)
                 # For GLOFAS we need to invert the signal of the files that come from ERA5
                 # so it fits the formulas we are using in Lisvap
+                # This parameter is the difference between downward and upward thermal radiation
+                # and the ECMWF convention for vertical fluxes is positive downwards
+                # For details see: https://jira.smhi.tds.tieto.com/browse/JRC-6573
                 self.var.Rnl = self.var.Rnl * -1
 
         if self.settings.get_option('CORDEX'):
