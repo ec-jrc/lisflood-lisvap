@@ -186,7 +186,6 @@ dependencies:
   - openssl=3.5.0
   - packaging=24.2
   - pango=1.54.0
-  - pcraster=4.4.1
   - pcre2=10.44
   - pip=24.3.1
   - pixman=0.43.2
@@ -249,11 +248,8 @@ dependencies:
       - docopt==0.6.2
       - exceptiongroup==1.2.2
       - filelock==3.16.1
-      - future==1.0.0
       - iniconfig==2.0.0
       - netcdf4==1.7.2
-      - nine==1.1.0
-      - pathlib2==2.3.7.post1
       - platformdirs==4.3.6
       - pluggy==1.5.0
       - pyproj==3.5.0

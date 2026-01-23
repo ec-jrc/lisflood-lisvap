@@ -16,15 +16,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
 
-from pcraster.framework.dynamicPCRasterBase import DynamicModel
-from pcraster.operations import scalar
+import numpy as np
 
-from .utils import LisSettings, NetcdfMetadata, CutMap, FileNamesManager
+from .utils import LisSettings, NetcdfMetadata, CutMap, FileNamesManager, DynamicModel
 from .utils.readers import loadsetclone
-from .utils.output import OutputTssMap
+from .utils.output import OutputMap
+from .utils.operators import scalar
 from .hydrological.miscinitial import MiscInitial
 from .hydrological.readmeteo import ReadMeteo
 
@@ -32,7 +30,6 @@ from .hydrological.readmeteo import ReadMeteo
 class LisvapModelIni(DynamicModel):
 
     """ LISVAP initial part
-        same as the PCRaster script -initial-
         this part is to initialize the variables
         it will call the initial part of the hydrological modules
     """
@@ -54,21 +51,20 @@ class LisvapModelIni(DynamicModel):
             map_for_metadata = fileManager.get_file_name('TAvgMaps')
         elif self.settings.get_option('useTDewMaps') and self.settings.binding.get('TDewMaps'):
             map_for_metadata = fileManager.get_file_name('TDewMaps')
+        elif self.settings.get_option('useRelHumidityMaps') and self.settings.binding.get('RelHMaps'):
+            map_for_metadata = fileManager.get_file_name('RelHMaps')
         elif self.settings.binding.get('TMinMaps'):
             map_for_metadata = fileManager.get_file_name('TMinMaps')
 
-        if self.settings.get_option('readNetcdfStack'):
-            # CutMap defines the extent to read from input netcdf data (cropping)
+        # CutMap defines the extent to read from input netcdf data (cropping)
+        CutMap.register(map_for_metadata)
 
-            CutMap.register(map_for_metadata)
-
-        if self.settings.get_option('writeNetcdfStack') or self.settings.get_option('writeNetcdf'):
-            # if NetCDF is written, the pr.nc is read to get the metadata
-            # like projection
-            NetcdfMetadata.register(map_for_metadata)
+        # if NetCDF is written, the pr.nc is read to get the metadata
+        # like projection
+        NetcdfMetadata.register(map_for_metadata)
 
         # ----------------------------------------
-        self.output_module = OutputTssMap(self)
+        self.output_module = OutputMap(self)
         self.misc_module = MiscInitial(self)
         self.readmeteo_module = ReadMeteo(self)
         self.ReportSteps = None

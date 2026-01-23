@@ -14,16 +14,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-from nine import range
 
 import os
 import sys
 
 from pyexpat import *
 import numpy as np
-from pcraster.numpy_operations import pcr2numpy
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.join(current_dir, '../src/')
@@ -33,6 +29,10 @@ if os.path.exists(src_dir):
 from lisvap.utils import LisSettings, FileNamesManager, cdf_flags
 from lisvap1 import lisvapexe
 from lisvap.utils.readers import readnetcdf, iter_open_netcdf
+from lisvap.utils.tools import calendar, get_calendar_configuration
+from netCDF4 import num2date, date2num
+from datetime import datetime, timedelta
+import cftime
 
 
 class TestLis(object):
@@ -85,6 +85,10 @@ class TestLis(object):
         'glofas': {
             'e0': os.path.join(current_dir, 'data/reference/glofas/e0'),
         },
+        'rel_humidity_360_cal': {
+            'et': os.path.join(current_dir, 'data/reference/rel_humidity_360_cal/et'),
+            'tair': os.path.join(current_dir, 'data/reference/rel_humidity_360_cal/tair'),
+        },
     }
     domain = None
     settings_path = None
@@ -103,7 +107,10 @@ class TestLis(object):
             output_nc = os.path.join(output_path, var) + '.nc'
             if os.path.exists(output_nc):
                 os.remove(output_nc)
-        lisvapexe(settings)
+        valid_settings = settings.valid()
+        if valid_settings:
+            lisvapexe(settings)
+        assert valid_settings, 'Could not setup the settings due to an error in it or the input files'
 
     @classmethod
     def teardown_class(cls):
@@ -112,13 +119,30 @@ class TestLis(object):
         cdf_flags['end'] = 0
 
     @classmethod
+    def get_current_date(cls, settings, init_t_unit, init_t_cal, init_t_freq, timestep):
+        begin = calendar(settings.binding['CalendarDayStart'])
+        DtSec = float(settings.binding['DtSec'])
+        DtDay = float(DtSec / 86400)
+        # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
+        # get date of current simulation step
+        current_date_number = timestep * init_t_freq
+        begin_date_number = date2num(begin, units=init_t_unit, calendar=init_t_cal)
+        cur_date = num2date(current_date_number, init_t_unit, init_t_cal)
+        next_date = cur_date - timedelta(seconds=DtSec)
+        cur_step = date2num(next_date, units=init_t_unit, calendar=init_t_cal)
+        current_date_number = begin_date_number + cur_step
+        current_date = num2date(current_date_number, init_t_unit, init_t_cal)
+        return current_date
+
+    @classmethod
     def check_var_step(cls, var, step, variable_file_sufix=''):
         settings = LisSettings.instance()
         output_path = settings.binding['PathOut']
         output_nc = os.path.join(output_path, var + variable_file_sufix)
-        reference = pcr2numpy(readnetcdf(cls.reference_files[cls.domain][var + variable_file_sufix], step, variable_name=var), -9999)
-        current_output = pcr2numpy(readnetcdf(output_nc, step, variable_name=var), -9999)
-        same_size = reference.size == current_output.size
+        reference_nc = cls.reference_files[cls.domain][var + variable_file_sufix]
+        reference = readnetcdf(reference_nc, step, variable_name=var)
+        current_output = readnetcdf(output_nc, step, variable_name=var)
+        same_size = reference.shape == current_output.shape
         diff_values = np.abs(reference - current_output)
 
         same_values = np.allclose(diff_values, np.zeros(diff_values.shape), atol=cls.atol)
@@ -126,6 +150,17 @@ class TestLis(object):
 
         array_ok = np.isclose(diff_values, np.zeros(diff_values.shape), atol=cls.atol)
         wrong_values_size = array_ok[~array_ok].size
+        
+        # Compare the dates
+        nf_ref = iter_open_netcdf(f'{reference_nc}.nc', 'r')
+        nf_out = iter_open_netcdf(f'{output_nc}.nc', 'r')
+        t_unit_ref, t_cal_ref, t_frequency_ref = get_calendar_configuration(nf_ref)
+        t_unit_out, t_cal_out, t_frequency_out = get_calendar_configuration(nf_out)
+        nf_ref.close()
+        nf_out.close()
+        timestep = step + 1
+        date_ref = cls.get_current_date(settings, t_unit_ref, t_cal_ref, t_frequency_ref, timestep)
+        date_out = cls.get_current_date(settings, t_unit_out, t_cal_out, t_frequency_out, timestep)
 
         if not all_ok and wrong_values_size > 0:
             max_diff = np.max(diff_values)
@@ -135,9 +170,21 @@ class TestLis(object):
                 print('[ERROR]')
                 print('Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff))
                 return False
+            elif date_ref != date_out:
+                print('[ERROR]')
+                print('Var: {} - STEP {}: ref date {} diff out date {}'.format(var, step,
+                                                                               date_ref.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                               date_out.strftime('%Y-%m-%d %H:%M:%S')))
+                return False
             else:
                 print('[OK] {} {}'.format(var, step))
                 return True
+        elif date_ref != date_out:
+            print('[ERROR]')
+            print('Var: {} - STEP {}: ref date {} diff out date {}'.format(var, step,
+                                                                           date_ref.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                           date_out.strftime('%Y-%m-%d %H:%M:%S')))
+            return False
         else:
             print('[OK] {} {}'.format(var, step))
             return True

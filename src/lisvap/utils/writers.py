@@ -15,8 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
-from __future__ import (absolute_import, division, print_function, unicode_literals)
-from nine import IS_PYTHON2
 
 import os
 import time as xtime
@@ -24,25 +22,21 @@ import datetime
 
 import numpy as np
 from netCDF4 import Dataset
-import pcraster
-from pcraster import numpy_operations
 from decimal import *
 
-from . import CutMap, NetcdfMetadata, LisSettings
+from . import CutMap, NetcdfMetadata, LisSettings, MaskMapMetadata
 from pyproj import proj
 from ..__init__ import __version__ as lisvap_version
-# from scprep.run.splatter import SplatSimulate
-# from audioop import reverse
 
-if IS_PYTHON2:
-    from pathlib2 import Path
-else:
-    from pathlib import Path
+from pathlib import Path
 
 
 __DECIMAL_CASES = 20
 __DECIMAL_FORMAT = '{:.20f}'
 getcontext().prec = __DECIMAL_CASES
+
+
+__DAY_TIMESTEP_STRIDE__ = 86400
 
 
 def coordinates_range_from_array(coords):
@@ -69,20 +63,15 @@ def get_output_parameters_monthly(start_date, timestep, time_frequency, timestep
     filename_suffix = current_date.strftime('%Y%m')
 
     first_date_current_month = start_date.replace(year=current_date.year, month=current_date.month)
-    seconds_between = (current_date - first_date_current_month).total_seconds()
-    num_steps_done_in_current_month = int(seconds_between / timestep_stride) + 1
     last_date_last_month = first_date_current_month - datetime.timedelta(seconds=timestep_stride)
-    day_inside_last_month = last_date_last_month - datetime.timedelta(seconds=timestep_stride)
 
-    if current_date == first_date_current_month:
-        output_index = 0
-    elif current_date == last_date_last_month:
+    if current_date == first_date_current_month or output_index is None:
+        output_index = -1
+    elif current_date <= last_date_last_month:
+        quantity_daily_steps = __DAY_TIMESTEP_STRIDE__ / timestep_stride
+        day_inside_last_month = last_date_last_month - datetime.timedelta(seconds=int(timestep_stride * quantity_daily_steps))
         filename_suffix = day_inside_last_month.strftime('%Y%m')
-        first_date_last_month = day_inside_last_month.replace(day=1) + datetime.timedelta(seconds=(2 * timestep_stride))
-        num_steps_done_in_last_month = int((last_date_last_month - first_date_last_month).total_seconds() / timestep_stride) + 1
-        output_index = num_steps_done_in_last_month
-    elif current_output_index >= num_steps_done_in_current_month:
-        output_index = num_steps_done_in_current_month - 1
+    output_index += 1
     return filename_suffix, output_index
 
 
@@ -92,20 +81,15 @@ def get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_
     filename_suffix = current_date.strftime('%Y')
 
     first_date_current_year = start_date.replace(year=current_date.year)
-    seconds_between = (current_date - first_date_current_year).total_seconds()
-    num_steps_done_in_current_year = int(seconds_between / timestep_stride) + 1
     last_date_last_year = first_date_current_year - datetime.timedelta(seconds=timestep_stride)
-    day_inside_last_year = last_date_last_year - datetime.timedelta(seconds=timestep_stride)
 
-    if current_date == first_date_current_year:
-        output_index = 0
-    elif current_date == last_date_last_year:
+    if current_date == first_date_current_year or output_index is None:
+        output_index = -1
+    elif current_date <= last_date_last_year:
+        quantity_daily_steps = __DAY_TIMESTEP_STRIDE__ / timestep_stride
+        day_inside_last_year = last_date_last_year - datetime.timedelta(seconds=int(timestep_stride * quantity_daily_steps))
         filename_suffix = day_inside_last_year.strftime('%Y')
-        first_date_last_year = first_date_current_year.replace(year=current_date.year - 1)
-        num_steps_done_in_last_year = int((last_date_last_year - first_date_last_year).total_seconds() / timestep_stride) + 1
-        output_index = num_steps_done_in_last_year - 1
-    elif current_output_index >= num_steps_done_in_current_year:
-        output_index = num_steps_done_in_current_year - 1
+    output_index += 1
     return filename_suffix, output_index
 
 
@@ -116,11 +100,14 @@ def get_output_parameters(settings, netcdf_output_file, start_date, timestep, ti
     prefix = os.path.splitext(netfile.name)[0]
     splitIO = settings.get_option('splitOutput')
     if splitIO:
+        output_index_key = f'output_index_{prefix}'
+        output_index = None if not output_index_key in settings.binding else settings.binding[output_index_key]
         monthlyIO = settings.get_option('monthlyOutput')
         if monthlyIO:
-            filename_suffix, output_index = get_output_parameters_monthly(start_date, timestep, time_frequency, timestep_stride, current_output_index)
+            filename_suffix, output_index = get_output_parameters_monthly(start_date, timestep, time_frequency, timestep_stride, output_index)
         else:
-            filename_suffix, output_index = get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_stride, current_output_index)
+            filename_suffix, output_index = get_output_parameters_yearly(start_date, timestep, time_frequency, timestep_stride, output_index)
+        settings.binding[output_index_key] = output_index
         netfile = Path(p.parent) / Path('{}_{}.nc'.format(p.name, filename_suffix) if not p.name.endswith('.nc') else p.name)
     return prefix, netfile, output_index
 
@@ -207,23 +194,22 @@ def get_coordinate_arrays(settings, ncols, nrows):
     try:
         int_lons = settings.binding['internal.lons']
         int_lats = settings.binding['internal.lats']
-        # x1 = Decimal(__DECIMAL_FORMAT.format(int_lons[0]))
-        # x2 = Decimal(__DECIMAL_FORMAT.format(int_lons[1]))
-        # y1 = Decimal(__DECIMAL_FORMAT.format(int_lats[0]))
-        # y2 = Decimal(__DECIMAL_FORMAT.format(int_lats[1]))
-        # cellSizeX = abs(x2 - x1)
-        # cellSizeY = abs(y2 - y1)
         lats = coordinates_range_from_array(int_lats)
         lons = coordinates_range_from_array(int_lons)
     except:
-        cellSize = Decimal(__DECIMAL_FORMAT.format(pcraster.clone().cellSize()))
-        half_cell = cellSize * Decimal(0.5)
-        xl = Decimal(__DECIMAL_FORMAT.format(pcraster.clone().west())) + half_cell
-        # xr = xl + ncols * cellSize - half_cell
-        yu = Decimal(__DECIMAL_FORMAT.format(pcraster.clone().north())) - half_cell
-        # yd = yu - nrows * cellSize + half_cell
-        lats = coordinates_range(yu, nrows, -cellSize)
-        lons = coordinates_range(xl, ncols, cellSize)
+        maskmap_attrs = MaskMapMetadata.instance()
+        cellSizeX = Decimal(__DECIMAL_FORMAT.format(maskmap_attrs['cell_x']))
+        cellSizeY = Decimal(__DECIMAL_FORMAT.format(maskmap_attrs['cell_y']))
+        west = Decimal(__DECIMAL_FORMAT.format(maskmap_attrs['x']))
+        north = Decimal(__DECIMAL_FORMAT.format(maskmap_attrs['y']))
+        half_cell_x = cellSizeX * Decimal(0.5)
+        half_cell_y = cellSizeY * Decimal(0.5)
+        xl = west + half_cell_x
+        # xr = xl + ncols * cellSizeX - half_cell_x
+        yu = north - half_cell_y
+        # yd = yu - nrows * cellSizeY + half_cell_y
+        lats = coordinates_range(yu, nrows, -cellSizeY)
+        lons = coordinates_range(xl, ncols, cellSizeX)
     return lats, lons
 
 
@@ -280,7 +266,7 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
     """
     write a netcdf stack
     output_index: integer. Global index of the map to store in the final file
-    inputmap: a PCRaster 2D array
+    inputmap: a netCDF 2D array
     netfile: output netcdf filename
     timestep:
     """
@@ -309,7 +295,8 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
     else:
         nf1 = Dataset(netfile, 'a')
 
-    mapnp = numpy_operations.pcr2numpy(inputmap, np.nan)
+    slices = cutmap.slices
+    mapnp = inputmap.filled(np.nan)[slices[0], slices[1]]
     # Pack NAN values into short
     mapnp[np.isnan(mapnp)] = (nan_value - add_offset) * scale_factor
     if flag_time:

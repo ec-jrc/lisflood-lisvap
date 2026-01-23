@@ -28,14 +28,14 @@ See the Licence for the specific language governing permissions and limitations 
 
 #######################################################
 """
-from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import datetime
 import sys
 
 from lisvap import __date__, __version__
 from lisvap.utils import LisSettings, TimeProfiler, FileNamesManager, usage
-from lisvap.utils.tools import checkdate, DynamicFrame
+from lisvap.utils.tools import checkdate, DynamicFrame, date2calendar, get_calendar_configuration
+from lisvap.utils.readers import iter_open_netcdf
 from lisvap.lisvapdynamic import LisvapModelDyn
 from lisvap.lisvapinitial import LisvapModelIni
 
@@ -46,13 +46,30 @@ class LisvapModel(LisvapModelIni, LisvapModelDyn):
     """
 
 
+def setup_calendar(settings=None):
+    fileManager = FileNamesManager.instance()
+    map_for_metadata = ''
+    if settings.get_option('useTAvg') and settings.binding.get('TAvgMaps'):
+        map_for_metadata = fileManager.get_file_name('TAvgMaps')
+    elif settings.get_option('useTDewMaps') and settings.binding.get('TDewMaps'):
+        map_for_metadata = fileManager.get_file_name('TDewMaps')
+    elif settings.get_option('useRelHumidityMaps') and settings.binding.get('RelHMaps'):
+        map_for_metadata = fileManager.get_file_name('RelHMaps')
+    elif settings.binding.get('TMinMaps'):
+        map_for_metadata = fileManager.get_file_name('TMinMaps')
+    nf1 = iter_open_netcdf(map_for_metadata, 'r')
+    get_calendar_configuration(nf1, settings)
+
+
 def lisvapexe(settings):
+    setup_calendar(settings)
     tp = TimeProfiler()
     step_start = settings.binding['StepStart']
     step_end = settings.binding['StepEnd']
     timestep_stride = int(settings.binding['DtSec'])
-    start_date, end_date = datetime.datetime.strptime(step_start, '%d/%m/%Y %H:%M'), datetime.datetime.strptime(step_end, '%d/%m/%Y %H:%M')
-    start_date_simulation = datetime.datetime.strptime(settings.binding['CalendarDayStart'], '%d/%m/%Y %H:%M')
+    start_date = date2calendar(datetime.datetime.strptime(step_start, '%d/%m/%Y %H:%M'), settings)
+    end_date = date2calendar(datetime.datetime.strptime(step_end, '%d/%m/%Y %H:%M'), settings)
+    start_date_simulation = date2calendar(datetime.datetime.strptime(settings.binding['CalendarDayStart'], '%d/%m/%Y %H:%M'), settings)
     timestep_start = int((start_date - start_date_simulation).total_seconds() / timestep_stride) + 1
     timestep_end = int((end_date - start_date_simulation).total_seconds() / timestep_stride) + 1
     checkdate('StepStart', 'StepEnd')
@@ -88,6 +105,7 @@ def main():
     fileManager = FileNamesManager(lissettings.binding.get('PathOut'))
     if not lissettings.valid():
         sys.exit(1)
+    # setup_calendar(lissettings)
     # setting of global flag e.g checking input maps, producing more output information
     if not lissettings.flags['veryquiet'] and not lissettings.flags['quiet']:
         headerinfo()

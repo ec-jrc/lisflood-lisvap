@@ -173,13 +173,13 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="PrefixRgd" value="swd">
                 <comment>
-                    prefix down solar radiation maps [W/m2]
+                    prefix down solar radiation maps [J/m2]
                 </comment>
             </textvar>
 
             <textvar name="PrefixRN" value="lwdown">
                 <comment>
-                    prefix down longwave radiation maps [W/m2]
+                    prefix down longwave radiation maps [J/m2]
                 </comment>
             </textvar>
 
@@ -223,15 +223,12 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
     <lfoptions>
 
-        <setoption name="readNetcdfStack" choice="1" />
-        <setoption name="writeNetcdfStack" choice="1" />
         <setoption name="TemperatureInKelvinFlag" choice="1" />
 
         <setoption name="repE0Maps" choice="1" />
         <setoption name="repES0Maps" choice="0" />
         <setoption name="repET0Maps" choice="1" />
         <setoption name="repTAvgMaps" choice="1" />
-        <setoption name="repAvTimeseries" choice="0"/>
 
         <setoption name="output6hourly" choice="0" />
         <setoption name="splitInput" choice="0" />
@@ -244,8 +241,49 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
         <setoption name="useTAvg" choice="0" />
         <setoption name="useTDewMaps" choice="0" />
+        <setoption name="useRelHumidityMaps" choice="0" />
         <setoption name="useWindUVMaps" choice="0" />
     </lfoptions>
+
+    <lfconversions>
+        <comment>
+            **************************************************************
+            UNITS CONVERSION FACTORS FOR INPUT VARIABLES 
+            **************************************************************
+        </comment>
+
+        <setconversion name="RdsMaps" value="86400">
+            <comment>
+                rds - Downward short wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RdlMaps" value="86400">
+            <comment>
+                rdl - Down long wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RusMaps" value="86400">
+            <comment>
+                rus - up short wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+
+        <setconversion name="RulMaps" value="86400">
+            <comment>
+                rul - up long wave radiation [J/m2]
+                Used when the "CORDEX" option is switched on.
+                If the "EFAS" option is on, "RgdMaps" is used instead.
+            </comment>
+        </setconversion>
+    </lfconversions>
 
 
     <lfbinding>
@@ -401,25 +439,25 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
 
             <textvar name="RdsMaps" value="$(PathMeteoIn)/rsds_1_15">
                 <comment>
-                    rds - Downward short wave radiation [W/m2]
+                    rds - Downward short wave radiation [J/m2]
                 </comment>
             </textvar>
 
             <textvar name="RdlMaps" value="$(PathMeteoIn)/rlds_1_15">
                 <comment>
-                    rdl - Down long wave radiation [W/m2]
+                    rdl - Down long wave radiation [J/m2]
                 </comment>
             </textvar>
 
             <textvar name="RusMaps" value="$(PathMeteoIn)/rsus_1_15">
                 <comment>
-                    rus - up short wave radiation [W/m2]
+                    rus - up short wave radiation [J/m2]
                 </comment>
             </textvar>
 
             <textvar name="RulMaps" value="$(PathMeteoIn)/rlus_1_15">
                 <comment>
-                    rul - up long wave radiation [W/m2]
+                    rul - up long wave radiation [J/m2]
                 </comment>
             </textvar>
 
@@ -452,39 +490,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
             <textvar name="TAvgMaps" value="$(PathOut)/$(PrefixTAvg)">
                 <comment>
                     daily average temperature [deg C]
-                </comment>
-            </textvar>
-
-        </group>
-
-        <group>
-            <comment>
-                **************************************************************
-                REPORTED OUTPUT TIME SERIES
-                **************************************************************
-            </comment>
-
-            <textvar name="TAvgTS" value="$(PathOut)/tAvg.tss">
-                <comment>
-                    Average temperature [deg C]
-                </comment>
-            </textvar>
-
-            <textvar name="ET0TS" value="$(PathOut)/et0.tss">
-                <comment>
-                    Potential reference evapotranspiration rate [mm/day]
-                </comment>
-            </textvar>
-
-            <textvar name="E0TS" value="$(PathOut)/e0.tss">
-                <comment>
-                    Potential evaporation rate of a free water surface [mm/day]
-                </comment>
-            </textvar>
-
-            <textvar name="ES0TS" value="$(PathOut)/es0.tss">
-                <comment>
-                    Potential evaporation rate from a bare soil surface [mm/day]
                 </comment>
             </textvar>
 

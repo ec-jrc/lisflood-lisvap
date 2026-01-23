@@ -14,51 +14,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
-from __future__ import (absolute_import, print_function, unicode_literals)
-from nine import str, range
 
 import datetime
 import sys
 from bisect import bisect_left
 
+import cftime
 from dateutil import parser
 import numpy as np
-import pcraster
-from pcraster import numpy_operations, Nominal
-from pcraster.framework.dynamicFramework import DynamicFramework
-from pcraster.operations import scalar, defined, maptotal, ifthenelse, mapminimum, mapmaximum
+from .operators import scalar, defined, ifthenelse
+from netCDF4 import num2date, date2num
 
 from . import LisfloodError
 from . import LisSettings
 from .decorators import counted
-
-
-def valuecell(coordx, coordstr):
-    """
-    to put a value into a pcraster map -> invert of cellvalue
-    pcraster map is converted into a numpy array first
-    """
-    coord = []
-    for xy in coordx:
-        try:
-            coord.append(float(xy))
-        except ValueError:
-            msg = 'Gauges: {} in {} is not a coordinate'.format(xy, coordstr)
-            raise LisfloodError(msg)
-
-    null = np.zeros((pcraster.clone().nrRows(), pcraster.clone().nrCols()))
-    null[null == 0] = -9999
-
-    for i in range(int(len(coord) / 2)):
-        col = int((coord[i * 2] - pcraster.clone().west()) / pcraster.clone().cellSize())
-        row = int((pcraster.clone().north() - coord[i * 2 + 1]) / pcraster.clone().cellSize())
-        if 0 <= col < pcraster.clone().nrCols() and 0 <= row < pcraster.clone().nrRows():
-            null[row, col] = i + 1
-        else:
-            msg = 'Coordinates: {}, {} to put value in is outside mask map - col,row: {}, {}'.format(coord[i * 2], coord[i * 2 + 1], col, row)
-            raise LisfloodError(msg)
-
-    return numpy_operations.numpy2pcr(Nominal, null, -9999)
 
 
 def take_closest(a_list, a_number):
@@ -108,7 +77,18 @@ def get_calendar_configuration(netcdf_file_obj, settings=None):
         settings.binding['internal.time.unit'] = t_unit
         settings.binding['internal.time.calendar'] = t_cal
         settings.binding['internal.time.frequency'] = t_frequency
-    return t_unit, t_cal
+    return t_unit, t_cal, t_frequency
+
+
+def date2calendar(date, settings=None):
+    if (settings is not None and
+        'internal.time.unit' in settings.binding and
+        'internal.time.calendar' in settings.binding):
+        t_unit = settings.binding['internal.time.unit']
+        t_cal = settings.binding['internal.time.calendar']
+        date_number = date2num(date, units=t_unit, calendar=t_cal)
+        date = num2date(date_number, t_unit, t_cal)
+    return date
 
 
 def calendar(date_or_ts):
@@ -128,6 +108,9 @@ def calendar(date_or_ts):
     try:
         # try reading step number from number or string
         date = parser.parse(date_or_ts, dayfirst=True)
+        # Convert the date into the calendar type as soon as it is defined
+        settings = LisSettings.instance()
+        date = date2calendar(date, settings)
     except (TypeError, ValueError) as e:
         # if cannot read input then stop
         msg = ' Wrong step or date format: {}, Input {} '.format(e, date_or_ts)
@@ -160,7 +143,7 @@ def date_to_int(date_in, both=False):
     # DtDay = float(DtSec / 86400)
     # Time step, expressed as fraction of day (same as self.var.DtSec and self.var.DtDay)
 
-    if type(date1) is datetime.datetime:
+    if isinstance(date1, cftime.datetime) or isinstance(date1, datetime.datetime):
         str1 = date1.strftime("%d/%m/%Y %H:%M")
         # CM: get total number of seconds corresponding to the time interval between dateIn and CalendarDayStart
         timeinterval_in_sec = int((date1 - begin).total_seconds())
@@ -205,12 +188,223 @@ def checkdate(start, end):
     return
 
 
-class DynamicFrame(DynamicFramework):
+class FrameworkError(Exception):
+    def __init__(self,
+        msg):
+        self._msg = msg
+    
+    def __str__(self):
+        return self._msg
+
+
+class DynamicFrame():
     """Adjusting the def _atStartOfTimeStep defined in DynamicFramework
        for a real quiet output
     """
     rquiet = True
     rtrace = False
+
+    _d_quiet = False
+    _d_trace = False
+    _d_debug = False
+    _d_indentLevel = 0
+    _d_inScript = False
+
+    def __init__(self,
+        userModel,
+        lastTimeStep=0,
+        firstTimestep=1):
+        self._d_silentModelOutput = False
+        self._d_silentFrameworkOutput = True
+        self._d_quietProgressDots = False
+        self._d_quietProgressSampleNr = False
+    
+        self._d_model = userModel
+        self._testRequirements()
+    
+        # # fttb
+        # self._addMethodToClass(self._readmapNew)
+        # self._addMethodToClass(self._reportNew)
+    
+        try:
+          self._userModel()._setNrTimeSteps(lastTimeStep)
+          self._d_firstTimestep = firstTimestep
+          self._userModel()._setFirstTimeStep(self._d_firstTimestep)
+        except Exception as msg:
+          sys.stderr.write('Error: %s\n' % str(msg))
+          sys.exit(1)
+    
+    def _userModel(self):
+        """
+        Return the model instance provided by the user.
+        """
+        return self._d_model
+    
+    def run(self):
+        """
+        Run the dynamic user model.
+    
+        .. todo::
+    
+          This method depends on the filter frameworks concept. Shouldn't its run
+          method call _runSuspend()?
+        """
+        self._atStartOfScript()
+        if(hasattr(self._userModel(), "resume")):
+          if self._userModel().firstTimeStep() == 1:
+            self._runInitial()
+          else:
+            self._runResume()
+        else:
+          self._runInitial()
+    
+        self._runDynamic()
+    
+        # Only execute this section while running filter frameworks.
+        if hasattr(self._userModel(), "suspend") and \
+          hasattr(self._userModel(), "filterPeriod"):
+          self._runSuspend()
+    
+        return 0
+    
+    def _testRequirements(self):
+        """
+        Test whether the user model models the
+        :ref:`Dynamic Model Concept <dynamicModelConcept>`.
+        """
+        if hasattr(self._userModel(), "_userModel"):
+          msg = "The _userModel method is deprecated and obsolete"
+          self.showWarning(msg)
+    
+        if( not hasattr(self._userModel(), "dynamic") and not hasattr(self._userModel(), "run")):
+          msg = "Cannot run dynamic framework: Implement dynamic method"
+          raise FrameworkError(msg)
+    
+        if not hasattr(self._userModel(), "initial"):
+          if self._debug():
+            self.showWarning("No initial section defined.")
+
+    def _trace(self):
+        return DynamicFrame._d_trace
+    
+    def _debug(self):
+        return DynamicFrame._d_debug
+    
+    def _indentLevel(self):
+        return DynamicFrame._d_indentLevel * "  "
+    
+    def _traceIn(self, functionName):
+        if not self._quiet():
+          if self._trace():
+            self.showMessage("%s<%s>" % (self._indentLevel(), functionName))
+    
+    def _traceOut(self, functionName):
+        if not self._quiet():
+          if self._trace():
+            self.showMessage("%s</%s>" % (self._indentLevel(), functionName))
+
+    def _quiet(self):
+        """
+        Return the quiet state.
+        """
+        return self._d_quietProgressDots
+    
+    def setQuiet(self, quiet=True):
+        """
+        Disables the progress display of timesteps.
+        """
+        self._d_quietProgressDots = quiet
+
+    def setTrace(self,
+        trace):
+        """
+        Trace framework output to stdout.
+    
+        `trace`
+          True/False. Default is set to False.
+    
+        If tracing is enabled the user will get a detailed framework output
+        in an XML style.
+        """
+        DynamicFrame._d_trace = trace
+    
+    def setDebug(self,
+        debug):
+        DynamicFrame._d_debug = debug
+
+    def _atStartOfSample(self,
+        nr):
+        self._userModel()._d_inSample = True
+    
+        if not self._quietProgressSampleNr():
+          if not self._trace():
+            msg = u"%d " % (nr)
+          else:
+            msg = u"%s<sample nr=\"%s\">\n" % (self._indentLevel(), nr)
+          # no showMessage here, \n not desired in non-trace "..." timestep output
+          sys.stdout.write(msg)
+          sys.stdout.flush()
+    
+    def _sampleFinished(self):
+        self._userModel()._d_inSample = False
+    
+        if not self._quiet():
+          #if not self._trace():
+            #msg = "]"
+          #else:
+          if self._trace():
+            msg = "%s</sample>" % (self._indentLevel())
+            self.showMessage(msg)
+    
+    def _atStartOfFilterPeriod(self,
+        nr):
+        self._userModel()._d_inFilterPeriod = True
+        if not self._d_model._quiet():
+          if not self._d_model._trace():
+            msg = "\nPeriod %d" % (nr + 1)
+          else:
+            msg = "%s<period nr=\"%s\">" % (self._indentLevel(), nr + 1)
+    
+          self.showMessage(msg)
+    
+    def _atEndOfFilterPeriod(self):
+        self._userModel()._d_inFilterPeriod = False
+        if not self._d_model._quiet():
+          if self._d_model._trace():
+            msg = "%s</period>" % (self._indentLevel())
+            self.showMessage(msg)
+    
+    def _runInitial(self):
+        self._userModel()._setInInitial(True)
+        if(hasattr(self._userModel(), 'initial')):
+          self._incrementIndentLevel()
+          self._traceIn("initial")
+          self._userModel().initial()
+          self._traceOut("initial")
+          self._decrementIndentLevel()
+    
+        self._userModel()._setInInitial(False)
+    
+    def _runDynamic(self):
+        self._userModel()._setInDynamic(True)
+        step = self._userModel().firstTimeStep()
+        while step <= self._userModel().nrTimeSteps():
+    
+          self._incrementIndentLevel()
+          self._atStartOfTimeStep(step)
+          self._userModel()._setCurrentTimeStep(step)
+          if hasattr(self._userModel(), 'dynamic'):
+            self._incrementIndentLevel()
+            self._traceIn("dynamic")
+            self._userModel().dynamic()
+            self._traceOut("dynamic")
+            self._decrementIndentLevel()
+    
+          self._timeStepFinished()
+          self._decrementIndentLevel()
+          step += 1
+    
+        self._userModel()._setInDynamic(False)
 
     def _atStartOfTimeStep(self, step):
         self._userModel()._setInTimeStep(True)
@@ -222,49 +416,84 @@ class DynamicFrame(DynamicFramework):
             sys.stdout.write(msg)
             sys.stdout.flush()
 
+    def _timeStepFinished(self):
+        self._userModel()._setInTimeStep(False)
+    
+        if not self._quiet():
+          if self._trace():
+            self.showMessage("%s</time>" % (self._indentLevel()))
+    
+    def _atStartOfScript(self):
+        if not self._d_inScript:
+          self._userModel()._d_inScript = True
+          if not self._quiet():
+            if self._trace():
+              self.showMessage("<script>")
+    
+    def _atEndOfScript(self):
+        if self._d_inScript:
+          self._d_inScript = False
+          if not self._quiet():
+            if not self._trace():
+              msg = u"\n"
+            else:
+              msg = u"</script>\n"
+            # showMessage does not work due to encode throw
+            sys.stdout.write(msg)
+            sys.stdout.flush()
+
+    def _incrementIndentLevel(self):
+        DynamicFrame._d_indentLevel += 1
+    
+    def _decrementIndentLevel(self):
+        assert DynamicFrame._d_indentLevel > 0
+        DynamicFrame._d_indentLevel -= 1
+    
+    def _scriptFinished(self):
+        self._atEndOfScript()
+
 
 @counted
-def checkmap(name, value, map, flagmap, find):
+def checkmap(name, value, npmap, flagmap, find):
     """ check maps if they fit to the mask map
     """
     s = [name, value]
     MMaskMap = 0
     if flagmap:
-        amap = scalar(defined(MMaskMap))
+        amap = scalar(MMaskMap) # Set Maskmap to zeros
         try:
-            smap = scalar(defined(map))
+            smap = scalar(defined(npmap)) # Get a boolean map containing the cells from npmap in the mask map area
         except:
             msg = "Map: " + name + " in " + value + " does not fit"
             if name == "LZAvInflowMap":
                 msg += "\nTry to execute the initial run first"
             raise LisfloodError(msg)
 
-        mvmap = maptotal(smap)
-        mv = pcraster.cellvalue(mvmap, 1, 1)[0]
+        mv = np.sum(smap) # sum all True values or the vales that are in the area
         s.append(mv)
 
-        less = maptotal(ifthenelse(defined(MMaskMap), amap - smap, scalar(0)))
-        s.append(pcraster.cellvalue(less, 1, 1)[0])
-        less = mapminimum(scalar(map))
-        s.append(pcraster.cellvalue(less, 1, 1)[0])
-        less = maptotal(scalar(map))
-        s.append(pcraster.cellvalue(less, 1, 1)[0] / mv) if mv > 0 else s.append('0')
-        less = mapmaximum(scalar(map))
-        s.append(pcraster.cellvalue(less, 1, 1)[0])
+        less = np.sum(ifthenelse(defined(scalar(MMaskMap)), amap - smap, scalar(0)))
+        s.append(less)
+        less = np.min(scalar(npmap))
+        s.append(less)
+        less = np.sum(scalar(npmap))
+        s.append(less / mv) if mv > 0 else s.append('0')
+        less = np.max(scalar(npmap))
+        s.append(less)
         if find > 0:
             if find == 2:
                 s.append('last_Map_used')
             else:
                 s.append('')
-
     else:
         s.append(0)
         s.append(0)
-        s.append(float(map))
-        s.append(float(map))
-        s.append(float(map))
+        s.append(float(npmap))
+        s.append(float(npmap))
+        s.append(float(npmap))
 
-    if checkmap.called == 1:  # FIXME omg
+    # called comes from the counted decorator and counts the number of times the function is called
+    if checkmap.called == 1:
         print ("%-25s%-40s%11s%11s%11s%11s%11s" % ("Name", "File/Value", "nonMV", "MV", "min", "mean", "max"))
     print ("%-25s%-40s%11i%11i%11.2f%11.2f%11.2f" % (s[0], s[1][-39:], s[2], s[3], s[4], s[5], s[6]))
     return

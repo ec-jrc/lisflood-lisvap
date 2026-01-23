@@ -14,14 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the Licence for the specific language governing permissions and limitations under the Licence.
 
 """
-from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import datetime
-
-try:
-    from pcraster.multicore._operations import scalar, cover
-except ImportError:
-    from pcraster.operations import scalar, cover
 
 from ..utils.readers import loadmap
 from ..utils.tools import calendar
@@ -53,10 +47,10 @@ class MiscInitial(object):
         # rate variables that are expressed as a quantity per day to
         # into an amount per time step)
 
-        self.var.ZeroKelvin = 273.15
         # Temperature in Kelvin corresponding to 0 degrees Centigrade
-        self.var.Pi = 3.14159265358979323846
+        self.var.ZeroKelvin = 273.15
         # Numerical value of Pi
+        self.var.Pi = 3.14159265358979323846
 
         self.var.MJtoJ = 1E6
         # Conversion factor from [MJ] to [J]
@@ -80,8 +74,6 @@ class MiscInitial(object):
         self.var.AlbedoCanopy = loadmap('AlbedoCanopy')
         self.var.AlbedoWater = loadmap('AlbedoWater')
 
-        self.var.dem = cover(loadmap('Dem'), scalar(0.0))
-
         # ************************************************************
         # ***** Some additional stuff
         # ************************************************************
@@ -94,6 +86,9 @@ class MiscInitial(object):
         self.var.Psurf = None
         self.var.Qair = None
         self.var.Wind = None
+        
+        self.var.RelH = None
+        self.var.ESat = None
 
         self.var.Rds = None
         self.var.Rdl = None

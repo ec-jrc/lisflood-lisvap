@@ -1,0 +1,176 @@
+
+#######################################################
+#
+#   ##       ####  ######  ##     ##    ###    ########  
+#   ##        ##  ##    ## ##     ##   ## ##   ##     ## 
+#   ##        ##  ##       ##     ##  ##   ##  ##     ## 
+#   ##        ##   ######  ##     ## ##     ## ########  
+#   ##        ##        ##  ##   ##  ######### ##        
+#   ##        ##  ##    ##   ## ##   ##     ## ##        
+#   ######## ####  ######     ###    ##     ## ##  
+#  
+#######################################################
+
+# TIP:
+# You can use $(ProjectDir) or $(ProjectPath) as built-in variable to use in this YAML settings,
+# to refer Lisvap project folder (in case you work with source code)
+# You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the YAML settings.
+
+
+time-settings:
+    # Calendar day of 1st day in model run
+    CalendarDayStart: 02/01/1990 06:00
+    # time step [seconds] USE 86400 for daily, 43200 for 12hourly, 21600 for 6hourly and 3600 for hourly!!
+    DtSec: 86400
+    # Date of first time step in simulation
+    StepStart: 02/01/1990 06:00
+    # Date of last time step
+    StepEnd: 01/03/1990 06:00
+    # Timesteps to be processed
+    ReportSteps: 1..10227
+
+default-paths:
+    # Path to input base maps
+    PathBaseMapsIn: $(ProjectPath)/basemaps
+    # Output path
+    PathOut: $(SettingsPath)/output
+    # Path to input raw meteo maps
+    PathMeteoIn: $(SettingsPath)/input
+
+prefixes-output-variables:
+    # prefix E0 maps
+    PrefixE0: e0
+    # prefix ES0 maps
+    PrefixES0: es
+    # prefix ET0 maps
+    PrefixET0: et
+    # prefix average temperature maps [C]
+    PrefixTAvg: ta
+
+prefixes-input-variables:
+    # prefix maximum temperature maps [k]
+    PrefixTMax: tx
+        offset: 0
+    # prefix minimum temperature maps [K]
+    PrefixTMin: tn
+        offset: -1
+    # prefix vapour pressure maps
+    PrefixEAct: pd
+    # prefix wind speed maps at 10m [m/s]
+    PrefixWind: ws
+    # prefix down solar radiation maps [J/m2]
+    PrefixRgd: rg
+    # prefix average temperature maps [k]
+    PrefixTAvg: ta
+
+operational-parameters:
+    TemperatureInKelvinFlag: 0
+    input-output-setup:
+        repE0Maps: 1
+        repES0Maps: 0
+        repET0Maps: 0
+        repTAvgMaps: 0
+        output6hourly: 0
+        splitInput: 0
+        splitOutput: 0
+        monthlyOutput: 0
+    selected-model:
+        EFAS: 0
+        CORDEX: 0
+        GLOFAS: 1
+    vapor-pressure-calculation:
+        useTAvg: 1
+        useTDewMaps: 1
+        useRelHumidityMaps: 1
+        useWindUVMaps: 1
+
+constants:
+    # Average solar radiation at top atmosphere [J/m2/s] (I.E.A. 1978)
+    AvSolarConst: 1370
+    # Stefan-Boltzmann constant [J/m2/K4/day]
+    StefBolt: 4.903E-3
+    # Atmosheric pressure at sea level [mbar]
+    Press0: 1013
+    # Correction constant in daylength formula [degrees]
+    PD: -2.65
+    # Albedo of bare soil surface (Supit et. al.)
+    AlbedoSoil: 0.15
+    # Albedo of water surface (Supit et. al.)
+    AlbedoWater: 0.05
+    # Albedo of vegetation canopy (FAO,1998)
+    AlbedoCanopy: 0.23
+    # Estimated value for surface roughness factor of bare soil (Supit et. al.)
+    FactorSoil: 0.75
+    # Estimated value for surface roughness factor of water surface (Supit et. al.)
+    FactorWater: 0.5
+    # Estimated value for surface roughness factor of vegetation canopy (Supit et. al.)
+    FactorCanopy: 1
+
+input-maps:
+    # Maximum daily temperature. Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+    TMaxMaps: $(PathMeteoIn)/EMO-5-$(PrefixTMax)_1990_2017
+    # Minimum daily temperature. Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+    TMinMaps: $(PathMeteoIn)/$(PrefixTMin)/EMO-5-$(PrefixTMin)_????
+    # TDew - Dew point Temperature used for actual vap pressure. Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+    # Used when the "GLOFAS" option is switched on.
+    TDewMaps: $(PathMeteoIn)/rlus_1_15
+    # RelHMaps - Relative Humidity used for actual vap pressure. Units: [%]
+    # Used when the "EFAS" option is switched on.
+    RelHMaps: $(PathMeteoIn)/hurs_1_15
+    # Actual vapour pressure [mbar]
+    # Used when the "EFAS" option is switched on.
+    # If the "CORDEX" option is on, "QairMaps" is used instead.
+    EActMaps: $(PathMeteoIn)/EMO-5-$(PrefixEAct)_*
+    # Wind speed at 10 m from surface [m/s]
+    WindMaps: $(PathMeteoIn)/EMO-5-$(PrefixWind)_1990_2017
+    # Wind speed U component at 10 m from surface [m/s]
+    WindMapsU: $(PathMeteoIn)/EMO-5-wsU_1990_2017
+    # Wind speed V component at 10 m from surface [m/s]
+    WindMapsV: $(PathMeteoIn)/EMO-5-wsV_1990_2017
+    # rgd - calculated solar radiation [J/day/m2]
+    # Used when the "EFAS" option is switched on.
+    # If the "CORDEX" option is on, the following are used instead: "RdsMaps", "RdlMaps", "RusMaps", "RulMaps".
+    RgdMaps: $(PathMeteoIn)/EMO-5-$(PrefixRgd)_1990_2017
+    # Average daily temperature. Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+    TAvgMaps: $(PathMeteoIn)/$(PrefixTAvg)/$(PrefixTAvg)_1990_2017
+    # Instantaneous sea level pressure [Pa]
+    PSurfMaps: $(PathMeteoIn)/psurf_1_15
+    # 2 m instantaneous specific humidity [kg/kg]
+    # Used when the "CORDEX" option is switched on.
+    # If the "EFAS" option is on, "EActMaps" is used instead.
+    QAirMaps: $(PathMeteoIn)/huss_1_15
+    # rds - Downward short wave radiation [J/m2]
+    # Used when the "CORDEX" option is switched on.
+    # If the "EFAS" option is on, "RgdMaps" is used instead.
+    RdsMaps: $(PathMeteoIn)/rsds_1_15
+    # rdl - Down long wave radiation [J/m2]
+    # Used when the "CORDEX" option is switched on.
+    # If the "EFAS" option is on, "RgdMaps" is used instead.
+    RdlMaps: $(PathMeteoIn)/rlds_1_15
+    # rus - up short wave radiation [J/m2]
+    # Used when the "CORDEX" option is switched on.
+    # If the "EFAS" option is on, "RgdMaps" is used instead.
+    RusMaps: $(PathMeteoIn)/rsus_1_15
+    # rul - up long wave radiation [J/m2]
+    # Used when the "CORDEX" option is switched on.
+    # If the "EFAS" option is on, "RgdMaps" is used instead.
+    RulMaps: $(PathMeteoIn)/rlus_1_15
+    # rnl - net long wave radiation [J/m2]
+    # Used when the "GLOFAS" option is switched on.
+    RNMaps: $(PathMeteoIn)/rlus_1_15
+
+output-maps:
+    # daily reference evaporation (free water) [mm/day]
+    E0Maps: $(PathOut)/$(PrefixE0)
+    # daily reference evaporation (soil) [mm/day]
+    ES0Maps: $(PathOut)/$(PrefixES0)
+    # daily reference evapotranspiration (crop) [mm/day]
+    ET0Maps: $(PathOut)/$(PrefixET0)
+
+input-base-maps:
+    # Clone map
+    MaskMap: $(PathMeteoIn)/areaall.nc
+    # Digital elevation model [meters a.s.l.]
+    Dem: $(PathBaseMapsIn)/dem.nc
+    # Latitude [decimal degrees]
+    Lat: $(PathBaseMapsIn)/lat.nc

@@ -155,3 +155,14 @@ class TestGLOFAS(TestLis):
 
     def test_e0(self):
         return self.listest('e0')
+
+
+class TestRel_Humidity_360_Cal(TestLis):
+    domain = 'rel_humidity_360_cal'
+    settings_path = os.path.join(current_dir, 'data/tests_rel_humidity_360_cal.xml')
+
+    def test_et(self):
+        return self.listest('et')
+
+    def test_tair(self):
+        return self.listest('tair')

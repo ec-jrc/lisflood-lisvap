@@ -183,15 +183,12 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
 
     <lfoptions>
 
-        <setoption name="readNetcdfStack" choice="1"/>
-        <setoption name="writeNetcdfStack" choice="1"/>
         <setoption name="TemperatureInKelvinFlag" choice="0"/>
 
         <setoption name="repE0Maps" choice="1"/>
         <setoption name="repES0Maps" choice="0" />
         <setoption name="repET0Maps" choice="0" />
         <setoption name="repTAvgMaps" choice="0"/>
-        <setoption name="repAvTimeseries" choice="0"/>
 
         <setoption name="output6hourly" choice="0"/>
         <setoption name="splitInput" choice="0"/>
@@ -204,6 +201,7 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
 
         <setoption name="useTAvg" choice="1"/>
         <setoption name="useTDewMaps" choice="1"/>
+        <setoption name="useRelHumidityMaps" choice="0" />
         <setoption name="useWindUVMaps" choice="1"/>
     </lfoptions>
 
@@ -357,13 +355,13 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
 
             <textvar name="RgdMaps" value="$(PathMeteoIn)/$(PrefixRgd)">
                 <comment>
-                    Downward surface solar radiation [J/m2/d]
+                    Downward surface solar radiation [J/m2]
                 </comment>
             </textvar>
 
             <textvar name="RNMaps" value="$(PathMeteoIn)/$(PrefixRN)">
                 <comment>
-                    Net thermal radiation [J/m2/d]
+                    Net thermal radiation [J/m2]
                     Note: values should always be negative (in ERA40 net outgoing flux is taken as a negative number)
                 </comment>
             </textvar>
@@ -381,21 +379,6 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing this
             <textvar name="E0Maps" value="$(PathOut)/$(PrefixE0)">
                 <comment>
                     daily reference evaporation (free water) [mm/day]
-                </comment>
-            </textvar>
-
-        </group>
-
-        <group>
-            <comment>
-                **************************************************************
-                REPORTED OUTPUT TIME SERIES
-                **************************************************************
-            </comment>
-
-            <textvar name="E0TS" value="$(PathOut)/e0.tss">
-                <comment>
-                    Potential evaporation rate of a free water surface [mm/day]
                 </comment>
             </textvar>
 
