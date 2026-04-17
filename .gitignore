@@ -42,3 +42,4 @@ psy0
 /.project
 /.pydevproject
 /.settings/
+.vscode/settings.json
