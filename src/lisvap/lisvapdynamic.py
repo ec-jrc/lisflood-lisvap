@@ -21,7 +21,7 @@ import sys
 import datetime
 import cftime
 
-from .utils.operators import exp, maximum, cos, sin, ifthenelse, asin, scalar, cover, tan, sqr, sqrt, abs
+from .utils.operators import exp, maximum, cos, sin, ifthenelse, asin, acos, scalar, cover, tan, sqr, sqrt, abs
 from .utils import LisSettings, TimeProfiler, DynamicModel
 
 
@@ -146,6 +146,24 @@ class LisvapModelDyn(DynamicModel):
                                        datetime.timedelta(seconds=(self.currentTimeStep()-1) * self.DtSec))
         return calendar_date_gregorian
 
+    def extraterrestrial_radiation(self):
+        """Calculate extraterrestrial radiation (Ra) in MJ/m2/day for grids"""
+        Gsc = 0.0820  # Solar constant [MJ/m2/min]
+        # Use self.var.Pi (set in miscinitial.py) and self.calendar_day (set in dynamic())
+        delta = 0.409 * sin(2 * self.var.Pi / 365 * self.calendar_day - 1.39)  # Solar declination
+
+        # safe sunset hour angle - clip to handle high latitudes
+        x = -tan(self.Lat) * tan(delta)
+        x = ifthenelse(x < -1, scalar(-1), ifthenelse(x > 1, scalar(1), x))
+        ws = acos(x, in_degrees=False, positive_angles=False)  # Sunset hour angle in radians
+
+        dr = 1 + 0.033 * cos(2 * self.var.Pi / 365 * self.calendar_day)  # Earth-Sun distance
+        Ra = (24 * 60 / self.var.Pi) * Gsc * dr * (
+            ws * sin(self.Lat) * sin(delta) +
+            cos(self.Lat) * cos(delta) * sin(ws)
+        )
+        return Ra
+
     def dynamic(self):
         """ Dynamic part of LISVAP
             calls the dynamic part of the hydrological modules
@@ -186,6 +204,31 @@ class LisvapModelDyn(DynamicModel):
         """ Here it starts with meteorological modules:
         """
 
+        # Check if Hargreaves method should be used instead of Penman-Monteith
+        if settings.get_option('useHargreaves'):
+            # Use Hargreaves equation (simpler, only needs temperature data)
+            self.evapotranspiration_using_hargreaves()
+        else:
+            # Use Penman-Monteith equation (full method)
+            self.evapotranspiration_using_penman_monteith()
+
+        # ************************************************************
+        # ***** WRITING RESULTS: TIME SERIES AND MAPS ****************
+        # ************************************************************
+        self.output_module.dynamic()
+
+        tp.timemeasure('All')  # 10 timing after all
+
+
+    def evapotranspiration_using_penman_monteith(self):
+        """
+        Calculate ET0, ES0, E0 using Penman-Monteith equation.
+        This method calculates the potential reference evapotranspiration (ET0) for a reference 
+        vegetation canopy, potential evaporation from a bare soil surface (ES0), and potential evaporation 
+        from an open water surface (E0) using the Penman-Monteith equation, which considers both
+        energy and aerodynamic factors.
+        """
+        settings = LisSettings.instance()
         # difference between daily maximum and minimum temperature [deg C]
         DeltaT = 0
         if not settings.get_option('useTAvg'):
@@ -255,9 +298,23 @@ class LisvapModelDyn(DynamicModel):
         # potential evaporation rate from water surface [mm/day]
         self.EWRef = ((Delta * RNAWater) + (Psychro * EAWater)) / (Delta + Psychro)
 
-        # ************************************************************
-        # ***** WRITING RESULTS: TIME SERIES AND MAPS ****************
-        # ************************************************************
-        self.output_module.dynamic()
 
-        tp.timemeasure('All')  # 10 timing after all
+    def evapotranspiration_using_hargreaves(self):
+        """
+        Calculate ET0, ES0, E0 using Hargreaves equation.
+        ET0 = 0.0023 * Ra * (Tmean + 17.8) * sqrt(Tmax - Tmin)
+        
+        For ES0 (bare soil) and E0 (water), we use the same formula but with
+        adjusted coefficients. The original Penman uses different albedo values,
+        but Hargreaves is typically applied uniformly for all surfaces.
+        """
+        tmean = (self.TMax + self.TMin) / 2
+        DeltaT = maximum(self.TMax - self.TMin, 0.0)
+        Ra = self.extraterrestrial_radiation()  # uses self.Lat and self.calendar_day internally
+        # multiply Ra by 0.408 to convert MJ/m2/day to mm/day
+        # Hargreaves coefficient 0.0023 is for reference vegetation (ET0)
+        self.ETRef = 0.0023 * (Ra * 0.408) * (tmean + 17.8) * sqrt(DeltaT)
+        # For bare soil (ES0) and water (E0), use same formula
+        # In practice, these could use different coefficients if needed
+        self.ESRef = self.ETRef
+        self.EWRef = self.ETRef

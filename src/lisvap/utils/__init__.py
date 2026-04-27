@@ -401,10 +401,13 @@ report_maps_all: {report_maps_all}
             # Check input variables
             # ###############################################
             if self.get_option('useTAvg'):
-                if self.get_option('repTAvgMaps'):
-                    self.issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
+                if self.get_option('useHargreaves'):
+                    self.issues_list.append('Option "useTAvg" cannot be used together with option "useHargreaves".')
                 else:
-                    self.validate_variable('TAvgMaps', 'Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
+                    if self.get_option('repTAvgMaps'):
+                        self.issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
+                    else:
+                        self.validate_variable('TAvgMaps', 'Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
             else:
                 self.validate_variable('TMinMaps', 'Option "useTAvg" OFF: Missing "TMinMaps" file(s).')
                 self.validate_variable('TMaxMaps', 'Option "useTAvg" OFF: Missing "TMaxMaps" file(s).')
