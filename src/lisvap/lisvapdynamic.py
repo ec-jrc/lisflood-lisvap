@@ -149,16 +149,16 @@ class LisvapModelDyn(DynamicModel):
     def extraterrestrial_radiation(self):
         """Calculate extraterrestrial radiation (Ra) in MJ/m2/day for grids"""
         Gsc = 0.0820  # Solar constant [MJ/m2/min]
-        # Use self.var.Pi (set in miscinitial.py) and self.calendar_day (set in dynamic())
-        delta = 0.409 * sin(2 * self.var.Pi / 365 * self.calendar_day - 1.39)  # Solar declination
+        # Use self.Pi (set in miscinitial.py) and self.calendar_day (set in dynamic())
+        delta = 0.409 * sin(2 * self.Pi / 365 * self.calendar_day - 1.39)  # Solar declination
 
         # safe sunset hour angle - clip to handle high latitudes
         x = -tan(self.Lat) * tan(delta)
-        x = ifthenelse(x < -1, scalar(-1), ifthenelse(x > 1, scalar(1), x))
+        x = ifthenelse(x < -1, scalar(-1.0), ifthenelse(x > 1, scalar(1.0), x))
         ws = acos(x, in_degrees=False, positive_angles=False)  # Sunset hour angle in radians
 
-        dr = 1 + 0.033 * cos(2 * self.var.Pi / 365 * self.calendar_day)  # Earth-Sun distance
-        Ra = (24 * 60 / self.var.Pi) * Gsc * dr * (
+        dr = 1 + 0.033 * cos(2 * self.Pi / 365 * self.calendar_day)  # Earth-Sun distance
+        Ra = (24 * 60 / self.Pi) * Gsc * dr * (
             ws * sin(self.Lat) * sin(delta) +
             cos(self.Lat) * cos(delta) * sin(ws)
         )

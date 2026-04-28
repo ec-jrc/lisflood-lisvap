@@ -166,3 +166,14 @@ class TestRel_Humidity_360_Cal(TestLis):
 
     def test_tair(self):
         return self.listest('tair')
+
+
+class TestHargreaves(TestLis):
+    domain = 'hargreaves'
+    settings_path = os.path.join(current_dir, 'data/tests_hargreaves.xml')
+
+    def test_et(self):
+        return self.listest('et')
+
+    def test_tair(self):
+        return self.listest('tair')
