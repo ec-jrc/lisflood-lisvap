@@ -412,6 +412,12 @@ report_maps_all: {report_maps_all}
                 self.validate_variable('TMinMaps', 'Option "useTAvg" OFF: Missing "TMinMaps" file(s).')
                 self.validate_variable('TMaxMaps', 'Option "useTAvg" OFF: Missing "TMaxMaps" file(s).')
 
+            if self.get_option('useHargreaves'):
+                if self.get_option('useTDewMaps'):
+                    self.issues_list.append('Option "useHargreaves" cannot be used together with "useTDewMaps" -> this is for Penman.')
+                if self.get_option('useRelHumidityMaps'):
+                    self.issues_list.append('Option "useHargreaves" cannot be used together with "useRelHumidityMaps"-> this is for Penman.')
+
             if not self.get_option('useHargreaves'):
                 if not self.get_option('useWindUVMaps'):
                     self.validate_variable('WindMaps', 'Option "useWindUVMaps" OFF: Missing "WindMaps" file(s).')

@@ -310,10 +310,12 @@ class LisvapModelDyn(DynamicModel):
         """
         tmean = (self.TMax + self.TMin) / 2
         DeltaT = maximum(self.TMax - self.TMin, 0.0)
-        Ra = self.extraterrestrial_radiation()  # uses self.Lat and self.calendar_day internally
+        # Ra = self.extraterrestrial_radiation()  # uses self.Lat and self.calendar_day internally
+        Ra = self.angot_radiation()
+        Ra_mm = Ra * 0.408 / 1e6  # J/m2/day → mm/day
         # multiply Ra by 0.408 to convert MJ/m2/day to mm/day
         # Hargreaves coefficient 0.0023 is for reference vegetation (ET0)
-        self.ETRef = 0.0023 * (Ra * 0.408) * (tmean + 17.8) * sqrt(DeltaT)
+        self.ETRef = 0.0023 * (Ra_mm) * (maximum(tmean + 17.8, 0.0)) * sqrt(DeltaT)
         # For bare soil (ES0) and water (E0), use same formula
         # In practice, these could use different coefficients if needed
         self.ESRef = self.ETRef
