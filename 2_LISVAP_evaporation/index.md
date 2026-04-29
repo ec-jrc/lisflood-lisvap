@@ -2,7 +2,7 @@
 
 LISVAP offers two internal possibilities to compute reference evapotranspiration:
 1. Penman-Monteith
-2. HHargreaves
+2. Hargreaves
 
 ## 1) Penman-Monteith equation
 
