@@ -6,6 +6,8 @@ Brunt, D., 1932. Notes on radiation in the atmosphere. International Quarterly J
 
 Goudriaan, J., 1977. Crop micrometeorology: a simulation study. Simulation monographs, Pudoc, Wageningen.
 
+George H. Hargreaves, & Zohrab A. Samani. (1985). Reference Crop Evapotranspiration from Temperature. Applied Engineering in Agriculture, 1(2), 96–99. https://doi.org/10.13031/2013.26773
+
 Maidment, D.R. (editor), 1993. Handbook of Hydrology. McGraw-Hill.
 
 Stroosnijder, L., 1982. Simulation of the soil water balance. In: Penning de Vries, F.W.T. & Van Laar, H.H. (eds), Simulation of plant growth and crop production. Simulation monographs, Pudoc, Wageningen.

@@ -1,0 +1,4 @@
+numpy>=1.15
+netCDF4
+python-dateutil
+pyproj

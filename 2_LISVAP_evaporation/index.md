@@ -1,6 +1,10 @@
 # 2. Potential reference evapo(trans)piration
 
-## Penman-Monteith equation
+LISVAP offers two internal possibilities to compute reference evapotranspiration:
+1. Penman-Monteith
+2. HHargreaves
+
+## 1) Penman-Monteith equation
 
 Reference values for **potential evapotranspiration and evaporation** are estimated using the Penman-Monteith equation (Supit *et al*., 1994, Supit & Van Der Goot, 2003).Specifically, the **potential reference evapotranspiration rate [mm/day]** for the reference vegetation canopy is computed as follows:
 
@@ -337,7 +341,38 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\Delta$:&nbsp;&nbsp;			Slope of the saturation vapour pressure curve $[\frac{mbar}{^\circ C}]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$\gamma$:&nbsp;&nbsp;			Psychrometric constant $[\frac{mbar}{^\circ C}]$
 
+## 2) Hargreaves equation
 
+(Hargreaves and Samani, 1985)
+
+## Basic concepts and equations
+
+The Hargreaves method (Hargreaves and Samani, 1985) is a temperature-based reference evapotranspiration method included in LISVAP as an alternative to the Penman-Monteith approach. The method is based on an empirical relationship between reference evapotranspiration, extraterrestrial radiation, and air temperature, originally derived from lysimeter observations for a grass reference crop in Davis, CA.
+
+Reference evapotranspiration $ET_0$ is computed as:
+
+$$
+ET_0 = 0.0023 \cdot R_a \cdot (T_{mean} + 17.8) \cdot \sqrt{T_{max} - T_{min}}
+$$
+
+where<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$ET_0$:&nbsp;&nbsp; Reference evapotranspiration $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$R_a$:&nbsp;&nbsp; Extraterrestrial (Angot) radiation $[\frac{mm}{day}]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$T_{mean}$:&nbsp;&nbsp; Mean daily air temperature $[^\circ C]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$T_{max}$:&nbsp;&nbsp; Daily maximum air temperature $[^\circ C]$<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;$T_{min}$:&nbsp;&nbsp; Daily minimum air temperature $[^\circ C]$
+
+The temperature range $(T_{max} - T_{min})$ serves as a proxy for incoming solar radiation. $R_a$ is computed internally by LISVAP using the Angot radiation formulation described in [Step 1](#step-1-angot-radiation-daily-extra-terrestrial-radiation), based on latitude and day of year. The Angot radiation $[\frac{J}{m^2 \ day}]$ is converted to $[\frac{mm}{day}]$ by multiplying by $\frac{0.408}{10^6}$.
+
+
+## Required inputs
+
+When the Hargreaves method is used, only two meteorological inputs are required:
+
+- Daily maximum air temperature ($T_{max}$)
+- Daily minimum air temperature ($T_{min}$)
+
+No wind speed, humidity, or radiation data are needed, making this method particularly suitable for data-scarce regions or climate projection datasets where only temperature fields are available.
 
 ------
 
