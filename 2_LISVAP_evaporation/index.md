@@ -22,7 +22,7 @@ where<br/>
 The same equation is also used to estimate the potential evaporation from a water surface and the evaporation from a (wet) bare soil surface. This purpose is achieved by using different values for the net absorbed radiation term and for the evaporative demand. 
 
 The **potential evaporation rate from a bare soil surface [mm/day]** is then estimated by:
-
+s
 $$
 ES0 = \frac{\Delta R_{na,s} + \gamma EA_s}{\Delta + \gamma}
 $$
@@ -362,7 +362,7 @@ where<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$T_{max}$:&nbsp;&nbsp; Daily maximum air temperature $[^\circ C]$<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;$T_{min}$:&nbsp;&nbsp; Daily minimum air temperature $[^\circ C]$
 
-The temperature range $(T_{max} - T_{min})$ serves as a proxy for incoming solar radiation. $R_a$ is computed internally by LISVAP using the Angot radiation formulation described in [Step 1](#step-1-angot-radiation-daily-extra-terrestrial-radiation), based on latitude and day of year. The Angot radiation $[\frac{J}{m^2 \ day}]$ is converted to $[\frac{mm}{day}]$ by multiplying by $\frac{0.408}{10^6}$.
+The temperature range $(T_{max} - T_{min})$ serves as a proxy for incoming solar radiation. $R_a$ is computed internally by LISVAP using the Angot radiation formulation described in [Step 1](#step-1-angot-radiation-daily-extra-terrestrial-radiation), based on latitude and day of year. The Angot radiation $[\frac{J}{m^2 \ day}]$ is converted to $[\frac{mm}{day}]$ by multiplying by $\frac{0.408}{10^6}$. 0.0023 is an empirical calibration coefficient.
 
 
 ## Required inputs
