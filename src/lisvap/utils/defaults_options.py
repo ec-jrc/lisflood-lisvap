@@ -5,7 +5,7 @@ ReportedMap = namedtuple('ReportedMap', 'name, output_var, unit, all, restrictop
 
 defaults = {
     'usetavg': False, 'usetdewmaps': False, 'userelhumiditymaps': False, 'usewinduvmaps': False,
-    'temperatureinkelvinflag': False,
+    'temperatureinkelvinflag': False, 'usehargreaves': False,
     'repet0maps': True, 'repes0maps': True, 'repe0maps': True, 'reptavgmaps': True,
     'efas': True, 'cordex': False, 'glofas': False, 'output6hourly': False, 'splitinput': False,
     'splitoutput': False, 'monthlyOutput': False,

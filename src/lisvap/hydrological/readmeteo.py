@@ -42,12 +42,18 @@ class ReadMeteo(object):
         if self.settings.get_option('useTAvg'):
             # Average daily temperature (C)
             self.var.TAvg = readnetcdf(self.settings.binding['TAvgMaps'], self.var.currentTimeStep(), variable_binding='TAvgMaps', splitIO=self.splitIO)
+            if self.settings.get_option('TemperatureInKelvinFlag'):
+                self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
         else:
             # Minimum daily temperature (C)
             self.var.TMin = readnetcdf(self.settings.binding['TMinMaps'], self.var.currentTimeStep(), variable_binding='TMinMaps', splitIO=self.splitIO)
             # Maximum daily temperature (C)
             self.var.TMax = readnetcdf(self.settings.binding['TMaxMaps'], self.var.currentTimeStep(), variable_binding='TMaxMaps', splitIO=self.splitIO)
             self.var.TAvg = 0.5 * (self.var.TMin + self.var.TMax)
+            if self.settings.get_option('TemperatureInKelvinFlag'):
+                self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
+                self.var.TMin = self.var.TMin - self.var.ZeroKelvin
+                self.var.TMax = self.var.TMax - self.var.ZeroKelvin
 
     def read_windspeed(self):
         """
@@ -92,13 +98,11 @@ class ReadMeteo(object):
         # ***** READ METEOROLOGICAL DATA *****************************
         # ************************************************************
         self.read_temperature()
-        self.read_windspeed()
 
-        if self.settings.get_option('TemperatureInKelvinFlag'):
-            self.var.TAvg = self.var.TAvg - self.var.ZeroKelvin
-            if not self.settings.get_option('useTAvg'):
-                self.var.TMin = self.var.TMin - self.var.ZeroKelvin
-                self.var.TMax = self.var.TMax - self.var.ZeroKelvin
+        if self.settings.get_option('useHargreaves'):
+            return # skip reading other variables if Hargreaves method is used since it needs only temperature data
+
+        self.read_windspeed()
 
         # ESat=.0610588*exp((17.32491*self.TAvg)/(self.TAvg+238.102))
         # the formula above returns value in pascal, not mbar

@@ -401,50 +401,60 @@ report_maps_all: {report_maps_all}
             # Check input variables
             # ###############################################
             if self.get_option('useTAvg'):
-                if self.get_option('repTAvgMaps'):
-                    self.issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
+                if self.get_option('useHargreaves'):
+                    self.issues_list.append('Option "useTAvg" cannot be used together with option "useHargreaves".')
                 else:
-                    self.validate_variable('TAvgMaps', 'Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
+                    if self.get_option('repTAvgMaps'):
+                        self.issues_list.append('Option "useTAvg" cannot be used together with option "repTAvgMaps".')
+                    else:
+                        self.validate_variable('TAvgMaps', 'Option "useTAvg" ON: Missing "TAvgMaps" file(s).')
             else:
                 self.validate_variable('TMinMaps', 'Option "useTAvg" OFF: Missing "TMinMaps" file(s).')
                 self.validate_variable('TMaxMaps', 'Option "useTAvg" OFF: Missing "TMaxMaps" file(s).')
 
-            if not self.get_option('useWindUVMaps'):
-                self.validate_variable('WindMaps', 'Option "useWindUVMaps" OFF: Missing "WindMaps" file(s).')
-            else:
-                self.validate_variable('WindUMaps', 'Option "useWindUVMaps" ON: Missing "WindUMaps" file(s).')
-                self.validate_variable('WindVMaps', 'Option "useWindUVMaps" ON: Missing "WindVMaps" file(s).')
-
-            if not self.get_option('CORDEX'): # CORDEX calculates EAct from PSurf and Qair
+            if self.get_option('useHargreaves'):
                 if self.get_option('useTDewMaps'):
-                    self.validate_variable('TDewMaps', 'Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
-                elif self.get_option('useRelHumidityMaps'):
-                    self.validate_variable('RelHMaps', 'Option "useRelHumidityMaps" ON: Missing "RelHMaps" file(s).')
+                    self.issues_list.append('Option "useHargreaves" cannot be used together with "useTDewMaps" -> this is for Penman.')
+                if self.get_option('useRelHumidityMaps'):
+                    self.issues_list.append('Option "useHargreaves" cannot be used together with "useRelHumidityMaps"-> this is for Penman.')
+
+            if not self.get_option('useHargreaves'):
+                if not self.get_option('useWindUVMaps'):
+                    self.validate_variable('WindMaps', 'Option "useWindUVMaps" OFF: Missing "WindMaps" file(s).')
                 else:
-                    self.validate_variable('EActMaps', 'Option "useTDewMaps" OFF and "useRelHumidityMaps" OFF: Missing "EActMaps" file(s).')
-            # ###############################################
-            # Check setup specific input variables
-            # ###############################################
-            if self.get_option('EFAS'):
-                self.validate_variable('RgdMaps', 'EFAS setup: Missing "RgdMaps" file(s).')
-            elif self.get_option('GLOFAS'):
-                self.validate_variable('RgdMaps', 'GLOFAS setup: Missing "RgdMaps" file(s).')
-                self.validate_variable('RNMaps', 'GLOFAS setup: Missing "RNMaps" file(s).')
-            elif self.get_option('CORDEX'):
-                self.validate_variable('PSurfMaps', 'CORDEX setup: Missing "PSurfMaps" file(s).')
-                self.validate_variable('QAirMaps', 'CORDEX setup: Missing "QAirMaps" file(s).')
-                self.validate_variable('RdsMaps', 'CORDEX setup: Missing "RdsMaps" file(s).')
-                if self.get_unit_conversion('RdsMaps') is None:
-                    self.issues_list.append('CORDEX setup: Variable "RdsMaps" is expected to have a conversion factor of 86400.')
-                self.validate_variable('RdlMaps', 'CORDEX setup: Missing "RdlMaps" file(s).')
-                if self.get_unit_conversion('RdlMaps') is None:
-                    self.issues_list.append('CORDEX setup: Variable "RdlMaps" is expected to have a conversion factor of 86400.')
-                self.validate_variable('RusMaps', 'CORDEX setup: Missing "RusMaps" file(s).')
-                if self.get_unit_conversion('RusMaps') is None:
-                    self.issues_list.append('CORDEX setup: Variable "RusMaps" is expected to have a conversion factor of 86400.')
-                self.validate_variable('RulMaps', 'CORDEX setup: Missing "RulMaps" file(s).')
-                if self.get_unit_conversion('RulMaps') is None:
-                    self.issues_list.append('CORDEX setup: Variable "RulMaps" is expected to have a conversion factor of 86400.')
+                    self.validate_variable('WindUMaps', 'Option "useWindUVMaps" ON: Missing "WindUMaps" file(s).')
+                    self.validate_variable('WindVMaps', 'Option "useWindUVMaps" ON: Missing "WindVMaps" file(s).')
+
+                if not self.get_option('CORDEX'): # CORDEX calculates EAct from PSurf and Qair
+                    if self.get_option('useTDewMaps'):
+                        self.validate_variable('TDewMaps', 'Option "useTDewMaps" ON: Missing "TDewMaps" file(s).')
+                    elif self.get_option('useRelHumidityMaps'):
+                        self.validate_variable('RelHMaps', 'Option "useRelHumidityMaps" ON: Missing "RelHMaps" file(s).')
+                    else:
+                        self.validate_variable('EActMaps', 'Option "useTDewMaps" OFF and "useRelHumidityMaps" OFF: Missing "EActMaps" file(s).')
+                # ###############################################
+                # Check setup specific input variables
+                # ###############################################
+                if self.get_option('EFAS'):
+                    self.validate_variable('RgdMaps', 'EFAS setup: Missing "RgdMaps" file(s).')
+                elif self.get_option('GLOFAS'):
+                    self.validate_variable('RgdMaps', 'GLOFAS setup: Missing "RgdMaps" file(s).')
+                    self.validate_variable('RNMaps', 'GLOFAS setup: Missing "RNMaps" file(s).')
+                elif self.get_option('CORDEX'):
+                    self.validate_variable('PSurfMaps', 'CORDEX setup: Missing "PSurfMaps" file(s).')
+                    self.validate_variable('QAirMaps', 'CORDEX setup: Missing "QAirMaps" file(s).')
+                    self.validate_variable('RdsMaps', 'CORDEX setup: Missing "RdsMaps" file(s).')
+                    if self.get_unit_conversion('RdsMaps') is None:
+                        self.issues_list.append('CORDEX setup: Variable "RdsMaps" is expected to have a conversion factor of 86400.')
+                    self.validate_variable('RdlMaps', 'CORDEX setup: Missing "RdlMaps" file(s).')
+                    if self.get_unit_conversion('RdlMaps') is None:
+                        self.issues_list.append('CORDEX setup: Variable "RdlMaps" is expected to have a conversion factor of 86400.')
+                    self.validate_variable('RusMaps', 'CORDEX setup: Missing "RusMaps" file(s).')
+                    if self.get_unit_conversion('RusMaps') is None:
+                        self.issues_list.append('CORDEX setup: Variable "RusMaps" is expected to have a conversion factor of 86400.')
+                    self.validate_variable('RulMaps', 'CORDEX setup: Missing "RulMaps" file(s).')
+                    if self.get_unit_conversion('RulMaps') is None:
+                        self.issues_list.append('CORDEX setup: Variable "RulMaps" is expected to have a conversion factor of 86400.')
             # ###############################################
             # Check constants
             # ###############################################
