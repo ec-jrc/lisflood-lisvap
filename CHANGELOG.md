@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 
 
+## v1.4.1 (2026-05-05)
+--------------------------------------------------------------------------------
+- Add option to use Hargreaves equation to calculate evapotranspiration
+
 ## v1.4.0 (2026-01-23)
 --------------------------------------------------------------------------------
 - Remove pcraster from the code
