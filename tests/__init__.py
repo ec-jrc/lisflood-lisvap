@@ -89,6 +89,10 @@ class TestLis(object):
             'et': os.path.join(current_dir, 'data/reference/rel_humidity_360_cal/et'),
             'tair': os.path.join(current_dir, 'data/reference/rel_humidity_360_cal/tair'),
         },
+        'hargreaves': {
+            'et': os.path.join(current_dir, 'data/reference/hargreaves/et'),
+            'tair': os.path.join(current_dir, 'data/reference/hargreaves/tair'),
+        },
     }
     domain = None
     settings_path = None

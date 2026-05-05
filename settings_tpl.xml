@@ -140,6 +140,12 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="useTDewMaps" choice="1"/>
         <setoption name="useWindUVMaps" choice="1"/>
         <setoption name="useRelHumidityMaps" choice="1"/>
+        <setoption name="useHargreaves" choice="0">
+            <comment>
+                Use Hargreaves method for ET0 calculation instead of Penman-Monteith.
+                When enabled, only TMax and TMin are required (no wind, humidity, or radiation data).
+            </comment>
+        </setoption>
     </lfoptions>
 
     <lfconversions>

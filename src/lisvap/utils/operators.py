@@ -20,16 +20,33 @@ def cos(angle_degrees):
 def tan(angle_degrees):
     return np.tan(np.deg2rad(round_decimals(angle_degrees)))
 
-def asin(x):
+def asin(x, in_degrees=True, positive_angles=True):
     clip_x = x.copy()
     clip_x[(clip_x < -1) | (clip_x > 1)] = np.nan
     angle_rads = np.arcsin(clip_x)
-    # To reproduce the same behaviour as pcraster asin function
-    # we need to return positive angles therefore for negative angle
-    # in radians we need to rotate in the positive radian direction 
-    angle_rads[angle_rads < 0.0] += 2 * np.pi
-    angle_degrees = round_decimals(np.rad2deg(angle_rads))
-    return angle_degrees
+    if positive_angles:
+        # To reproduce the same behaviour as pcraster asin function
+        # we need to return positive angles therefore for negative angle
+        # in radians we need to rotate in the positive radian direction 
+        angle_rads[angle_rads < 0.0] += 2 * np.pi
+    if in_degrees:
+        angle_degrees = round_decimals(np.rad2deg(angle_rads))
+        return angle_degrees
+    return angle_rads
+
+def acos(x, in_degrees=True, positive_angles=True):
+    clip_x = x.copy()
+    clip_x[(clip_x < -1) | (clip_x > 1)] = np.nan
+    angle_rads = np.arccos(clip_x)
+    if positive_angles:
+        # To reproduce the same behaviour as pcraster acos function
+        # we need to return positive angles therefore for negative angle
+        # in radians we need to rotate in the positive radian direction 
+        angle_rads[angle_rads < 0.0] += 2 * np.pi
+    if in_degrees:
+        angle_degrees = round_decimals(np.rad2deg(angle_rads))
+        return angle_degrees
+    return angle_rads 
 
 def sqrt(x):
     clip_x = x.copy()

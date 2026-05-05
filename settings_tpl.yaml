@@ -83,6 +83,10 @@ operational-parameters:
         useTDewMaps: 1
         useRelHumidityMaps: 1
         useWindUVMaps: 1
+    et-calculation:
+        # Use Hargreaves method for ET0 calculation instead of Penman-Monteith.
+        # When enabled, only TMax and TMin are required (no wind, humidity, or radiation data).
+        useHargreaves: 0
 
 constants:
     # Average solar radiation at top atmosphere [J/m2/s] (I.E.A. 1978)
