@@ -13,10 +13,10 @@ RUN apt-get update && \
 COPY environment.yml /
 RUN conda update -n base -c defaults conda
 # RUN conda create -n lisvap -f /environment.yml
-RUN conda create -n lisvap -c conda-forge -y python=3.8 gdal numpy
+RUN conda create -n lisvap -c conda-forge -y python=3.8 gdal numpy pip
 
 COPY requirements.txt /
-RUN conda run -n lisvap pip install -r /requirements.txt --ignore-installed
+RUN conda run -n lisvap pip install -r /requirements.txt
 
 WORKDIR /
 COPY basemaps/. /basemaps/
