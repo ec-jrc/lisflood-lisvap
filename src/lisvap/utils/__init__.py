@@ -106,6 +106,7 @@ class LisSettings(metaclass=Singleton):
         self.binding = bindings
         self.options = self.get_options(dom)
         self.unit_conversions = self.get_unit_conversions(dom)
+        self.output_configs = self.get_output_configs(dom)
         self.report_steps = self._report_steps(user_settings, bindings)
         self.report_maps_all = self._reported_maps()
         self.set_default_units()
@@ -151,6 +152,13 @@ class LisSettings(metaclass=Singleton):
             var_name = variable_name.lower()
             if var_name in self.unit_conversions:
                 return self.unit_conversions[var_name]
+        return None
+
+    def get_output_config(self, variable_name='', setting_name=''):
+        if variable_name is not None and setting_name is not None:
+            setting_key = f'{variable_name.lower()}_{setting_name}'
+            if setting_key in self.output_configs:
+                return self.output_configs[setting_key]
         return None
 
     def get_binding(self, dom):
@@ -306,6 +314,35 @@ report_maps_all: {report_maps_all}
                 msg = f'Invalid conversion factor for variable {variable_name} in the settings file.'
                 raise LisfloodError(msg)
         return conversion_setting
+
+    @staticmethod
+    def extract_from_output_config_setting(outputconfigset, outputconfig_setting, variable_name, setting_name):
+        try:
+            if setting_name not in outputconfigset.attributes:
+                return outputconfig_setting
+            setting_value = outputconfigset.attributes[setting_name].value.replace(" ", "")
+            if len(setting_value) > 0:
+                outputconfig_setting[f'{str(variable_name).lower()}_{setting_name}'] = float(setting_value)
+        except Exception as e:
+            msg = f'Invalid {setting_name} for variable {variable_name} in the settings file.'
+            raise LisfloodError(msg)
+        return outputconfig_setting
+
+    @staticmethod
+    def get_output_configs(dom):
+        # getting output configuration values for each variable
+        lfoutputconfig_elem = dom.getElementsByTagName('lfoutputconfig')
+        outputconfig_setting = {}
+        if len(lfoutputconfig_elem) == 0: # No conversions defined
+            return outputconfig_setting
+        lfoutputconfig_elem = lfoutputconfig_elem[0]
+        for outputconfigset in lfoutputconfig_elem.getElementsByTagName('setoutputconfig'):
+            variable_name = outputconfigset.attributes['name'].value
+            outputconfig_setting = LisSettings.extract_from_output_config_setting(outputconfigset, outputconfig_setting, variable_name, 'min')
+            outputconfig_setting = LisSettings.extract_from_output_config_setting(outputconfigset, outputconfig_setting, variable_name, 'max')
+            outputconfig_setting = LisSettings.extract_from_output_config_setting(outputconfigset, outputconfig_setting, variable_name, 'scale_factor')
+            outputconfig_setting = LisSettings.extract_from_output_config_setting(outputconfigset, outputconfig_setting, variable_name, 'add_offset')
+        return outputconfig_setting
 
     def existing_files(self, variable_binding):
         if variable_binding not in self.binding:

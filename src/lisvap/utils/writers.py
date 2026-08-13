@@ -236,9 +236,9 @@ def create_new_netcdf(settings, prefix, netfile, ncols, nrows, time_variable, st
     value.standard_name = value_standard_name
     value.long_name = value_long_name
     value.units = value_unit
-    value.valid_min = int(value_min / scale_factor)
+    value.valid_min = int((value_min - add_offset) / scale_factor)
     if value_max != nan_value:
-        value.valid_max = int(value_max / scale_factor)
+        value.valid_max = int((value_max - add_offset) / scale_factor)
     value.scale_factor = scale_factor
     value.add_offset = add_offset
     value.missing_value = nan_value

@@ -282,6 +282,39 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         </setconversion>
     </lfconversions>
 
+    <lfoutputconfig>
+        <comment>
+            **************************************************************
+            OVERRIDE NETCDF OUTPUT VARIABLES DEFAULT CONFIG VALUES
+            **************************************************************
+        </comment>
+
+        <setoutputconfig name="E0Maps" min="0" max="50" scale_factor="0.01" add_offset="0.0">
+            <comment>
+                Limit of daily reference evaporation (free water) [mm/day]
+            </comment>
+        </setoutputconfig>
+
+        <setoutputconfig name="ES0Maps" min="0" max="50" scale_factor="0.01" add_offset="0.0">
+            <comment>
+                Limit of daily reference evaporation (soil) [mm/day]
+            </comment>
+        </setoutputconfig>
+
+        <setoutputconfig name="ET0Maps" min="0" max="50" scale_factor="0.01" add_offset="0.0">
+            <comment>
+                Limit of daily reference evapotranspiration (crop) [mm/day]
+            </comment>
+        </setoutputconfig>
+
+        <setoutputconfig name="TAvgMaps" min="-60" max="60" scale_factor="0.1" add_offset="0.0">
+            <comment>
+                Limit of average daily temperature
+                Units: [K] if "TemperatureInKelvinFlag" is on, else [C].
+            </comment>
+        </setoutputconfig>
+    </lfoutputconfig>
+
 
     <lfbinding>
         <!--

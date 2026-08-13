@@ -285,6 +285,14 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         </setconversion>
     </lfconversions>
 
+    <lfoutputconfig>
+        <comment>
+            **************************************************************
+            OVERRIDE NETCDF OUTPUT VARIABLES DEFAULT CONFIG VALUES
+            **************************************************************
+        </comment>
+    </lfoutputconfig>
+
 
     <lfbinding>
         <!--

@@ -66,16 +66,26 @@ class OutputMap(object):
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
 
+                min_value = self.settings.get_output_config(current_report_map.name, 'min')
+                max_value = self.settings.get_output_config(current_report_map.name, 'max')
+                scale_factor = self.settings.get_output_config(current_report_map.name, 'scale_factor')
+                add_offset = self.settings.get_output_config(current_report_map.name, 'add_offset')
+
+                value_min = min_value if min_value is not None else current_report_map.value_min
+                value_max = max_value if max_value is not None else current_report_map.value_max
+                value_scale_factor = scale_factor if scale_factor is not None else current_report_map.scale_factor
+                value_add_offset = add_offset if add_offset is not None else current_report_map.add_offset
+
                 writenet(current_output_index, what, where,
                          self.var.currentTimeStep(),
                          current_report_map.standard_name,
                          current_report_map.output_var,
                          current_report_map.unit, data_type,
                          self.var.calendar_day_start, flag_time=flag_time,
-                         scale_factor=current_report_map.scale_factor,
-                         add_offset=current_report_map.add_offset,
-                         value_min=current_report_map.value_min,
-                         value_max=current_report_map.value_max)
+                         scale_factor=value_scale_factor,
+                         add_offset=value_add_offset,
+                         value_min=value_min,
+                         value_max=value_max)
 
         # if reportstep than increase the counter
         if self.var.currentTimeStep() in self.var.ReportSteps:
