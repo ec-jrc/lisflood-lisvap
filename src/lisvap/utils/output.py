@@ -43,8 +43,10 @@ class OutputMap(object):
         # Compute the reference NaN count from the DEM.
         # The DEM (loaded via loadmap) is a masked array in the cut domain.
         # Masked cells (mask=True) correspond to NaN. We count NaN in the filled representation.
-        dem_data = self.var.Dem.filled(np.nan)
-        self._dem_nan_count = int(np.count_nonzero(np.isnan(dem_data)))
+        self._validate_nan = not self.settings.get_option('ignore_nan_validation')
+        if self._validate_nan:
+            dem_data = self.var.Dem.filled(np.nan)
+            self._dem_nan_count = int(np.count_nonzero(np.isnan(dem_data)))
 
     def _check_nan_consistency(self, output_map, variable_name, output_file, timestep):
         """
@@ -88,9 +90,10 @@ class OutputMap(object):
                 # checks if saved at same place, if no: add to list
 
                 # Validate NaN consistency against DEM before writing
-                self._check_nan_consistency(
-                    what, current_report_map.output_var, where, self.var.currentTimeStep()
-                )
+                if self._validate_nan:
+                    self._check_nan_consistency(
+                        what, current_report_map.output_var, where, self.var.currentTimeStep()
+                    )
 
                 writenet(current_output_index, what, where,
                          self.var.currentTimeStep(),
