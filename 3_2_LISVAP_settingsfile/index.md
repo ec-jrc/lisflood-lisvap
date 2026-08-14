@@ -262,6 +262,8 @@ The table below lists all currently implemented options and their respective def
 | output6hourly             | Outputs 4 maps per day corresponding each to 6 hours of evapotranspiration.                                | False   |
 | splitOutput               | Sets Lisvap to output multiple evapotranspiration maps separated by time period.                           | False   |
 | monthlyOutput             | Sets the time period for the splitOutput. Monthly if True or Yearly if False (default).                    | False   |
+| ignore_nan_validation     | Ignores the output validation of the quantity of NaN values against the ones from the DEM.                 | False   |
+
 
 [^1]: When setting up Lisvap to calculate evapotranspiration using Hargreaves equation, only $T_{max}$ and $T_{min}$ are necessary.
 [^2]: Note that EFAS, GLOFAS and CORDEX are mutually-exclusive flags. If all the three flags are true, the EFAS flag has precedence; if both GLOFAS and CORDEX flags are true, the GLOFAS flag has the precedence.
@@ -285,6 +287,8 @@ These options all act as switches (1= on,  0=off). The panel below shows an exam
         <setoption name="EFAS" choice="0" />
         <setoption name="GLOFAS" choice="1" />
         <setoption name="CORDEX" choice="0" />
+        
+        <setoption name="ignore_nan_validation" choice="0" />
     
         <setoption name="useTDewMaps" choice="1"/>
         <setoption name="useRelHumidityMaps" choice="0" />
