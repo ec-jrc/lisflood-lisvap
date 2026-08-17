@@ -9,6 +9,7 @@ defaults = {
     'repet0maps': True, 'repes0maps': True, 'repe0maps': True, 'reptavgmaps': True,
     'efas': True, 'cordex': False, 'glofas': False, 'output6hourly': False, 'splitinput': False,
     'splitoutput': False, 'monthlyOutput': False,
+    'ignore_nan_validation': False,
     'reportedmaps': [
         ReportedMap(name='ET0Maps', output_var='ETRef', unit='mm/day', all='repET0Maps', restrictoption='', standard_name='water_evapotranspiration_flux', scale_factor=0.01, add_offset=0.0, value_min=0, value_max=50),
         ReportedMap(name='E0Maps', output_var='EWRef', unit='mm/day', all='repE0Maps', restrictoption='', standard_name='water_potential_evaporation_flux', scale_factor=0.01, add_offset=0.0, value_min=0, value_max=50),

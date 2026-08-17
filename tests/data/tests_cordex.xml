@@ -239,6 +239,8 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="GLOFAS" choice="0" />
         <setoption name="CORDEX" choice="1" />
 
+        <setoption name="ignore_nan_validation" choice="1" />
+
         <setoption name="useTAvg" choice="0" />
         <setoption name="useTDewMaps" choice="0" />
         <setoption name="useRelHumidityMaps" choice="0" />
