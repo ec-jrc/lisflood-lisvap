@@ -40,7 +40,30 @@ class OutputMap(object):
     def initial(self):
         """ initial part of the output module
         """
-        pass
+        # Compute the reference NaN count from the DEM.
+        # The DEM (loaded via loadmap) is a masked array in the cut domain.
+        # Masked cells (mask=True) correspond to NaN. We count NaN in the filled representation.
+        self._validate_nan = not self.settings.get_option('ignore_nan_validation')
+        if self._validate_nan:
+            dem_data = self.var.Dem.filled(np.nan)
+            self._dem_nan_count = int(np.count_nonzero(np.isnan(dem_data)))
+
+    def _check_nan_consistency(self, output_map, variable_name, output_file, timestep):
+        """
+        Check that the output map contains the same number of NaN values as the DEM.
+        If not, raise a LisfloodError indicating the variable, file, and timestep with the mismatch.
+        """
+        map_data = output_map.filled(np.nan)
+        output_nan_count = int(np.count_nonzero(np.isnan(map_data)))
+
+        if output_nan_count != self._dem_nan_count:
+            msg = (
+                f'NaN consistency check failed for output variable "{variable_name}" '
+                f'in file "{output_file}" at timestep {timestep}.\n'
+                f'Expected {self._dem_nan_count} NaN cells (from DEM) but found '
+                f'{output_nan_count} NaN cells in the output map.'
+            )
+            raise LisfloodError(msg)
 
     def dynamic(self):
         """ dynamic part of the output module
@@ -65,6 +88,12 @@ class OutputMap(object):
             if where not in checkifdouble:
                 checkifdouble.append(where)
                 # checks if saved at same place, if no: add to list
+
+                # Validate NaN consistency against DEM before writing
+                if self._validate_nan:
+                    self._check_nan_consistency(
+                        what, current_report_map.output_var, where, self.var.currentTimeStep()
+                    )
 
                 writenet(current_output_index, what, where,
                          self.var.currentTimeStep(),

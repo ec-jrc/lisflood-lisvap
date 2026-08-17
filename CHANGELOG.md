@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 
 
 
+## v1.4.2 (2026-08-17)
+--------------------------------------------------------------------------------
+- Validate the amount of NaN values corresponds to the ones on the DEM.
+- Add option ignore_nan_validation to the settings to ignore the validation.
+
 ## v1.4.1 (2026-05-05)
 --------------------------------------------------------------------------------
 - Add option to use Hargreaves equation to calculate evapotranspiration

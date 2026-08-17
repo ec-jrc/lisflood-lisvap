@@ -136,6 +136,8 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
         <setoption name="CORDEX" choice="0"/>
         <setoption name="GLOFAS" choice="1"/>
 
+        <setoption name="ignore_nan_validation" choice="0" />
+
         <setoption name="useTAvg" choice="1"/>
         <setoption name="useTDewMaps" choice="1"/>
         <setoption name="useWindUVMaps" choice="1"/>
