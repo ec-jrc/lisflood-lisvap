@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: LISVAP - evapotranspiration and evaporation pre-processor for the LISFLOOD model
+message: "If you use this software, please cite it using the information below."
+
+type: software
+
+authors:
+  - family-names: Gomes
+    given-names: Gonçalo
+    orcid: https://orcid.org/0000-0001-8536-6623
+    affiliation: Joint Research Centre
+
+  - family-names: Russo
+    given-names: Carlo
+    orcid: https://orcid.org/0000-0001-8296-4345
+    affiliation: Joint Research Centre
+
+  - family-names: Nappo
+    given-names: Domenico
+    affiliation: AM-FLOW
+
+  - family-names: Lorini
+    given-names: Valerio
+    orcid: https://orcid.org/0000-0003-2148-5476
+    affiliation: European Parliament
+
+  - family-names: Gelati
+    given-names: Emiliano
+    orcid: https://orcid.org/0000-0002-8972-8561
+    affiliation: Norwegian Water Resources and Energy Directorate
+
+repository-code: https://github.com/ec-jrc/lisflood-lisvap

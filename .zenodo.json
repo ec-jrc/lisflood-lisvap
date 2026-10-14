@@ -1,0 +1,31 @@
+{
+  "title": "ec-jrc/lisflood-lisvap: LISVAP - evapotranspiration and evaporation pre-processor for the LISFLOOD model",
+  "description": "LISVAP is a model that produces evaporation timeseries maps to be used as input to water balance/flood simulation models. Reference values for potential evapotranspiration and evaporation are estimated using the Penman-Monteith equation. It is part of the Lisflood Open Source model developed by the Joint Research Centre (JRC) of the European Commission.",
+  "creators": [
+    {
+      "name": "Gomes, Gonçalo",
+      "affiliation": "Joint Research Centre",
+      "orcid": "0000-0001-8536-6623"
+    },
+    {
+      "name": "Russo, Carlo",
+      "affiliation": "Joint Research Centre",
+      "orcid": "0000-0001-8296-4345"
+    },
+    {
+      "name": "Nappo, Domenico",
+      "affiliation": "AM-FLOW"
+    },
+    {
+      "name": "Lorini, Valerio",
+      "affiliation": "European Parliament",
+      "orcid": "0000-0003-2148-5476"
+    },
+    {
+      "name": "Gelati, Emiliano",
+      "affiliation": "Norwegian Water Resources and Energy Directorate",
+      "orcid": "0000-0002-8972-8561"
+    }
+  ],
+  "upload_type": "software"
+}
