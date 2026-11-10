@@ -190,6 +190,9 @@ class LisvapModelDyn(DynamicModel):
         if settings.get_option('useHargreaves'):
             # Use Hargreaves equation (simpler, only needs temperature data)
             self.evapotranspiration_using_hargreaves()
+        # Or Oudin 2005
+        elif settings.get_option('useOudin'):
+            self.evapotranspiration_using_oudin()
         else:
             # Use Penman-Monteith equation (full method)
             self.evapotranspiration_using_penman_monteith()
@@ -302,3 +305,52 @@ class LisvapModelDyn(DynamicModel):
         # In practice, these could use different coefficients if needed
         self.ESRef = self.ETRef
         self.EWRef = self.ETRef
+
+
+    def evapotranspiration_using_oudin(self):
+        """
+        Calculate ET0, ES0, E0 using the Oudin equation.
+
+        Oudin et al. (2005) temperature-based potential evapotranspiration:
+
+            PE = Ra / (lambda * rho_w) * (Tmean + 5) / 100   if (Tmean + 5) > 0
+            PE = 0                                            otherwise
+
+        where
+            Ra      = extra-terrestrial (Angot) radiation [MJ/m2/day]
+            lambda  = latent heat of vaporization (~2.45 MJ/kg)
+            rho_w   = density of water (1000 kg/m3)
+
+        Using Ra_mm = Ra * 0.408 (i.e. Ra / lambda / rho_w expressed as an
+        equivalent depth of water, the FAO 1/2.45 factor), the formula reduces
+        to:
+
+            PE = Ra_mm * (Tmean + 5) / 100   [mm/day]
+
+        It is a temperature-based method (only Tmean is required). The original
+        Oudin formulation is an adjusted McGuinness-Bordne model; the coefficient
+        100 in the denominator replaces the original 68 so the method is tuned for
+        the reference crop (Oudin et al., 2005).
+
+        As the method does not distinguish between surfaces, the same PE value is
+        used for the reference vegetation canopy (ET0), bare soil (ES0) and open
+        water (E0).
+        """
+        # Mean daily air temperature [deg C]
+        # TAvg is always set in read_temperature (directly, or as 0.5*(TMin+TMax))
+        tmean = self.TAvg
+
+        # Extra-terrestrial (Angot) radiation [J/m2/day]
+        Ra = self.angot_radiation()
+        # Convert J/m2/day -> MJ/m2/day (/1e6) and MJ/m2/day -> mm/day (*0.408 = 1/2.45)
+        Ra_mm = Ra * 0.408 / self.MJtoJ
+
+        # Oudin temperature term; set to 0 where (Tmean + 5) <= 0
+        temp_term = maximum(tmean + 5.0, 0.0)
+
+        # Potential evapotranspiration [mm/day]; cannot be negative by construction
+        self.ETRef = Ra_mm * temp_term / 100.0
+        # Oudin does not differentiate between surfaces
+        self.ESRef = self.ETRef
+        self.EWRef = self.ETRef
+

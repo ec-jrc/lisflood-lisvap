@@ -87,6 +87,10 @@ operational-parameters:
         # Use Hargreaves method for ET0 calculation instead of Penman-Monteith.
         # When enabled, only TMax and TMin are required (no wind, humidity, or radiation data).
         useHargreaves: 0
+        # Use Oudin (2005) temperature-based method for ET0 calculation instead of Penman-Monteith.
+        # When enabled, only mean air temperature is required (no wind, humidity, or radiation data).
+        # Cannot be combined with useHargreaves.
+        useOudin: 0
 
 constants:
     # Average solar radiation at top atmosphere [J/m2/s] (I.E.A. 1978)

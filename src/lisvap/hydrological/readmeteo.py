@@ -99,8 +99,8 @@ class ReadMeteo(object):
         # ************************************************************
         self.read_temperature()
 
-        if self.settings.get_option('useHargreaves'):
-            return # skip reading other variables if Hargreaves method is used since it needs only temperature data
+        if self.settings.get_option('useHargreaves') or self.settings.get_option('useOudin'):
+            return # skip reading other variables if Hargreaves or Oudin method is used since it needs only temperature data
 
         self.read_windspeed()
 

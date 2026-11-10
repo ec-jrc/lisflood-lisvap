@@ -148,6 +148,14 @@ You can use $(SettingsDir) or $(SettingsPath) to refer directory containing the 
                 When enabled, only TMax and TMin are required (no wind, humidity, or radiation data).
             </comment>
         </setoption>
+        <setoption name="useOudin" choice="0">
+            <comment>
+                Use Oudin (2005) temperature-based method for ET0 calculation instead of Penman-Monteith.
+                When enabled, only mean air temperature is required (no wind, humidity, or radiation data).
+                Can be combined with useTAvg to read TAvg directly, or with TMax/TMin (TAvg is then derived).
+                Cannot be combined with useHargreaves.
+            </comment>
+        </setoption>
     </lfoptions>
 
     <lfconversions>
