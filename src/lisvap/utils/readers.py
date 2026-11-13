@@ -18,6 +18,68 @@ __DECIMAL_FORMAT = '{:.20f}'
 getcontext().prec = __DECIMAL_CASES
 
 
+# Cache of input time axes, keyed by the resolved input file path. For each open
+# input netCDF file we store the decoded time coordinate array (t_steps) together
+# with the resolved calendar configuration (t_unit, t_cal). netcdf_step() is called
+# once per input variable per timestep across the whole simulation and previously
+# re-read and re-decoded nf1.variables['time'][:] (and the calendar attributes) on
+# every single call. The time axis of an input file does not change during a run,
+# so reading/decoding it once per file and reusing it is value-identical and
+# eliminates the repeated hot-path I/O (Phase B optimization).
+#
+# Keying by file path (nf1.filepath()) is safe and robust: readnetcdf() opens a
+# fresh, short-lived Dataset on every call and closes it immediately, so the Dataset
+# object identity cannot be used as a key. The path is stable, and split-I/O runs
+# that advance to the next file naturally get a different key (and thus a fresh
+# re-read) because the filename differs. The cache is cleared at the end of each run
+# (see clear_input_time_axis_cache, wired into lisvap1.lisvapexe) so entries never
+# leak between separate runs executed in the same process (e.g. a pytest session).
+__INPUT_TIME_AXIS_CACHE__ = {}
+
+
+def clear_input_time_axis_cache():
+    """
+    Clear the per-file input time-axis cache.
+
+    Called once at the end of a run (see lisvap1.lisvapexe) so cached time axes do
+    not leak between separate model runs executed in the same process. This keeps
+    timestep selection correct even if a later run legitimately reuses an input
+    file path (the cached array would be value-identical anyway, but clearing keeps
+    memory bounded and avoids any cross-run assumptions).
+    """
+    __INPUT_TIME_AXIS_CACHE__.clear()
+
+
+def _get_cached_time_axis(nf1, settings):
+    """
+    Return (t_steps, t_unit, t_cal) for the open input file ``nf1``, reading and
+    decoding the time coordinate and calendar configuration at most once per file.
+
+    The result is cached on the resolved file path so subsequent timesteps reuse the
+    already-decoded time axis instead of re-reading nf1.variables['time'][:] every
+    call. The returned t_steps is value-identical to nf1.variables['time'][:], so the
+    timestep index selected downstream is bit-identical to the un-cached behaviour.
+    """
+    try:
+        cache_key = nf1.filepath()
+    except Exception:
+        # If the backend does not expose a stable path, fall back to no caching so
+        # behaviour is identical to reading the time axis directly every call.
+        cache_key = None
+
+    if cache_key is not None:
+        cached = __INPUT_TIME_AXIS_CACHE__.get(cache_key)
+        if cached is not None:
+            return cached
+
+    t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
+    t_unit, t_cal, _ = get_calendar_configuration(nf1, settings)
+
+    if cache_key is not None:
+        __INPUT_TIME_AXIS_CACHE__[cache_key] = (t_steps, t_unit, t_cal)
+    return t_steps, t_unit, t_cal
+
+
 def loadsetclone(name):
     """ Load 'MaskMap' and set as clone
 
@@ -133,9 +195,16 @@ def loadmap(name):
             mv = 0
         # mapnp[np.isnan(mapnp)] = mv
         maskmap = MaskMapMetadata.instance().get_maskmap()
+        # Cast to float64 so NaN can be stored (integer source maps cannot hold NaN) and so
+        # downstream arithmetic matches the previous float64 precision. The raw netCDF read
+        # carries the variable's _FillValue cells as a numpy.ma mask; materialize that mask as
+        # NaN here (np.ma.filled on the masked array directly, before np.asarray would strip it)
+        # so missing cells become NaN rather than leaking the -9999 fill value downstream.
+        mapnp = np.ma.filled(mapnp.astype(np.float64), np.nan)
         mapnp[np.isnan(mapnp)] = np.nan
         mapnp[maskmap.mask] = np.nan
-        res = np.ma.masked_array(mapnp.flatten().reshape(maskmap.shape), mask=maskmap.mask, fill_value=np.nan)
+        # Return a plain float64 ndarray carrying NaN in missing cells (mask applied once here).
+        res = mapnp.flatten().reshape(maskmap.shape)
 
         # if the map is a ldd
         if value.split('.')[0][-3:] == 'ldd':
@@ -289,12 +358,21 @@ def readnetcdf(name, timestep, timestampflag='closest', averageyearflag=False, v
     if settings.flags['checkfiles']:
         checkmap(timename, filename, mapnp, True, 1)
     maskmap = MaskMapMetadata.instance().get_maskmap()
+    # The raw netCDF read carries the variable's _FillValue cells as a numpy.ma mask
+    # (set_auto_maskandscale is on by default). Materialize that mask as NaN on a plain
+    # float64 array so missing cells become NaN rather than leaking the -9999 fill value
+    # into the hot path. np.ma.filled must be applied to the masked array directly, before
+    # casting to a plain ndarray, otherwise np.asarray would expose the raw fill values.
+    mapnp = np.ma.filled(mapnp.astype(np.float64), np.nan)
     mapnp[np.isnan(mapnp)] = np.nan
     mapnp[maskmap.mask] = np.nan
     conversion_factor = settings.get_unit_conversion(variable_binding)
     if conversion_factor is not None and conversion_factor != 1:
         mapnp = mapnp * conversion_factor
-    return np.ma.masked_array(mapnp.flatten().reshape(maskmap.shape), mask=maskmap.mask, fill_value=np.nan)
+    # Return a plain float64 ndarray carrying NaN in missing cells. The mask is applied
+    # exactly once here at the read boundary; downstream math runs on plain float64.
+    result = np.asarray(mapnp, dtype=np.float64).flatten().reshape(maskmap.shape)
+    return result
 
 
 def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):
@@ -309,9 +387,12 @@ def netcdf_step(averageyearflag, nf1, timestampflag, timestep, splitIO=False):
     :return: current_ncdf_index
     :rtype: int
     """
-    t_steps = nf1.variables['time'][:]  # get values for timesteps ([  0.,  24.,  48.,  72.,  96.])
     settings = LisSettings.instance()
-    t_unit, t_cal, _ = get_calendar_configuration(nf1, settings)
+    # Read/decode the time axis (and calendar config) at most once per open file.
+    # The cached t_steps is value-identical to nf1.variables['time'][:], so the
+    # closest/exact matching and the np.where(...) index selection below are
+    # completely unchanged.
+    t_steps, t_unit, t_cal = _get_cached_time_axis(nf1, settings)
 
     # get date of current simulation step
     current_date = get_current_date(timestep)

@@ -147,13 +147,50 @@ class TestLis(object):
         reference = readnetcdf(reference_nc, step, variable_name=var)
         current_output = readnetcdf(output_nc, step, variable_name=var)
         same_size = reference.shape == current_output.shape
-        diff_values = np.abs(reference - current_output)
 
-        same_values = np.allclose(diff_values, np.zeros(diff_values.shape), atol=cls.atol)
-        all_ok = same_size and same_values
+        # --- numpy-2 masked-array / np.isclose compatibility ------------------
+        # `readnetcdf` returns numpy.ma MaskedArrays whose masked (missing) cells
+        # also carry NaN in the underlying data. Under numpy 2.x, arithmetic and
+        # np.isclose over the masked/NaN cells no longer collapse to a scalar the
+        # way the pre-2.0 code assumed: `np.isclose(nan, 0)` is False, so every
+        # masked/NaN cell (here ~336k of them) was being counted as a "wrong"
+        # value (~35% wrong) even though the real data differs in only a handful
+        # of cells by one int16 quantization unit. The percent-wrong gate must
+        # therefore reflect ONLY genuine numeric differences on cells that are
+        # finite (not NaN, not masked) in BOTH the reference and the output.
+        # We also explicitly detect mask divergence (missing cells that do not
+        # line up between reference and output) and treat it as a failure rather
+        # than silently excluding those cells.
+        ref_filled = np.ma.filled(reference, np.nan)
+        out_filled = np.ma.filled(current_output, np.nan)
 
+        ref_valid = np.isfinite(ref_filled)
+        out_valid = np.isfinite(out_filled)
+
+        # Mask divergence: the set of missing/NaN cells must match between the
+        # reference and the output. If it does not, this is a genuine failure.
+        mask_divergence = same_size and not np.array_equal(ref_valid, out_valid)
+
+        if same_size:
+            valid_both = ref_valid & out_valid
+            diff_values = np.where(valid_both, np.abs(ref_filled - out_filled), 0.0)
+            valid_count = int(np.count_nonzero(valid_both))
+        else:
+            valid_both = None
+            diff_values = np.abs(np.ma.filled(reference - current_output, np.nan))
+            valid_count = 0
+
+        # Genuine numeric differences only over cells finite in both arrays.
         array_ok = np.isclose(diff_values, np.zeros(diff_values.shape), atol=cls.atol)
-        wrong_values_size = array_ok[~array_ok].size
+        same_values = bool(np.all(array_ok))
+        all_ok = same_size and same_values and not mask_divergence
+
+        # Count wrong cells restricted to the cells finite in both arrays.
+        if valid_both is not None:
+            wrong_mask = valid_both & ~array_ok
+        else:
+            wrong_mask = ~array_ok
+        wrong_values_size = int(np.count_nonzero(wrong_mask))
         
         # Compare the dates
         nf_ref = iter_open_netcdf(f'{reference_nc}.nc', 'r')
@@ -166,10 +203,26 @@ class TestLis(object):
         date_ref = cls.get_current_date(settings, t_unit_ref, t_cal_ref, t_frequency_ref, timestep)
         date_out = cls.get_current_date(settings, t_unit_out, t_cal_out, t_frequency_out, timestep)
 
+        # Explicit mask-divergence failure: missing/NaN cells differ between
+        # reference and output. This is not a numeric-tolerance issue, so report
+        # it directly rather than letting it slip through the percent-wrong gate.
+        if mask_divergence:
+            ref_missing = int(np.count_nonzero(~ref_valid))
+            out_missing = int(np.count_nonzero(~out_valid))
+            print('[ERROR]')
+            print('Var: {} - STEP {}: mask divergence - reference has {} missing cells, '
+                  'output has {} missing cells (missing-cell locations differ)'.format(
+                      var, step, ref_missing, out_missing))
+            return False
+
         if not all_ok and wrong_values_size > 0:
             max_diff = np.max(diff_values)
             large_diff = max_diff > cls.large_diff_th
-            perc_wrong = float(wrong_values_size * 100) / float(diff_values.size)
+            # Denominator is the number of cells finite in BOTH arrays (not the
+            # full grid), so masked/NaN cells do not dilute or inflate the ratio.
+            # Guard against divide-by-zero when there are no valid cells.
+            denom = valid_count if valid_count > 0 else diff_values.size
+            perc_wrong = float(wrong_values_size * 100) / float(denom) if denom > 0 else 0.0
             if perc_wrong >= cls.max_perc_wrong or perc_wrong >= cls.max_perc_wrong_large_diff and large_diff:
                 print('[ERROR]')
                 print('Var: {} - STEP {}: {:3.9f}% of values are different. max diff: {:3.4f}'.format(var, step, perc_wrong, max_diff))

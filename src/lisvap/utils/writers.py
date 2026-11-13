@@ -39,6 +39,31 @@ getcontext().prec = __DECIMAL_CASES
 __DAY_TIMESTEP_STRIDE__ = 86400
 
 
+# Cache of open output netCDF Dataset handles, keyed by resolved netfile path.
+# Handles are kept open across timesteps to avoid reopening/closing each output
+# file once per timestep per variable (Phase B I/O optimization). All handles are
+# closed and the cache cleared at the end of the run via close_all_netcdf_outputs().
+__OPEN_NETCDF_OUTPUTS__ = {}
+
+
+def close_all_netcdf_outputs():
+    """
+    Close every cached open output netCDF handle and clear the cache.
+
+    Called once at the end of a run (see lisvap1.lisvapexe) so that all output
+    files are flushed and closed exactly once. Clearing the cache also prevents
+    handle leakage between separate model runs executed in the same process
+    (e.g. multiple invocations within one pytest session).
+    """
+    for handle in list(__OPEN_NETCDF_OUTPUTS__.values()):
+        try:
+            handle.close()
+        except Exception:
+            # Handle may already be closed; ignore so remaining handles still close.
+            pass
+    __OPEN_NETCDF_OUTPUTS__.clear()
+
+
 def coordinates_range_from_array(coords):
     nelems = len(coords)
     elem_array = [Decimal(0.0)] * nelems
@@ -231,6 +256,11 @@ def create_new_netcdf(settings, prefix, netfile, ncols, nrows, time_variable, st
 
     proj, selected_proj_key = set_projection(nf1, metadata_ncdf)
 
+    # Compress the data variable with zlib level 4. Lisvap output files are large, so
+    # lossless compression is needed to keep them to a manageable size on disk. (The
+    # other Phase B I/O optimizations - keeping the output handle open across timesteps
+    # and caching the input time axis - still apply.) Compression is lossless, so it does
+    # not change any decoded cell value.
     value = nf1.createVariable(prefix, data_type, variable_dims, zlib=True, complevel=4, fill_value=nan_value)
 
     value.standard_name = value_standard_name
@@ -286,17 +316,38 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
     prefix, netfile, output_index = get_output_parameters(settings, netcdf_output_file, start_date, timestep,
                                                           time_frequency, timestep_stride, current_output_index)
 
+    # Keep the output netCDF handle open across timesteps and reuse it, closing
+    # all handles once at the end of the run (see close_all_netcdf_outputs).
+    netfile_key = str(netfile)
+
     # Create and setup the netcdf file when the first map needs to be stored
     if output_index == 0 or not netfile.exists():
+        # A fresh file is being created for this path. Close any stale cached
+        # handle for the same path first (e.g. a previous run, or a split window
+        # that is being recreated) so it is flushed/closed exactly once and not
+        # leaked, then create and cache the new handle.
+        stale = __OPEN_NETCDF_OUTPUTS__.pop(netfile_key, None)
+        if stale is not None:
+            try:
+                stale.close()
+            except Exception:
+                pass
         nf1 = create_new_netcdf(settings, prefix, netfile, ncols, nrows, time_variable, start_date,
                                 value_standard_name, value_long_name, value_unit, data_type,
                                 scale_factor, add_offset, value_min, value_max,
                                 output6hourly, flag_time, nan_value)
+        __OPEN_NETCDF_OUTPUTS__[netfile_key] = nf1
     else:
-        nf1 = Dataset(netfile, 'a')
+        # Reuse the cached open handle for this path. If it is not present (e.g.
+        # appending to a split file first opened in an earlier window that has
+        # since been closed), open it in append mode and cache it.
+        nf1 = __OPEN_NETCDF_OUTPUTS__.get(netfile_key)
+        if nf1 is None:
+            nf1 = Dataset(netfile, 'a')
+            __OPEN_NETCDF_OUTPUTS__[netfile_key] = nf1
 
     slices = cutmap.slices
-    mapnp = inputmap.filled(np.nan)[slices[0], slices[1]]
+    mapnp = np.ma.filled(inputmap, np.nan)[slices[0], slices[1]]
     # Pack NAN values into short
     mapnp[np.isnan(mapnp)] = (nan_value - add_offset) * scale_factor
     if flag_time:
@@ -313,4 +364,6 @@ def writenet(current_output_index, inputmap, netcdf_output_file, current_timeste
             nf1.variables[prefix][output_index, :, :] = mapnp
     else:
         nf1.variables[prefix][:, :] = mapnp
-    nf1.close()
+    # Do NOT close here: the handle is kept open across timesteps and reused.
+    # All cached handles are closed once at the end of the run via
+    # close_all_netcdf_outputs().

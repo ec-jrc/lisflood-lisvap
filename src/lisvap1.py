@@ -35,7 +35,8 @@ import sys
 from lisvap import __date__, __version__
 from lisvap.utils import LisSettings, TimeProfiler, FileNamesManager, usage
 from lisvap.utils.tools import checkdate, DynamicFrame, date2calendar, get_calendar_configuration
-from lisvap.utils.readers import iter_open_netcdf
+from lisvap.utils.readers import iter_open_netcdf, clear_input_time_axis_cache
+from lisvap.utils.writers import close_all_netcdf_outputs
 from lisvap.lisvapdynamic import LisvapModelDyn
 from lisvap.lisvapinitial import LisvapModelIni
 
@@ -80,7 +81,16 @@ def lisvapexe(settings):
 
     lisvap_model = LisvapModel()
     dynfmw = DynamicFrame(lisvap_model, firstTimestep=timestep_start, lastTimeStep=timestep_end)
-    dynfmw.run()
+    try:
+        dynfmw.run()
+    finally:
+        # Output netCDF handles are kept open across timesteps and reused; close
+        # and flush them all exactly once here, even if the run raised, so files
+        # are complete and handles are not leaked between runs.
+        close_all_netcdf_outputs()
+        # Clear the per-file input time-axis cache so cached time axes do not leak
+        # between separate runs executed in the same process (e.g. a pytest session).
+        clear_input_time_axis_cache()
 
     if settings.flags['printtime']:
         tp.report()

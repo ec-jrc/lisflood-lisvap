@@ -45,7 +45,7 @@ class OutputMap(object):
         # Masked cells (mask=True) correspond to NaN. We count NaN in the filled representation.
         self._validate_nan = not self.settings.get_option('ignore_nan_validation')
         if self._validate_nan:
-            dem_data = self.var.Dem.filled(np.nan)
+            dem_data = np.ma.filled(self.var.Dem, np.nan)
             self._dem_nan_count = int(np.count_nonzero(np.isnan(dem_data)))
 
     def _check_nan_consistency(self, output_map, variable_name, output_file, timestep):
@@ -53,7 +53,7 @@ class OutputMap(object):
         Check that the output map contains the same number of NaN values as the DEM.
         If not, raise a LisfloodError indicating the variable, file, and timestep with the mismatch.
         """
-        map_data = output_map.filled(np.nan)
+        map_data = np.ma.filled(output_map, np.nan)
         output_nan_count = int(np.count_nonzero(np.isnan(map_data)))
 
         if output_nan_count != self._dem_nan_count:

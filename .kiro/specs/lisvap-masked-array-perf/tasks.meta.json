@@ -1,0 +1,305 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Write bug condition exploration test + establish before baseline": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399961090
+      },
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399966253
+      },
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794403420948
+      }
+    ],
+    "2. Write preservation property tests (BEFORE implementing fix)": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399961313
+      },
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794403449159
+      },
+      {
+        "executionId": "2d3e201a-5f3d-45ca-8798-72ef58774c2b",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794404039401
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406551795
+      }
+    ],
+    "3.1 Convert the read boundary to plain float64-with-NaN": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399961451
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406003476
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406557634
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794413193720
+      }
+    ],
+    "3.2 Convert the operator layer to plain float64-with-NaN": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399961635
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406003843
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794413196262
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794413715088
+      }
+    ],
+    "3.3 Convert the write boundary and NaN-consistency to plain arrays": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399961959
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406004107
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794413718200
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794417286911
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794467018362
+      }
+    ],
+    "3.4 Verify hot-path consumers need no formula changes": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399962111
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406004225
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794467021202
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794467773272
+      }
+    ],
+    "3.5 Verify bug condition exploration test reflects the fix": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399962258
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406004359
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794467776392
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794468682290
+      }
+    ],
+    "3.6 Verify preservation tests still pass after Phase A": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399962402
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406004484
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794468685090
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794469551039
+      }
+    ],
+    "4.1 Keep the output netCDF handle open across timesteps": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399962531
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406004605
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794469557368
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794471150336
+      }
+    ],
+    "4.2 Reduce/remove compression in create_new_netcdf": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399962662
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406004727
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794471153309
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794471828258
+      }
+    ],
+    "4.3 Cache the input time axis per open file in netcdf_step": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399962779
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406004868
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794471831397
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794472545927
+      }
+    ],
+    "5. Final - Re-profile and run the full domain test matrix": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399962882
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406005004
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794472549059
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794473866384
+      }
+    ],
+    "6. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "bd4050c5-32ed-4303-9e68-16c9888fbbb0",
+        "chatSessionId": "sess_8fad1dcf-051b-4f0e-bb02-bdf28f778ffa",
+        "timestamp": 1794399962981
+      },
+      {
+        "executionId": "fdbe7b87-31c7-4d1e-85bb-94fdc8ddb1e8",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794406005224
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794473869371
+      },
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794474567139
+      }
+    ],
+    "3. Phase A - De-mask the hot path (primary, correctness-critical)": [
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794469551193
+      }
+    ],
+    "4. Phase B - Per-timestep I/O optimizations (secondary, independent)": [
+      {
+        "executionId": "ca31f92b-bf5a-48dd-8983-d473c37ac75c",
+        "chatSessionId": "sess_6e1b85fa-7634-4a7a-8e6e-ad27485a982f",
+        "timestamp": 1794472546048
+      }
+    ]
+  }
+}
